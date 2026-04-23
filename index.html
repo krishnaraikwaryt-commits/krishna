@@ -1,82 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KRISHNA CRM PRO</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="bg-gray-100 p-5">
-    <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
-        <h1 class="text-2xl font-bold mb-5 text-blue-600 text-center">KRISHNA CRM PRO</h1>
-        <form id="lead-form" onsubmit="submitForm(event)" class="space-y-4">
-            <input type="text" id="name" placeholder="Name" class="w-full p-2 border rounded" required>
-            <input type="text" id="phone" placeholder="Phone" class="w-full p-2 border rounded" required>
-            <input type="text" id="service" placeholder="Service" class="w-full p-2 border rounded" required>
-            <button class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 font-bold">Save Lead</button>
-        </form>
-    </div>
+<script>
+        // Tumhari SheetDB Link
+        const SHEETDB_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
 
-    <div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-lg">
-        <h2 class="text-xl font-bold mb-4 text-gray-700 text-center">Lead History</h2>
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="p-2 border">Name</th>
-                    <th class="p-2 border">Service</th>
-                    <th class="p-2 border">Action</th>
-                </tr>
-            </thead>
-            <tbody id="leads-table-body"></tbody>
-        </table>
-    </div>
+        const form = document.getElementById('lead-form');
+        const submitBtn = document.getElementById('submit-btn');
 
-    <script>
-        async function submitForm(e) {
+        // Form Submit: Sheet mein data bhejna
+        form.addEventListener("submit", e => {
             e.preventDefault();
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const service = document.getElementById('service').value;
+            submitBtn.innerText = "Saving...";
+            submitBtn.disabled = true;
 
-            try {
-                await fetch('/api/leads', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ name, phone, service })
-                });
-                document.getElementById('lead-form').reset();
-                loadLeads();
-            } catch (err) { console.error("Error saving lead:", err); }
-        }
+            fetch(SHEETDB_URL, {
+                method : 'POST',
+                body: new FormData(document.getElementById("lead-form")),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Mubarak ho! Lead save ho gayi.");
+                submitBtn.innerText = "SAVE TO SHEET";
+                submitBtn.disabled = false;
+                form.reset();
+                loadLeads(); 
+            })
+            .catch(err => {
+                alert("Error: Sheet se connect nahi ho paya.");
+                submitBtn.innerText = "SAVE TO SHEET";
+                submitBtn.disabled = false;
+            });
+        }); // <-- Ye bracket zaroori tha jo miss ho raha tha
 
+        // Table Load: Sheet se data dikhana
         async function loadLeads() {
             try {
-                const res = await fetch('/leads');
+                const res = await fetch(SHEETDB_URL);
                 const leads = await res.json();
                 const tbody = document.getElementById('leads-table-body');
                 tbody.innerHTML = '';
-                leads.reverse().forEach(l => {
-                    const row = `<tr>
-                        <td class="p-2 border font-medium">${l.name}</td>
-                        <td class="p-2 border text-blue-600">${l.service}</td>
-                        <td class="p-2 border flex gap-3">
-                            <a href="https://wa.me/${l.phone}" target="_blank" class="text-green-500 text-xl"><i class="fab fa-whatsapp"></i></a>
-                            <button onclick="deleteLead('${l.id}')" class="text-red-500"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-                    tbody.innerHTML += row;
+                
+                leads.reverse().slice(0, 10).forEach(l => {
+                    tbody.innerHTML += `
+                        <tr class="border-b hover:bg-gray-50 transition">
+                            <td class="p-2 border text-gray-800 font-medium">${l.Name || 'N/A'}</td>
+                            <td class="p-2 border text-center text-blue-600">${l.Service || 'N/A'}</td>
+                            <td class="p-2 border text-center">
+                                <a href="https://wa.me/${l.Phone}" target="_blank" class="text-green-500 text-xl hover:text-green-600">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </td>
+                        </tr>`;
                 });
-            } catch (err) { console.error("Error loading leads:", err); }
-        }
-
-        async function deleteLead(id) {
-            if(confirm("Delete this lead?")) {
-                await fetch('/leads/' + id, { method: 'DELETE' });
-                loadLeads();
+            } catch (err) {
+                console.error("Data load nahi hua:", err);
             }
         }
+
         window.onload = loadLeads;
     </script>
-</body>
-</html>
