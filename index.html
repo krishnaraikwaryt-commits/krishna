@@ -1,59 +1,98 @@
-<script>
-        // Tumhari SheetDB Link
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KRISHNA CRM PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 p-5">
+
+    <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg border-t-4 border-blue-600">
+        <h1 class="text-2xl font-bold mb-5 text-blue-600 text-center">KRISHNA CRM PRO</h1>
+        <form id="lead-form" class="space-y-4">
+            <input type="text" id="cust_name" placeholder="Customer Name" class="w-full p-2 border rounded" required>
+            <input type="text" id="cust_phone" placeholder="WhatsApp Number" class="w-full p-2 border rounded" required>
+            <input type="text" id="cust_service" placeholder="Service Needed" class="w-full p-2 border rounded" required>
+            <button type="submit" id="submit-btn" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 font-bold">SAVE TO SHEET</button>
+        </form>
+    </div>
+
+    <div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-lg">
+        <h2 class="text-xl font-bold mb-4 text-gray-700 text-center">Recent Leads</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-2 border">Name</th>
+                        <th class="p-2 border">Service</th>
+                        <th class="p-2 border text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="leads-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
         const SHEETDB_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
 
         const form = document.getElementById('lead-form');
         const submitBtn = document.getElementById('submit-btn');
 
-        // Form Submit: Sheet mein data bhejna
-        form.addEventListener("submit", e => {
+        form.addEventListener("submit", async (e) => {
             e.preventDefault();
             submitBtn.innerText = "Saving...";
             submitBtn.disabled = true;
 
-            fetch(SHEETDB_URL, {
-                method : 'POST',
-                body: new FormData(document.getElementById("lead-form")),
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert("Mubarak ho! Lead save ho gayi.");
-                submitBtn.innerText = "SAVE TO SHEET";
-                submitBtn.disabled = false;
-                form.reset();
-                loadLeads(); 
-            })
-            .catch(err => {
-                alert("Error: Sheet se connect nahi ho paya.");
-                submitBtn.innerText = "SAVE TO SHEET";
-                submitBtn.disabled = false;
-            });
-        }); // <-- Ye bracket zaroori tha jo miss ho raha tha
+            const newLead = {
+                data: [{
+                    "Name": document.getElementById('cust_name').value,
+                    "Phone": document.getElementById('cust_phone').value,
+                    "Service": document.getElementById('cust_service').value
+                }]
+            };
 
-        // Table Load: Sheet se data dikhana
+            try {
+                const response = await fetch(SHEETDB_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newLead)
+                });
+                
+                if(response.ok) {
+                    alert("Lead saved successfully!");
+                    form.reset();
+                    loadLeads();
+                }
+            } catch (err) {
+                alert("Connection Error!");
+            } finally {
+                submitBtn.innerText = "SAVE TO SHEET";
+                submitBtn.disabled = false;
+            }
+        });
+
         async function loadLeads() {
             try {
                 const res = await fetch(SHEETDB_URL);
                 const leads = await res.json();
                 const tbody = document.getElementById('leads-table-body');
                 tbody.innerHTML = '';
-                
                 leads.reverse().slice(0, 10).forEach(l => {
                     tbody.innerHTML += `
-                        <tr class="border-b hover:bg-gray-50 transition">
-                            <td class="p-2 border text-gray-800 font-medium">${l.Name || 'N/A'}</td>
-                            <td class="p-2 border text-center text-blue-600">${l.Service || 'N/A'}</td>
+                        <tr class="border-b">
+                            <td class="p-2 border font-medium">${l.Name || ''}</td>
+                            <td class="p-2 border text-blue-600">${l.Service || ''}</td>
                             <td class="p-2 border text-center">
-                                <a href="https://wa.me/${l.Phone}" target="_blank" class="text-green-500 text-xl hover:text-green-600">
-                                    <i class="fab fa-whatsapp"></i>
-                                </a>
+                                <a href="https://wa.me/${l.Phone}" target="_blank" class="text-green-500 text-xl"><i class="fab fa-whatsapp"></i></a>
                             </td>
                         </tr>`;
                 });
-            } catch (err) {
-                console.error("Data load nahi hua:", err);
-            }
+            } catch (err) { console.log(err); }
         }
-
         window.onload = loadLeads;
     </script>
+</body>
+</html>
