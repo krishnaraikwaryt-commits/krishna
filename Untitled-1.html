@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishna CRM Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+    <aside class="hidden md:flex w-64 bg-slate-900 p-6 flex-col space-y-8 border-r border-white/5">
+        <h1 class="text-2xl font-bold text-blue-500 tracking-tight">KRISHNA CRM</h1>
+        <nav class="space-y-4 flex-1">
+            <a href="#" class="flex items-center space-x-3 text-blue-400 font-medium p-2 bg-blue-500/10 rounded-lg"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+            <a href="#" class="flex items-center space-x-3 text-gray-400 hover:text-white p-2 transition"><i class="fas fa-users"></i> <span>All Leads</span></a>
+            <a href="#" class="flex items-center space-x-3 text-gray-400 hover:text-white p-2 transition"><i class="fas fa-calendar-alt"></i> <span>Follow-ups</span></a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-8 space-y-6">
+        <header class="flex justify-between items-center">
+            <h2 class="text-2xl font-bold">Dashboard</h2>
+            <button onclick="toggleModal()" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 text-sm">
+                + ADD NEW LEAD
+            </button>
+        </header>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-blue-500">
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Leads</p>
+                <h3 id="stat-total" class="text-3xl font-black mt-1">0</h3>
+            </div>
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-yellow-500">
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Interested</p>
+                <h3 id="stat-interested" class="text-3xl font-black mt-1 text-yellow-500">0</h3>
+            </div>
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-green-500">
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Closed</p>
+                <h3 id="stat-closed" class="text-3xl font-black mt-1 text-green-500">0</h3>
+            </div>
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-purple-500">
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Avg Score</p>
+                <h3 id="stat-score" class="text-3xl font-black mt-1 text-purple-400">0</h3>
+            </div>
+        </div>
+
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="p-5 border-b border-white/5 flex justify-between items-center">
+                <span class="font-bold text-gray-300">Live Lead Tracker</span>
+                <span class="text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded">Auto-Sync ON</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-white/5 text-gray-400 text-[11px] uppercase tracking-widest">
+                        <tr>
+                            <th class="p-5">Client Details</th>
+                            <th class="p-5">Status</th>
+                            <th class="p-5">Follow-up</th>
+                            <th class="p-5 text-center">Score</th>
+                            <th class="p-5 text-center">Connect</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lead-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="leadModal" class="modal p-4">
+        <div class="glass-card w-full max-w-md p-8 rounded-3xl shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6 text-blue-400">Add New Lead</h2>
+            <form id="leadForm" class="space-y-4">
+                <input type="text" id="name" placeholder="Customer Name" class="w-full bg-slate-800 border border-white/10 p-3 rounded-xl focus:border-blue-500 outline-none" required>
+                <input type="text" id="phone" placeholder="WhatsApp Number" class="w-full bg-slate-800 border border-white/10 p-3 rounded-xl focus:border-blue-500 outline-none" required>
+                <select id="status" class="w-full bg-slate-800 border border-white/10 p-3 rounded-xl focus:border-blue-500 outline-none">
+                    <option value="New">New Lead</option>
+                    <option value="Interested">Interested</option>
+                    <option value="Follow-up">Follow-up</option>
+                    <option value="Closed">Closed Deal</option>
+                </select>
+                <input type="date" id="fdate" class="w-full bg-slate-800 border border-white/10 p-3 rounded-xl focus:border-blue-500 outline-none">
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="toggleModal()" class="flex-1 text-gray-400 font-bold p-3">Cancel</button>
+                    <button type="submit" class="flex-1 bg-blue-600 rounded-xl font-bold p-3 shadow-lg shadow-blue-500/30">Save Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('leadModal');
+        const leadForm = document.getElementById('leadForm');
+        
+        function toggleModal() { modal.classList.toggle('active'); }
+
+        leadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const status = document.getElementById('status').value;
+            
+            // Lead Scoring Logic
+            let score = 5;
+            if(status === 'Interested') score = 10;
+            if(status === 'Follow-up') score = 7;
+            if(status === 'Closed') score = 15;
+
+            const newLead = {
+                id: Date.now(),
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                status: status,
+                fdate: document.getElementById('fdate').value,
+                score: score
+            };
+
+            const leads = JSON.parse(localStorage.getItem('crmLeads') || '[]');
+            leads.push(newLead);
+            localStorage.setItem('crmLeads', JSON.stringify(leads));
+
+            toggleModal();
+            leadForm.reset();
+            renderLeads();
+        });
+
+        function renderLeads() {
+            const leads = JSON.parse(localStorage.getItem('crmLeads') || '[]');
+            const list = document.getElementById('lead-list');
+            list.innerHTML = '';
+
+            let totalScore = 0;
+            let interested = 0;
+            let closed = 0;
+
+            leads.reverse().forEach(l => {
+                totalScore += l.score;
+                if(l.status === 'Interested') interested++;
+                if(l.status === 'Closed') closed++;
+
+                list.innerHTML += `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition group">
+                        <td class="p-5">
+                            <div class="font-bold text-white">${l.name}</div>
+                            <div class="text-xs text-gray-500">${l.phone}</div>
+                        </td>
+                        <td class="p-5">
+                            <span class="px-2 py-1 rounded-md text-[10px] font-black uppercase ${getStatusClass(l.status)}">${l.status}</span>
+                        </td>
+                        <td class="p-5 text-sm text-gray-400 font-medium">${l.fdate || '--'}</td>
+                        <td class="p-5 text-center font-black text-blue-400">${l.score}</td>
+                        <td class="p-5">
+                            <div class="flex justify-center space-x-4">
+                                <a href="https://wa.me/91${l.phone}" target="_blank" class="text-green-500 hover:scale-125 transition"><i class="fab fa-whatsapp text-lg"></i></a>
+                                <button onclick="deleteLead(${l.id})" class="text-red-500/40 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+            });
+
+            // Update Stats
+            document.getElementById('stat-total').innerText = leads.length;
+            document.getElementById('stat-interested').innerText = interested;
+            document.getElementById('stat-closed').innerText = closed;
+            document.getElementById('stat-score').innerText = leads.length ? (totalScore / leads.length).toFixed(1) : 0;
+        }
+
+        function getStatusClass(s) {
+            if(s === 'Interested') return 'bg-yellow-500/10 text-yellow-500';
+            if(s === 'Closed') return 'bg-green-500/10 text-green-500';
+            if(s === 'Follow-up') return 'bg-purple-500/10 text-purple-500';
+            return 'bg-blue-500/10 text-blue-500';
+        }
+
+        window.deleteLead = (id) => {
+            let leads = JSON.parse(localStorage.getItem('crmLeads') || '[]');
+            leads = leads.filter(l => l.id !== id);
+            localStorage.setItem('crmLeads', JSON.stringify(leads));
+            renderLeads();
+        }
+
+        window.onload = renderLeads;
+    </script>
+</body>
+</html>
