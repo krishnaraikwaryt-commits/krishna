@@ -1,90 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KRISHNA CRM PRO</title>
+    <title>KRISHNA CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 p-5">
-
-    <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg border-t-4 border-blue-600">
-        <h1 class="text-2xl font-bold mb-5 text-blue-600 text-center">KRISHNA CRM PRO</h1>
-        <form id="lead-form" class="space-y-4">
-            <input type="text" id="cust_name" placeholder="Customer Name" class="w-full p-2 border rounded outline-none focus:border-blue-500" required>
-            <input type="text" id="cust_phone" placeholder="WhatsApp Number" class="w-full p-2 border rounded outline-none focus:border-blue-500" required>
-            <input type="text" id="cust_service" placeholder="Service Needed" class="w-full p-2 border rounded outline-none focus:border-blue-500" required>
-            <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 font-bold">SAVE LEAD</button>
-        </form>
-    </div>
-
-    <div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-lg">
-        <h2 class="text-xl font-bold mb-4 text-gray-700 text-center">Lead History (Local)</h2>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-200 text-sm">
-                        <th class="p-2 border">Name</th>
-                        <th class="p-2 border">Service</th>
-                        <th class="p-2 border text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="leads-table-body"></tbody>
-            </table>
+<body class="bg-gray-200 p-10">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md">
+        <h2 class="text-2xl font-bold mb-5 text-center text-blue-600">KRISHNA CRM</h2>
+        <div class="space-y-4">
+            <input type="text" id="n" placeholder="Name" class="w-full p-3 border rounded">
+            <input type="text" id="p" placeholder="Phone" class="w-full p-3 border rounded">
+            <input type="text" id="s" placeholder="Service" class="w-full p-3 border rounded">
+            <button onclick="save()" class="w-full bg-blue-600 text-white p-3 rounded font-bold">SAVE NOW</button>
         </div>
     </div>
 
+    <div class="max-w-md mx-auto mt-10">
+        <div id="display" class="space-y-2"></div>
+    </div>
+
     <script>
-        const form = document.getElementById('lead-form');
-        const tbody = document.getElementById('leads-table-body');
-
-        // Form Submit Logic
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            
-            const newLead = {
-                name: document.getElementById('cust_name').value,
-                phone: document.getElementById('cust_phone').value,
-                service: document.getElementById('cust_service').value
-            };
-
-            // Local storage mein save karna
-            let leads = JSON.parse(localStorage.getItem('myLeads')) || [];
-            leads.push(newLead);
-            localStorage.setItem('myLeads', JSON.stringify(leads));
-
-            alert("Lead Saved Locally!");
-            form.reset();
-            renderLeads();
-        });
-
-        // Leads ko screen par dikhana
-        function renderLeads() {
-            let leads = JSON.parse(localStorage.getItem('myLeads')) || [];
-            tbody.innerHTML = '';
-            leads.reverse().forEach((l, index) => {
-                tbody.innerHTML += `
-                    <tr class="border-b text-sm">
-                        <td class="p-2 border font-medium">${l.name}</td>
-                        <td class="p-2 border text-blue-600">${l.service}</td>
-                        <td class="p-2 border text-center flex justify-center gap-3">
-                            <a href="https://wa.me/${l.phone}" target="_blank" class="text-green-500"><i class="fab fa-whatsapp"></i></a>
-                            <button onclick="deleteLead(${index})" class="text-red-500"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
+        function show() {
+            const data = JSON.parse(localStorage.getItem('leads') || '[]');
+            const div = document.getElementById('display');
+            div.innerHTML = '';
+            data.reverse().forEach(item => {
+                div.innerHTML += `
+                    <div class="bg-white p-4 rounded shadow mb-2 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold">${item.name}</p>
+                            <p class="text-sm text-gray-500">${item.service}</p>
+                        </div>
+                        <a href="https://wa.me/${item.phone}" target="_blank" class="text-green-500 font-bold">WA</a>
+                    </div>`;
             });
         }
 
-        // Delete Function
-        window.deleteLead = (index) => {
-            let leads = JSON.parse(localStorage.getItem('myLeads')) || [];
-            leads.splice(leads.length - 1 - index, 1); // Reverse array logic
-            localStorage.setItem('myLeads', JSON.stringify(leads));
-            renderLeads();
-        };
+        function save() {
+            const name = document.getElementById('n').value;
+            const phone = document.getElementById('p').value;
+            const service = document.getElementById('s').value;
 
-        window.onload = renderLeads;
+            if(!name || !phone) return alert("Fill Name and Phone");
+
+            const data = JSON.parse(localStorage.getItem('leads') || '[]');
+            data.push({name, phone, service});
+            localStorage.setItem('leads', JSON.stringify(data));
+            
+            document.getElementById('n').value = '';
+            document.getElementById('p').value = '';
+            document.getElementById('s').value = '';
+            
+            show();
+            alert("Saved!");
+        }
+
+        window.onload = show;
     </script>
 </body>
 </html>
