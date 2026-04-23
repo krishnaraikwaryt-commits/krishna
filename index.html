@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishna CRM Pro</title>
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 pb-20">
+
+    <div class="bg-blue-600 p-5 text-white text-center shadow-lg rounded-b-3xl">
+        <h1 class="text-2xl font-bold italic">KRISHNA CRM</h1>
+        <p class="text-sm opacity-80">Lead Management System</p>
+    </div>
+
+    <div class="flex justify-around p-4 -mt-6">
+        <div class="bg-white p-4 rounded-xl shadow w-5/12 text-center border-b-4 border-blue-500">
+            <p class="text-gray-500 text-[10px] uppercase">Total Leads</p>
+            <h2 class="text-xl font-bold text-blue-600">Active</h2>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow w-5/12 text-center border-b-4 border-green-500">
+            <p class="text-gray-500 text-[10px] uppercase">Today</p>
+            <h2 class="text-xl font-bold text-green-600">New</h2>
+        </div>
+    </div>
+
+    <div class="p-4">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h3 class="mb-4 font-semibold text-gray-700 text-center uppercase tracking-wider">Add New Lead</h3>
+            <form id="leadForm" class="space-y-4">
+                <input type="text" id="name" placeholder="Client Name" class="w-full p-4 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400 transition-all" required>
+                <input type="email" id="email" placeholder="Email Address" class="w-full p-4 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400 transition-all" required>
+                <input type="tel" id="phone" placeholder="Phone Number" class="w-full p-4 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400 transition-all" required>
+                <button type="submit" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold shadow-lg active:scale-95 transition-transform uppercase">Save Data</button>
+            </form>
+            <p id="responseMsg" class="text-center mt-3 text-sm"></p>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+        <div class="text-blue-600 flex flex-col items-center">
+            <i class="fa-solid fa-house text-xl"></i>
+            <span class="text-[10px] font-bold mt-1 uppercase">Home</span>
+        </div>
+        <div class="text-gray-400 flex flex-col items-center opacity-50">
+            <i class="fa-solid fa-chart-line text-xl"></i>
+            <span class="text-[10px] font-bold mt-1 uppercase">Stats</span>
+        </div>
+        <div class="text-gray-400 flex flex-col items-center opacity-50">
+            <i class="fa-solid fa-gear text-xl"></i>
+            <span class="text-[10px] font-bold mt-1 uppercase">Setup</span>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('leadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const msg = document.getElementById('responseMsg');
+            
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value
+            };
+
+            try {
+                const res = await fetch('http://localhost:5000/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (res.ok) {
+                    msg.innerText = "✅ Successfully Saved!";
+                    msg.style.color = "#16a34a";
+                    document.getElementById('leadForm').reset();
+                }
+            } catch (err) {
+                msg.innerText = "❌ Connection Failed!";
+                msg.style.color = "#dc2626";
+            } finally {
+                btn.innerText = "Save Data";
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

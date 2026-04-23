@@ -1,0 +1,16 @@
+{
+  "short_name": "KrishnaCRM",
+  "name": "Krishna Lead Manager Pro",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2910/2910791.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/index.html",
+  "background_color": "#2563eb",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#2563eb"
+}
