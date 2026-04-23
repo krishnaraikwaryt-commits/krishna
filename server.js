@@ -1,33 +1,45 @@
-const express = require("express");
-const axios = require("axios"); 
-const cors = require("cors");
-
+const express = require('express');
 const app = express();
+const cors = require('cors');
+const path = require('path');
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
-const SHEETDB_URL = "https://sheetdb.io/api/v1/7skn6892hya7x"; 
+// Temporary storage (Server restart hone par data chala jayega)
+let leadsData = [];
 
-app.post("/api/leads", async (req, res) => {
-    try {
-        const leadData = {
-            name: req.body.name,
-            email: req.body.email,
-            phone: req.body.phone,
-            time: new Date().toLocaleString()
-        };
-
-        // Ye line data ko Google Sheet mein bhejegi
-        await axios.post(SHEETDB_URL, { data: leadData });
-
-        console.log("✅ GOOGLE SHEET MEIN SAVE HO GAYA:", leadData.name);
-        res.status(200).json({ message: "Success!" });
-    } catch (error) {
-        console.error("❌ ERROR:", error.message);
-        res.status(500).json({ error: "Failed" });
-    }
+// Main Page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Save Lead API
+app.post("/api/leads", (req, res) => {
+    const newLead = { 
+        id: Date.now().toString(), 
+        ...req.body,
+        time: new Date().toLocaleString() 
+    };
+    leadsData.push(newLead);
+    res.status(200).json({ message: "Success" });
+});
+
+// Get All Leads API
+app.get('/leads', (req, res) => {
+    res.json(leadsData);
+});
+
+// Delete Lead API
+app.delete('/leads/:id', (req, res) => {
+    const { id } = req.params;
+    leadsData = leadsData.filter(lead => lead.id !== id);
+    res.status(200).json({ message: "Deleted" });
+});
+
+// Server Configuration
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
