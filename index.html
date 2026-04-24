@@ -64,10 +64,10 @@
             <p class="text-slate-500 mt-2 mb-8 font-medium">Enterprise Identity Management</p>
             
             <div class="space-y-4">
-                <input type="password" id="sys-pin" maxlength="4" placeholder="Security PIN" 
-                    class="w-full p-5 rounded-2xl bg-slate-100 border-2 border-transparent focus:border-indigo-500 outline-none text-center text-2xl font-bold tracking-[0.5em] transition-all">
-                <button onclick="System.auth()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg">INITIALIZE SESSION</button>
-            </div>
+    <input type="password" id="sys-pin" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="Security PIN" 
+        class="w-full p-5 rounded-2xl bg-slate-100 border-2 border-transparent focus:border-indigo-500 outline-none text-center text-2xl font-bold tracking-[0.5em] transition-all">
+    <button onclick="System.auth()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg">INITIALIZE SESSION</button>
+</div>
             <p id="auth-error" class="text-red-500 text-xs mt-4 font-semibold hidden">Unauthorized Access Attempt</p>
         </div>
     </div>
