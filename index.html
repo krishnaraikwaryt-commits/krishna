@@ -359,3 +359,364 @@
         document.querySelectorAll('.data-row').forEach(r => { r.style.display = r.dataset.name.includes(q) ? 'block' : 'none'; });
     }
 </script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeadFlow Pro | Premium CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        :root { 
+            --accent: #10b981; 
+            --bg: #f8fafc; 
+            --card: #ffffff; 
+            --text: #0f172a;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        .glass-card { 
+            background: var(--card); 
+            border: 1px solid rgba(0,0,0,0.05); 
+            border-radius: 24px; 
+            box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+        }
+
+        .stat-box { 
+            padding: 20px; 
+            border-radius: 24px; 
+            background: var(--card); 
+            border: 1px solid rgba(0,0,0,0.04); 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .stat-box:active { transform: scale(0.96); }
+
+        .active-filter { 
+            border: 2px solid var(--accent) !important; 
+            background: #f0fdf4; 
+        }
+
+        nav { 
+            background: rgba(255,255,255,0.8); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(0,0,0,0.05); 
+        }
+
+        .hidden-page { display: none !important; }
+
+        input, select, textarea {
+            background: #f1f5f9 !important;
+            border: 1px solid transparent !important;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--accent) !important;
+            background: #fff !important;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .alert-card {
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideIn { 
+            from { transform: translateY(-20px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+
+        /* Modern Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <div id="login-screen" class="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center p-6">
+        <div class="w-20 h-20 bg-emerald-500 rounded-[2rem] flex items-center justify-center text-white mb-8 shadow-2xl shadow-emerald-200">
+            <i class="fas fa-shield-halved text-3xl"></i>
+        </div>
+        <h2 class="text-2xl font-extrabold mb-2">Welcome Back</h2>
+        <p class="text-slate-400 text-sm mb-8">Enter your security PIN to continue</p>
+        <input type="password" id="access-pin" maxlength="4" oninput="autoCheck()" placeholder="••••" 
+            class="w-64 p-5 rounded-2xl text-center bg-slate-100 outline-none text-2xl font-bold tracking-[1em] focus:bg-white border-2 border-transparent">
+    </div>
+
+    <div id="main-app-content" style="display: none;">
+        
+        <div id="page-dashboard" class="p-6 max-w-2xl mx-auto">
+            <header class="flex justify-between items-center mb-8 pt-4">
+                <div>
+                    <p class="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-1">Overview</p>
+                    <h1 class="text-3xl font-extrabold text-slate-900">Dashboard</h1>
+                </div>
+                <div class="flex gap-2">
+                    <label class="w-11 h-11 flex items-center justify-center rounded-2xl bg-white border border-slate-100 text-slate-600 shadow-sm cursor-pointer">
+                        <i class="fas fa-file-import"></i>
+                        <input type="file" id="csvFile" accept=".csv" class="hidden" onchange="handleCSV(event)">
+                    </label>
+                    <button onclick="fetchLeads()" class="w-11 h-11 flex items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-200">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div id="alert-zone" class="space-y-3 mb-8"></div>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="stat-box" id="box-all" onclick="filterBy('all')">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 mb-3"><i class="fas fa-users text-xs"></i></div>
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase">Total Leads</p>
+                    <h2 id="stat-total" class="text-2xl font-black">0</h2>
+                </div>
+                <div class="stat-box" id="box-closed" onclick="filterBy('closed')">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 mb-3"><i class="fas fa-check-double text-xs"></i></div>
+                    <p class="text-[11px] font-semibold text-emerald-500 uppercase">Closed</p>
+                    <h2 id="stat-closed" class="text-2xl font-black text-emerald-600">0</h2>
+                </div>
+                <div class="stat-box" id="box-today" onclick="filterBy('today')">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 mb-3"><i class="fas fa-calendar-day text-xs"></i></div>
+                    <p class="text-[11px] font-semibold text-blue-500 uppercase">Today</p>
+                    <h2 id="stat-today" class="text-2xl font-black text-blue-600">0</h2>
+                </div>
+                <div class="stat-box" id="box-overdue" onclick="filterBy('overdue')">
+                    <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 mb-3"><i class="fas fa-clock text-xs"></i></div>
+                    <p class="text-[11px] font-semibold text-red-500 uppercase">Overdue</p>
+                    <h2 id="stat-overdue" class="text-2xl font-black text-red-600">0</h2>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-4 px-2">
+                <h3 id="list-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Recent Activity</h3>
+                <button onclick="filterBy('all')" class="text-xs font-bold text-emerald-600">View All</button>
+            </div>
+            <div id="main-list" class="space-y-3"></div>
+        </div>
+
+        <div id="page-data" class="p-6 max-w-4xl mx-auto hidden-page">
+            <h2 class="text-2xl font-black mb-6">Database</h2>
+            <div class="relative mb-6">
+                <i class="fas fa-search absolute left-4 top-4 text-slate-400"></i>
+                <input type="text" id="table-search" oninput="filterTable()" placeholder="Search leads by name or phone..." 
+                    class="w-full p-4 pl-12 rounded-2xl bg-white outline-none text-sm border border-slate-100 shadow-sm">
+            </div>
+            <div id="table-body" class="space-y-3"></div>
+        </div>
+
+        <div id="page-checklist" class="p-6 max-w-2xl mx-auto hidden-page">
+            <h2 class="text-2xl font-black mb-6">Daily Mission</h2>
+            <div class="glass-card p-2 mb-6 flex gap-2">
+                <input type="text" id="new-task" placeholder="Add a new task..." class="flex-1 bg-transparent p-3 outline-none text-sm border-none !bg-transparent">
+                <button onclick="addTask()" class="bg-slate-900 text-white px-6 rounded-xl font-bold transition active:scale-95">Add</button>
+            </div>
+            <ul id="task-list" class="space-y-3"></ul>
+        </div>
+
+        <nav class="fixed bottom-8 left-8 right-8 h-20 rounded-[2rem] flex justify-around items-center px-6 z-[500] shadow-2xl shadow-slate-200">
+            <button onclick="switchPage('dashboard')" id="nav-dashboard" class="text-emerald-500 text-xl"><i class="fas fa-grid-2"></i><div class="w-1 h-1 bg-emerald-500 rounded-full mx-auto mt-1"></div></button>
+            <button onclick="switchPage('checklist')" id="nav-checklist" class="text-slate-300 text-xl"><i class="fas fa-list-check"></i></button>
+            <button onclick="openModal('add')" class="bg-slate-900 text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl shadow-slate-300 active:scale-90 transition"><i class="fas fa-plus"></i></button>
+            <button onclick="switchPage('data')" id="nav-data" class="text-slate-300 text-xl"><i class="fas fa-folder-open"></i></button>
+        </nav>
+    </div>
+
+    <div id="leadModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center z-[1000] p-4">
+        <div class="bg-white w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+            <form id="lead-form" class="space-y-5">
+                <input type="hidden" id="f-id">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-extrabold text-slate-800">Lead Profile</h3>
+                    <button type="button" onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-400"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Full Name</label>
+                    <input type="text" id="f-name" class="w-full p-4 rounded-2xl outline-none" placeholder="John Doe" required>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Phone Number</label>
+                    <input type="text" id="f-phone" class="w-full p-4 rounded-2xl outline-none" placeholder="9876543210" required>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Status</label>
+                        <select id="f-status" class="w-full p-4 rounded-2xl outline-none text-sm font-semibold">
+                            <option value="New">New Lead</option>
+                            <option value="Follow-up">Follow-up</option>
+                            <option value="Converted">Converted</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Next Follow-up</label>
+                        <input type="date" id="f-fdate" class="w-full p-4 rounded-2xl outline-none text-sm font-semibold">
+                    </div>
+                </div>
+
+                <div id="history-section" class="pt-6 border-t border-slate-50 hidden">
+                    <p class="text-[10px] text-emerald-600 font-bold mb-3 uppercase tracking-widest">History Log</p>
+                    <div id="history-content" class="space-y-3 mb-4 max-h-40 overflow-y-auto no-scrollbar"></div>
+                    <textarea id="f-note" placeholder="Add a quick update note..." class="w-full p-4 rounded-2xl text-sm outline-none" rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-500 text-white py-5 rounded-2xl font-bold shadow-lg shadow-emerald-100 hover:bg-emerald-600 active:scale-95 transition mt-4">Save Lead Details</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
+        const SECRET_PIN = "1321";
+        let leadsData = [];
+        let tasks = JSON.parse(localStorage.getItem('crm_tasks')) || [];
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        // 🛡️ REFRESH FIX
+        window.onload = () => {
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                showApp();
+            }
+        };
+
+        function autoCheck() { 
+            if(document.getElementById('access-pin').value === SECRET_PIN) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                showApp();
+            }
+        }
+
+        function showApp() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app-content').style.display = 'block';
+            fetchLeads(); renderTasks();
+        }
+
+        async function fetchLeads() {
+            try {
+                const res = await fetch(API_URL);
+                leadsData = await res.json();
+                renderAll();
+            } catch (e) { console.error("Sync Error"); }
+        }
+
+        function filterBy(type) {
+            document.querySelectorAll('.stat-box').forEach(b => b.classList.remove('active-filter'));
+            let filtered = [];
+            let title = "Recent Leads";
+
+            if(type === 'all') {
+                filtered = leadsData.slice().reverse().slice(0, 20);
+                document.getElementById('box-all').classList.add('active-filter');
+            } else if(type === 'closed') {
+                filtered = leadsData.filter(l => l.status === 'Converted');
+                title = "Closed Deals";
+                document.getElementById('box-closed').classList.add('active-filter');
+            } else if(type === 'today') {
+                filtered = leadsData.filter(l => l.followUpDate === todayStr);
+                title = "Today's Schedule";
+                document.getElementById('box-today').classList.add('active-filter');
+            } else if(type === 'overdue') {
+                filtered = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted');
+                title = "Action Required";
+                document.getElementById('box-overdue').classList.add('active-filter');
+            }
+
+            document.getElementById('list-title').innerText = title;
+            renderList(filtered);
+        }
+
+        function renderAll() {
+            const todayLeads = leadsData.filter(l => l.followUpDate === todayStr && l.status !== 'Converted');
+            const overdueLeads = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted');
+
+            document.getElementById('stat-total').innerText = leadsData.length;
+            document.getElementById('stat-closed').innerText = leadsData.filter(l => l.status === 'Converted').length;
+            document.getElementById('stat-today').innerText = todayLeads.length;
+            document.getElementById('stat-overdue').innerText = overdueLeads.length;
+
+            let alertHtml = '';
+            overdueLeads.forEach(l => {
+                alertHtml += `
+                <div class="alert-card bg-red-50 border border-red-100 p-4 rounded-[20px] flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center text-xs shadow-lg shadow-red-100"><i class="fas fa-bell"></i></div>
+                        <div>
+                            <p class="text-[10px] text-red-500 font-bold uppercase tracking-widest">Missed</p>
+                            <p class="font-bold text-slate-800">${l.name}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:${l.phone}" class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 shadow-sm"><i class="fas fa-phone-alt"></i></a>
+                        <a href="https://wa.me/91${l.phone}" class="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-100"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>`;
+            });
+
+            todayLeads.forEach(l => {
+                alertHtml += `
+                <div class="alert-card bg-blue-50 border border-blue-100 p-4 rounded-[20px] flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs shadow-lg shadow-blue-100"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Today</p>
+                            <p class="font-bold text-slate-800">${l.name}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:${l.phone}" class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 shadow-sm"><i class="fas fa-phone-alt"></i></a>
+                        <a href="https://wa.me/91${l.phone}" class="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-100"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>`;
+            });
+
+            document.getElementById('alert-zone').innerHTML = alertHtml;
+            filterBy('all'); 
+
+            document.getElementById('table-body').innerHTML = leadsData.map(l => `
+                <div class="data-row" data-name="${l.name.toLowerCase()}">${cardTemplate(l)}</div>
+            `).join('');
+        }
+
+        function renderList(list) {
+            document.getElementById('main-list').innerHTML = list.length > 0 
+                ? list.map(cardTemplate).join('') 
+                : `<p class="text-center text-slate-300 text-xs py-10">No leads found</p>`;
+        }
+
+        const cardTemplate = (l) => `
+            <div class="glass-card p-5 flex justify-between items-center bg-white">
+                <div onclick="openModal('edit', '${l.id}')" class="flex-1 cursor-pointer">
+                    <p class="font-bold text-slate-800">${l.name}</p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[9px] font-bold uppercase">${l.status}</span>
+                        <span class="text-[10px] text-slate-300 font-medium">${l.phone}</span>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <a href="tel:${l.phone}" class="w-9 h-9 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt text-xs"></i></a>
+                    <a href="https://wa.me/91${l.phone}" class="w-9 h-9 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>`;
+
+        function renderTasks() {
+            document.getElementById('task-list').innerHTML = tasks.map(t => `
+                <li class="glass-card p-5 flex justify-between items-center ${t.done ? 'opacity-40' : ''}">
+                    <div onclick="toggleTask(${t.id})" class="flex items-center gap-4 cursor-pointer">
+                        <div class="w-6 h-6 rounded-lg border-2 ${t.done ? 'bg-emerald-500 border-emerald-500' : 'border-slate-200'} flex items-center justify-center">
+                            ${t.done ? '<i class="fas fa-check text-white text-[10px]"></i>' : ''}
+                        </div>
+                        <span class="text-sm font-semibold text-slate-700 ${t.done ? 'line-through' : ''}">${t.text}</span>
+                    </div>
+                    <b
