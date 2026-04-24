@@ -314,3 +314,58 @@
     </script>
 </body>
 </html>
+<div class="mb-8 bg-white dark:bg-[#141d16] p-6 rounded-[2rem] shadow-sm border border-black/5">
+    <h3 class="text-[11px] font-black text-[#1e6b3e] uppercase tracking-widest mb-4 flex items-center gap-2">
+        <i class="fas fa-check-circle"></i> Daily Tasks
+    </h3>
+    <div class="flex gap-2 mb-4">
+        <input type="text" id="new-task" placeholder="Add a task..." class="flex-1 p-3 rounded-xl bg-gray-100 dark:bg-black outline-none text-sm font-bold">
+        <button onclick="addTask()" class="bg-[#1e6b3e] text-white px-4 rounded-xl font-black text-sm">+</button>
+    </div>
+    <ul id="task-list" class="space-y-2">
+        </ul>
+</div>
+// --- CHECKLIST LOGIC ---
+let tasks = JSON.parse(localStorage.getItem('crm_tasks')) || [];
+
+function addTask() {
+    const input = document.getElementById('new-task');
+    if (input.value.trim() === "") return;
+    
+    const task = { id: Date.now(), text: input.value, done: false };
+    tasks.push(task);
+    saveTasks();
+    input.value = "";
+    renderTasks();
+}
+
+function toggleTask(id) {
+    tasks = tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+    saveTasks();
+    renderTasks();
+}
+
+function deleteTask(id) {
+    tasks = tasks.filter(t => t.id !== id);
+    saveTasks();
+    renderTasks();
+}
+
+function saveTasks() {
+    localStorage.setItem('crm_tasks', JSON.stringify(tasks));
+}
+
+function renderTasks() {
+    const list = document.getElementById('task-list');
+    list.innerHTML = tasks.map(t => `
+        <li class="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
+            <span onclick="toggleTask(${t.id})" class="text-sm font-bold ${t.done ? 'strikethrough opacity-40' : ''} cursor-pointer">
+                ${t.done ? '✅' : '⭕'} ${t.text}
+            </span>
+            <button onclick="deleteTask(${t.id})" class="text-red-400 text-xs"><i class="fas fa-trash"></i></button>
+        </li>
+    `).join('');
+}
+
+// Login hone ke baad tasks load karne ke liye checkAccess function mein ye jodo
+// renderTasks();
