@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeadFlow Pro | Krishna Master</title>
+    <title>LeadFlow Pro | Krishna Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
@@ -18,12 +17,8 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .ios-btn:active { transform: scale(0.94); }
         .task-done { opacity: 0.3; text-decoration: line-through; }
-        
-        /* Glow Alerts */
         @keyframes glow-red { 0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); } }
         .overdue-glow { animation: glow-red 3s infinite ease-in-out; border-color: rgba(239,68,68,0.3) !important; }
-        
-        /* History Dots */
         .h-dot { position: relative; padding-left: 20px; border-left: 2px solid var(--accent); margin-bottom: 12px; }
         .h-dot::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
     </style>
@@ -45,17 +40,8 @@
                     <p id="header-date" class="text-emerald-500 font-bold text-[10px] uppercase tracking-widest opacity-70"></p>
                     <h1 class="text-5xl font-extrabold tracking-tighter">Board</h1>
                 </div>
-                <div class="flex gap-3">
-                    <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="handleCSV(this)">
-                    <button onclick="document.getElementById('csv-input').click()" class="w-12 h-12 emerald-card flex items-center justify-center text-blue-400 ios-btn"><i class="fas fa-file-import"></i></button>
-                    <button onclick="fetchLeads()" class="w-12 h-12 emerald-card flex items-center justify-center text-emerald-500 ios-btn"><i class="fas fa-sync-alt"></i></button>
-                </div>
+                <button onclick="fetchLeads()" class="w-12 h-12 emerald-card flex items-center justify-center text-emerald-500 ios-btn"><i class="fas fa-sync-alt"></i></button>
             </header>
-
-            <div class="grid grid-cols-2 gap-4 mb-10">
-                <div class="emerald-card p-6"><p class="text-[10px] font-bold text-emerald-500 uppercase opacity-60">Total</p><h2 id="count-all" class="text-4xl font-extrabold">0</h2></div>
-                <div class="emerald-card p-6"><p class="text-[10px] font-bold text-blue-500 uppercase opacity-60">Today</p><h2 id="count-today" class="text-4xl font-extrabold">0</h2></div>
-            </div>
 
             <div id="overdue-container" class="hidden mb-10">
                 <h3 class="text-[10px] font-black text-red-500 uppercase mb-3 ml-2">Overdue Alerts</h3>
@@ -75,14 +61,16 @@
             </div>
             <div class="overflow-x-auto no-scrollbar">
                 <table class="w-full text-left">
-                    <thead class="text-[10px] uppercase opacity-30 font-black"><tr><th class="px-4 pb-2">Lead</th><th class="pb-2">Contact</th><th class="pb-2">WA</th></tr></thead>
+                    <thead class="text-[10px] uppercase opacity-30 font-black">
+                        <tr><th class="px-4 pb-4">Lead Name</th><th class="pb-4 text-center">Actions</th></tr>
+                    </thead>
                     <tbody id="table-body"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="page-checklist" class="p-6 max-w-2xl mx-auto hidden-page">
-            <h2 class="text-4xl font-extrabold mb-8">Tasks</h2>
+            <h2 class="text-4xl font-extrabold mb-8 tracking-tighter">Tasks</h2>
             <div class="emerald-card p-4 mb-6 flex gap-3">
                 <input type="text" id="new-task" placeholder="Add mission..." class="flex-1 bg-transparent p-2 font-bold outline-none">
                 <button onclick="addTask()" class="bg-white text-black w-12 h-12 rounded-2xl font-bold text-xl ios-btn">+</button>
@@ -103,7 +91,7 @@
             <form id="lead-form" class="space-y-5">
                 <input type="hidden" id="f-id">
                 <div class="flex justify-between items-center mb-2">
-                    <h3 id="modal-title" class="text-2xl font-black">Lead Info</h3>
+                    <h3 id="modal-title" class="text-2xl font-black">Lead Details</h3>
                     <button type="button" onclick="closeModal()" class="text-white/20"><i class="fas fa-times text-xl"></i></button>
                 </div>
                 <input type="text" id="f-name" placeholder="Name" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] outline-none" required>
@@ -115,11 +103,11 @@
                     <input type="date" id="f-fdate" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] text-xs outline-none">
                 </div>
                 <div id="history-section" class="mt-4 pt-6 border-t border-white/5 hidden">
-                    <h4 class="text-[10px] font-black text-emerald-500 uppercase mb-4 tracking-widest">History</h4>
+                    <h4 class="text-[10px] font-black text-emerald-500 uppercase mb-4 tracking-widest">History Log</h4>
                     <div id="history-content" class="max-h-40 overflow-y-auto mb-4 no-scrollbar"></div>
-                    <textarea id="f-note" placeholder="Add update note..." class="w-full p-4 rounded-2xl font-bold bg-[#111] border border-white/5 text-xs outline-none resize-none" rows="2"></textarea>
+                    <textarea id="f-note" placeholder="Add update..." class="w-full p-4 rounded-2xl font-bold bg-[#111] border border-white/5 text-xs outline-none resize-none" rows="2"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-emerald-500 text-black py-5 rounded-2xl font-black uppercase ios-btn">Sync Database</button>
+                <button type="submit" class="w-full bg-emerald-500 text-black py-5 rounded-2xl font-black uppercase ios-btn">Sync Data</button>
             </form>
         </div>
     </div>
@@ -152,42 +140,44 @@
 
         function renderUI() {
             let overdueHTML = '';
-            let tCount = 0;
             leadsData.forEach(l => {
-                if(l.followUpDate === todayStr) tCount++;
                 if(l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted') {
                     overdueHTML += `<div class="min-w-[160px] emerald-card p-5 overdue-glow">
                         <h4 class="text-[10px] font-black truncate mb-3">${l.name}</h4>
                         <div class="flex gap-2">
-                            <a href="tel:${l.phone}" class="flex-1 bg-white text-black py-2 rounded-xl text-center text-[8px] font-black">CALL</a>
+                            <a href="tel:${l.phone}" class="flex-1 bg-white text-black py-2 rounded-xl text-center text-[10px] font-black"><i class="fas fa-phone"></i></a>
                             <a href="https://wa.me/91${l.phone}" class="flex-1 bg-emerald-500/10 text-emerald-500 py-2 rounded-xl text-center text-sm font-black"><i class="fab fa-whatsapp"></i></a>
                         </div>
                     </div>`;
                 }
             });
-            document.getElementById('count-all').innerText = leadsData.length;
-            document.getElementById('count-today').innerText = tCount;
             document.getElementById('overdue-container').classList.toggle('hidden', overdueHTML === '');
             document.getElementById('overdue-list').innerHTML = overdueHTML;
 
-            document.getElementById('main-list').innerHTML = leadsData.slice().reverse().map(l => `
-                <div onclick="openModal('edit', '${l.id}')" class="emerald-card p-6 flex justify-between items-center ios-btn cursor-pointer">
-                    <div><h4 class="font-extrabold text-lg">${l.name}</h4><p class="text-[9px] font-black text-emerald-500 uppercase mt-1 opacity-40">${l.status}</p></div>
+            const listHTML = leadsData.slice().reverse().map(l => `
+                <div class="emerald-card p-6 flex justify-between items-center ios-btn cursor-pointer">
+                    <div onclick="openModal('edit', '${l.id}')" class="flex-1">
+                        <h4 class="font-extrabold text-lg">${l.name}</h4>
+                        <p class="text-[9px] font-black text-emerald-500 uppercase mt-1 opacity-40">${l.status}</p>
+                    </div>
                     <div class="flex gap-3">
+                        <a href="tel:${l.phone}" class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-xs text-white"><i class="fas fa-phone"></i></a>
                         <a href="https://wa.me/91${l.phone}" class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center text-sm"><i class="fab fa-whatsapp"></i></a>
-                        <i class="fas fa-chevron-right opacity-10"></i>
                     </div>
                 </div>`).join('');
+            document.getElementById('main-list').innerHTML = listHTML;
             
             document.getElementById('table-body').innerHTML = leadsData.map(l => `
                 <tr class="table-row" data-name="${l.name.toLowerCase()}">
                     <td class="p-4 bg-[#121212] rounded-l-2xl font-bold">${l.name}</td>
-                    <td class="bg-[#121212] text-white/30 text-xs">${l.phone}</td>
-                    <td class="p-4 bg-[#121212] rounded-r-2xl text-center"><a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a></td>
+                    <td class="p-4 bg-[#121212] rounded-r-2xl flex justify-center gap-4">
+                        <a href="tel:${l.phone}" class="text-white opacity-30"><i class="fas fa-phone"></i></a>
+                        <a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a>
+                        <button onclick="openModal('edit', '${l.id}')" class="text-white/20"><i class="fas fa-edit"></i></button>
+                    </td>
                 </tr>`).join('');
         }
 
-        // --- TASKS ---
         function addTask() {
             const v = document.getElementById('new-task').value;
             if(!v) return;
@@ -214,7 +204,6 @@
                 </li>`).join('');
         }
 
-        // --- MODAL ---
         function openModal(mode, id) {
             const hSec = document.getElementById('history-section');
             if(mode === 'edit') {
@@ -272,18 +261,6 @@
             const q = document.getElementById('table-search').value.toLowerCase();
             document.querySelectorAll('.table-row').forEach(row => {
                 row.style.display = row.dataset.name.includes(q) ? '' : 'none';
-            });
-        }
-        function handleCSV(input) {
-            const f = input.files[0];
-            if(!f) return;
-            Papa.parse(f, {
-                header: true,
-                complete: async (res) => {
-                    const data = res.data.map(r => ({ id:"L"+Date.now()+Math.random(), name:r.name||"No Name", phone:r.phone||"0", status:r.status||"New", followUpDate:r.date||"", history:"[]" }));
-                    await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data}) });
-                    fetchLeads();
-                }
             });
         }
     </script>
