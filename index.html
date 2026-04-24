@@ -7,123 +7,102 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0b0f1a; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+        body { background-color: #0b0f1a; color: #e2e8f0; font-family: sans-serif; overflow-x: hidden; }
         .glass { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .active-nav { background: #3b82f6; color: white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
-        .stat-card { border-bottom: 3px solid transparent; transition: 0.3s; }
-        .stat-card:hover { border-bottom-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+        .active-nav { background: #3b82f6; color: white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+        .card-hover:hover { transform: translateY(-5px); transition: 0.3s; background: rgba(59, 130, 246, 0.05); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
-    <nav class="glass rounded-2xl p-2 mb-8 flex flex-wrap gap-2 items-center overflow-x-auto">
-        <div class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center font-bold mr-4">KR</div>
-        <button class="px-4 py-2 rounded-xl active-nav font-bold text-sm">Dashboard</button>
-        <button class="px-4 py-2 rounded-xl text-gray-400 font-bold text-sm hover:bg-white/5">Leads</button>
-        <button class="px-4 py-2 rounded-xl text-gray-400 font-bold text-sm hover:bg-white/5">Kanban</button>
-        <button class="px-4 py-2 rounded-xl text-gray-400 font-bold text-sm hover:bg-white/5">Calendar</button>
-        <button class="px-4 py-2 rounded-xl text-gray-400 font-bold text-sm hover:bg-white/5">Reminders</button>
+    <nav class="glass rounded-2xl p-2 mb-8 flex items-center overflow-x-auto no-scrollbar">
+        <div class="bg-blue-600 h-10 w-10 min-w-[40px] rounded-xl flex items-center justify-center font-bold mr-4 shadow-lg shadow-blue-600/20">KR</div>
+        <div class="flex gap-2">
+            <button class="px-4 py-2 rounded-xl active-nav font-bold text-xs whitespace-nowrap">DASHBOARD</button>
+            <button class="px-4 py-2 rounded-xl text-gray-400 font-bold text-xs hover:bg-white/5 whitespace-nowrap">KANBAN</button>
+            <button class="px-4 py-2 rounded-xl text-gray-400 font-bold text-xs hover:bg-white/5 whitespace-nowrap">CALENDAR</button>
+            <button class="px-4 py-2 rounded-xl text-gray-400 font-bold text-xs hover:bg-white/5 whitespace-nowrap">REPORTS</button>
+        </div>
     </nav>
 
-    <div class="mb-8">
-        <h1 class="text-3xl font-black mb-1">Dashboard</h1>
-        <p class="text-gray-500 text-sm">Overview of your sales pipeline</p>
-    </div>
-
-    <div class="flex flex-wrap gap-3 mb-8">
-        <div class="bg-slate-900 border border-white/5 px-4 py-3 rounded-2xl flex items-center space-x-2">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span class="text-xs font-bold uppercase tracking-wider">KRISHNA RAIKWAR</span>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-black tracking-tight">Sales <span class="text-blue-500">Overview</span></h1>
+            <p class="text-gray-500 text-sm font-medium">Tracking real-time performance</p>
         </div>
-        <button class="bg-slate-900 border border-white/5 px-5 py-3 rounded-2xl text-xs font-bold hover:bg-white/5">ENABLE ALERTS</button>
-        <button class="bg-slate-900 border border-white/5 px-5 py-3 rounded-2xl text-xs font-bold hover:bg-white/5">IMPORT CSV</button>
-        <button class="bg-slate-900 border border-white/5 px-5 py-3 rounded-2xl text-xs font-bold hover:bg-white/5">EXPORT CSV</button>
-        <button onclick="toggleModal()" class="bg-blue-600 px-6 py-3 rounded-2xl text-xs font-bold shadow-lg shadow-blue-600/20 active:scale-95 transition">+ ADD LEAD</button>
-        <button onclick="location.reload()" class="bg-slate-900 border border-white/5 px-5 py-3 rounded-2xl text-xs font-bold text-red-400">LOGOUT</button>
+        <div class="flex flex-wrap gap-2">
+            <button onclick="toggleModal()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-2xl text-xs font-black transition-all">+ NEW LEAD</button>
+            <button onclick="fetchLeads()" class="bg-slate-900 border border-white/10 px-4 py-3 rounded-2xl text-xs font-bold hover:bg-white/5"><i class="fas fa-sync-alt"></i></button>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div class="glass p-6 rounded-[2rem] stat-card">
-            <p class="text-gray-500 text-xs font-bold uppercase mb-2">Total Leads</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="glass p-6 rounded-[2rem] card-hover">
+            <p class="text-gray-500 text-[10px] font-black uppercase mb-2 tracking-widest">Total Pipeline</p>
             <h2 id="total-leads" class="text-4xl font-black">0</h2>
-            <div class="w-full bg-blue-500/20 h-1.5 rounded-full mt-4"><div class="bg-blue-500 w-full h-full rounded-full"></div></div>
+            <div class="text-[10px] text-blue-500 font-bold mt-2">+12% from last month</div>
         </div>
-        <div class="glass p-6 rounded-[2rem] stat-card">
-            <p class="text-gray-500 text-xs font-bold uppercase mb-2">Today's Follow-ups</p>
-            <h2 class="text-4xl font-black text-orange-400">0</h2>
-            <div class="w-full bg-orange-500/20 h-1.5 rounded-full mt-4"><div class="bg-orange-400 w-1/4 h-full rounded-full"></div></div>
+        <div class="glass p-6 rounded-[2rem] card-hover border-l-4 border-orange-500">
+            <p class="text-gray-500 text-[10px] font-black uppercase mb-2 tracking-widest">Interested</p>
+            <h2 id="interested-leads" class="text-4xl font-black text-orange-400">0</h2>
+            <div class="text-[10px] text-gray-500 font-bold mt-2">Needs Follow-up</div>
         </div>
-        <div class="glass p-6 rounded-[2rem] stat-card">
-            <p class="text-gray-500 text-xs font-bold uppercase mb-2">Converted Clients</p>
-            <h2 id="converted-leads" class="text-4xl font-black text-green-400">0</h2>
-            <div class="w-full bg-green-500/20 h-1.5 rounded-full mt-4"><div class="bg-green-500 w-1/3 h-full rounded-full"></div></div>
+        <div class="glass p-6 rounded-[2rem] card-hover border-l-4 border-green-500">
+            <p class="text-gray-500 text-[10px] font-black uppercase mb-2 tracking-widest">Closed Won</p>
+            <h2 id="closed-leads" class="text-4xl font-black text-green-500">0</h2>
+            <div class="text-[10px] text-green-500 font-bold mt-2">Revenue Generated</div>
         </div>
-        <div class="glass p-6 rounded-[2rem] stat-card">
-            <p class="text-gray-500 text-xs font-bold uppercase mb-2">Pending Leads</p>
-            <h2 id="pending-leads" class="text-4xl font-black text-purple-400">0</h2>
-            <div class="w-full bg-purple-500/20 h-1.5 rounded-full mt-4"><div class="bg-purple-400 w-1/2 h-full rounded-full"></div></div>
-        </div>
-    </div>
-
-    <div class="glass p-8 rounded-[2.5rem] mb-8">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold">Daily Performance</h3>
-            <span class="text-gray-500 text-xs font-bold" id="current-date"></span>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="bg-white/5 p-4 rounded-2xl text-center border border-white/5">
-                <h4 class="text-2xl font-black mb-1">0</h4>
-                <p class="text-[10px] text-gray-500 font-bold uppercase">New Leads</p>
-            </div>
-            <div class="bg-white/5 p-4 rounded-2xl text-center border border-white/5">
-                <h4 class="text-2xl font-black mb-1">0</h4>
-                <p class="text-[10px] text-gray-500 font-bold uppercase">Contacted</p>
-            </div>
-            <div class="bg-white/5 p-4 rounded-2xl text-center border border-white/5">
-                <h4 class="text-2xl font-black mb-1">0</h4>
-                <p class="text-[10px] text-gray-500 font-bold uppercase">Converted</p>
-            </div>
-            <div class="bg-white/5 p-4 rounded-2xl text-center border border-white/5">
-                <h4 class="text-2xl font-black mb-1 text-blue-400">0</h4>
-                <p class="text-[10px] text-gray-500 font-bold uppercase">Due Today</p>
-            </div>
-            <div class="bg-white/5 p-4 rounded-2xl text-center border border-white/5">
-                <h4 class="text-2xl font-black mb-1 text-red-500">0</h4>
-                <p class="text-[10px] text-gray-500 font-bold uppercase">Overdue</p>
-            </div>
+        <div class="glass p-6 rounded-[2rem] card-hover">
+            <p class="text-gray-500 text-[10px] font-black uppercase mb-2 tracking-widest">Conversion</p>
+            <h2 id="conv-rate" class="text-4xl font-black text-purple-400">0%</h2>
+            <div class="text-[10px] text-gray-500 font-bold mt-2">Efficiency Rate</div>
         </div>
     </div>
 
-    <div class="glass p-8 rounded-[2.5rem]">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold">Auto Reminders</h3>
-            <span class="bg-white/10 px-2 py-1 rounded text-[10px] font-bold">0</span>
+    <div class="glass rounded-[2.5rem] overflow-hidden">
+        <div class="p-6 border-b border-white/5 flex justify-between items-center">
+            <h3 class="font-bold">Recent Lead Activity</h3>
+            <div class="text-xs bg-green-500/10 text-green-500 px-3 py-1 rounded-full font-bold">● Database Live</div>
         </div>
-        <div class="py-10 text-center">
-            <div class="text-gray-600 mb-2 italic">No pending follow-ups. You're all caught up!</div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-white/5 text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                    <tr>
+                        <th class="p-5">Client Information</th>
+                        <th class="p-5">Stage</th>
+                        <th class="p-5 text-center">Engagement</th>
+                    </tr>
+                </thead>
+                <tbody id="lead-list" class="text-sm">
+                    <tr><td colspan="3" class="p-10 text-center text-gray-500">Syncing with Google Sheets...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <div id="leadModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-[500]">
-        <div class="glass w-full max-w-md p-8 rounded-[2.5rem]">
-            <h2 class="text-2xl font-black mb-6 text-blue-500">Add Lead</h2>
+    <div id="leadModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-[500] backdrop-blur-sm">
+        <div class="glass w-full max-w-md p-8 rounded-[2.5rem] border border-white/10 shadow-2xl">
+            <h2 class="text-2xl font-black mb-6 text-white">Add New <span class="text-blue-500">Lead</span></h2>
             <form id="leadForm" class="space-y-4">
-                <input type="text" id="name" placeholder="Name" class="w-full bg-[#1e293b] p-4 rounded-2xl outline-none" required>
-                <input type="text" id="phone" placeholder="Phone" class="w-full bg-[#1e293b] p-4 rounded-2xl outline-none" required>
-                <select id="status" class="w-full bg-[#1e293b] p-4 rounded-2xl outline-none">
-                    <option value="New">New</option>
+                <input type="text" id="name" placeholder="Full Name" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none border border-white/5 focus:border-blue-500 transition-all" required>
+                <input type="text" id="phone" placeholder="WhatsApp Number (e.g. 9876543210)" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none border border-white/5 focus:border-blue-500 transition-all" required>
+                <select id="status" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none border border-white/5 focus:border-blue-500 appearance-none">
+                    <option value="New">New Lead</option>
                     <option value="Interested">Interested</option>
-                    <option value="Closed">Closed</option>
+                    <option value="Closed">Closed / Converted</option>
                 </select>
-                <button type="submit" class="w-full bg-blue-600 p-4 rounded-2xl font-black text-lg mt-4">Save Entry</button>
-                <button type="button" onclick="toggleModal()" class="w-full text-gray-500 font-bold py-2">Cancel</button>
+                <div class="flex gap-2 pt-4">
+                    <button type="button" onclick="toggleModal()" class="flex-1 text-gray-500 font-bold py-4">Cancel</button>
+                    <button type="submit" id="saveBtn" class="flex-1 bg-blue-600 p-4 rounded-2xl font-black text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/30">SAVE LEAD</button>
+                </div>
             </form>
         </div>
     </div>
 
     <script>
-        const API_URL = "APNI_SHEETDB_LINK_DALO"; // Apni link dalo
-        document.getElementById('current-date').innerText = new Date().toDateString();
+        const API_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
 
         function toggleModal() { document.getElementById('leadModal').classList.toggle('hidden'); }
 
@@ -131,17 +110,66 @@
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
+                const list = document.getElementById('lead-list');
+                list.innerHTML = '';
                 
-                document.getElementById('total-leads').innerText = data.length;
-                const converted = data.filter(l => l.status === 'Closed').length;
-                document.getElementById('converted-leads').innerText = converted;
-                document.getElementById('pending-leads').innerText = data.length - converted;
+                let interested = 0;
+                let closed = 0;
 
-            } catch (e) { console.error("Database Error"); }
+                data.reverse().forEach(l => {
+                    if(l.status === 'Interested') interested++;
+                    if(l.status === 'Closed') closed++;
+
+                    list.innerHTML += `
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                            <td class="p-5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-400 rounded-xl flex items-center justify-center font-black text-white text-xs shadow-md">
+                                        ${l.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-white">${l.name}</div>
+                                        <div class="text-[10px] text-gray-500">+91 ${l.phone}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-5">
+                                <span class="text-[9px] font-black uppercase px-2 py-1 rounded-md ${getStatusClass(l.status)}">
+                                    ${l.status}
+                                </span>
+                            </td>
+                            <td class="p-5 text-center">
+                                <a href="https://wa.me/91${l.phone}" target="_blank" class="text-green-500 hover:text-green-400 text-xl transition-all">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </td>
+                        </tr>`;
+                });
+
+                // Stats Update
+                document.getElementById('total-leads').innerText = data.length;
+                document.getElementById('interested-leads').innerText = interested;
+                document.getElementById('closed-leads').innerText = closed;
+                const rate = data.length > 0 ? Math.round((closed / data.length) * 100) : 0;
+                document.getElementById('conv-rate').innerText = rate + '%';
+
+            } catch (e) {
+                document.getElementById('lead-list').innerHTML = '<tr><td colspan="3" class="p-10 text-center text-red-400 font-bold">Database Connection Failed!</td></tr>';
+            }
+        }
+
+        function getStatusClass(s) {
+            if(s === 'Closed') return 'bg-green-500/10 text-green-500 border border-green-500/20';
+            if(s === 'Interested') return 'bg-orange-500/10 text-orange-400 border border-orange-500/20';
+            return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
         }
 
         document.getElementById('leadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = document.getElementById('saveBtn');
+            btn.innerText = "SYNCING...";
+            btn.disabled = true;
+
             const newLead = {
                 data: [{
                     id: Date.now(),
@@ -150,13 +178,23 @@
                     status: document.getElementById('status').value
                 }]
             };
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newLead)
-            });
-            toggleModal();
-            fetchLeads();
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newLead)
+                });
+                if(res.ok) {
+                    toggleModal();
+                    document.getElementById('leadForm').reset();
+                    fetchLeads();
+                }
+            } catch (err) { alert("Error saving data"); }
+            finally {
+                btn.innerText = "SAVE LEAD";
+                btn.disabled = false;
+            }
         });
 
         window.onload = fetchLeads;
