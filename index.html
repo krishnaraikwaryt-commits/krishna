@@ -19,8 +19,14 @@
         input, select, textarea { background: #161d17 !important; border: 1px solid rgba(16, 185, 129, 0.2) !important; color: white !important; }
         .filter-chip { padding: 10px 18px; border-radius: 15px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid rgba(16, 185, 129, 0.1); cursor: pointer; white-space: nowrap; }
         .filter-active { background: var(--accent) !important; color: black !important; }
-        @keyframes pulse-alert { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
-        .alert-glow { animation: pulse-alert 2s infinite; border-color: #f97316 !important; }
+        
+        /* Alert Glow Animations */
+        @keyframes glow-red { 0%, 100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); } }
+        @keyframes glow-orange { 0%, 100% { box-shadow: 0 0 5px rgba(249, 115, 22, 0.2); } 50% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.5); } }
+        
+        .overdue-glow { animation: glow-red 2s infinite; border-color: #ef4444 !important; }
+        .today-glow { animation: glow-orange 2s infinite; border-color: #f97316 !important; }
+        
         table { border-collapse: separate; border-spacing: 0 8px; }
         th { color: rgba(16, 185, 129, 0.5); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 12px; }
         td { background: #0f1410; padding: 14px; border-top: 1px solid rgba(255,255,255,0.02); }
@@ -33,9 +39,9 @@
     <div id="login-screen" style="position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 2rem;">
         <div class="text-center w-full max-w-sm">
             <div class="w-20 h-20 bg-emerald-500 rounded-[2rem] mx-auto mb-8 flex items-center justify-center text-black text-3xl shadow-[0_0_30px_rgba(16,185,129,0.3)]"><i class="fas fa-fingerprint"></i></div>
-            <h2 class="text-3xl font-heavy mb-8 tracking-tighter">System Locked</h2>
+            <h2 class="text-3xl font-heavy mb-8 tracking-tighter">Enter PIN</h2>
             <input type="password" id="access-pin" oninput="autoCheck()" placeholder="••••" class="w-full p-6 rounded-[2rem] text-center text-3xl font-heavy outline-none mb-4">
-            <button onclick="checkAccess()" class="w-full bg-emerald-500 text-black p-5 rounded-[2rem] font-heavy uppercase tracking-widest">Verify Access</button>
+            <button onclick="checkAccess()" class="w-full bg-emerald-500 text-black p-5 rounded-[2rem] font-heavy uppercase tracking-widest">Verify</button>
         </div>
     </div>
 
@@ -45,28 +51,35 @@
             <header class="flex justify-between items-center mb-8">
                 <div>
                     <p id="header-date" class="text-emerald-500 font-bold text-[10px] uppercase tracking-widest mb-1"></p>
-                    <h1 class="text-3xl font-heavy tracking-tighter">Board</h1>
+                    <h1 class="text-3xl font-heavy tracking-tighter">Dashboard</h1>
                 </div>
                 <div class="flex gap-2">
                     <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="handleCSV(this)">
-                    <button onclick="document.getElementById('csv-input').click()" class="w-12 h-12 emerald-card flex items-center justify-center text-blue-400"><i class="fas fa-file-import"></i></button>
-                    <button onclick="fetchLeads()" class="w-12 h-12 emerald-card flex items-center justify-center text-emerald-500"><i class="fas fa-redo-alt"></i></button>
+                    <button onclick="document.getElementById('csv-input').click()" class="w-10 h-10 emerald-card flex items-center justify-center text-blue-400"><i class="fas fa-file-import"></i></button>
+                    <button onclick="fetchLeads()" class="w-10 h-10 emerald-card flex items-center justify-center text-emerald-500"><i class="fas fa-redo-alt"></i></button>
                 </div>
             </header>
 
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <div onclick="setFilter('All', this)" class="emerald-card p-6 border-l-4 border-emerald-500 bg-emerald-500/5">
-                    <p class="text-[10px] font-heavy text-emerald-500/60 uppercase">System Leads</p>
-                    <h2 id="count-all" class="text-4xl font-heavy mt-1">0</h2>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div onclick="setFilter('All', this)" class="emerald-card p-5 border-l-4 border-emerald-500 bg-emerald-500/5">
+                    <p class="text-[10px] font-heavy text-emerald-500/60 uppercase">Total Leads</p>
+                    <h2 id="count-all" class="text-3xl font-heavy mt-1">0</h2>
                 </div>
-                <div onclick="setFilter('Today', this)" class="emerald-card p-6 border-l-4 border-blue-500">
-                    <p class="text-[10px] font-heavy text-blue-500/60 uppercase">Today's Goal</p>
-                    <h2 id="count-today" class="text-4xl font-heavy mt-1 text-blue-400">0</h2>
+                <div onclick="setFilter('Today', this)" class="emerald-card p-5 border-l-4 border-blue-500">
+                    <p class="text-[10px] font-heavy text-blue-500/60 uppercase">Today's List</p>
+                    <h2 id="count-today" class="text-3xl font-heavy mt-1 text-blue-400">0</h2>
                 </div>
             </div>
 
-            <div id="alert-section" class="mb-8 hidden">
-                <div id="alert-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar"></div>
+            <div id="alert-section" class="mb-8 space-y-4">
+                <div id="overdue-container" class="hidden">
+                    <h3 class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-2"><i class="fas fa-exclamation-triangle"></i> Overdue (Missed)</h3>
+                    <div id="overdue-list" class="flex gap-4 overflow-x-auto pb-2 no-scrollbar"></div>
+                </div>
+                <div id="today-container" class="hidden">
+                    <h3 class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-2"><i class="fas fa-clock"></i> Due Today</h3>
+                    <div id="today-list" class="flex gap-4 overflow-x-auto pb-2 no-scrollbar"></div>
+                </div>
             </div>
 
             <div class="flex gap-2 overflow-x-auto no-scrollbar mb-6">
@@ -79,11 +92,11 @@
         </div>
 
         <div id="page-checklist" class="p-6 max-w-2xl mx-auto hidden-page">
-            <h2 class="text-3xl font-heavy mb-8 tracking-tighter text-emerald-500">Checklist</h2>
+            <h2 class="text-3xl font-heavy mb-8 tracking-tighter text-emerald-500">Tasks</h2>
             <div class="emerald-card p-5 mb-6">
                 <div class="flex gap-2">
-                    <input type="text" id="new-task" placeholder="Add daily task..." class="flex-1 p-4 rounded-xl outline-none font-bold">
-                    <button onclick="addTask()" class="bg-emerald-500 text-black px-6 rounded-xl font-heavy">+</button>
+                    <input type="text" id="new-task" placeholder="Add task..." class="flex-1 p-4 rounded-xl outline-none font-bold">
+                    <button onclick="addTask()" class="bg-emerald-500 text-black px-6 rounded-xl font-heavy text-xl">+</button>
                 </div>
             </div>
             <ul id="task-list" class="space-y-3"></ul>
@@ -91,22 +104,16 @@
 
         <div id="page-data" class="p-6 max-w-4xl mx-auto hidden-page">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-3xl font-heavy tracking-tighter text-emerald-500">Leads Data</h2>
+                <h2 class="text-3xl font-heavy tracking-tighter text-emerald-500">Data</h2>
                 <div class="emerald-card px-4 py-2 flex items-center gap-2">
                     <i class="fas fa-search text-emerald-500/50"></i>
-                    <input type="text" id="table-search" oninput="filterTable()" placeholder="Search..." class="bg-transparent border-none text-sm font-bold w-32 focus:outline-none">
+                    <input type="text" id="table-search" oninput="filterTable()" placeholder="Search..." class="bg-transparent border-none text-xs font-bold w-24 outline-none">
                 </div>
             </div>
-            
             <div class="overflow-x-auto no-scrollbar">
                 <table class="w-full text-left">
                     <thead>
-                        <tr>
-                            <th class="w-12">✔</th>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
+                        <tr><th class="w-10">✔</th><th>Lead</th><th>Status</th><th>Action</th></tr>
                     </thead>
                     <tbody id="table-body"></tbody>
                 </table>
@@ -139,8 +146,8 @@
                     <option value="Converted">Closed</option>
                 </select>
                 <input type="date" id="f-fdate" class="w-full p-4 rounded-xl font-bold">
-                <button type="submit" class="w-full bg-emerald-500 text-black p-4 rounded-xl font-heavy uppercase">Sync Cloud</button>
-                <button type="button" onclick="closeModal()" class="w-full text-white/20 text-xs font-heavy mt-2">CANCEL</button>
+                <button type="submit" class="w-full bg-emerald-500 text-black p-4 rounded-xl font-heavy uppercase">Sync Lead</button>
+                <button type="button" onclick="closeModal()" class="w-full text-white/20 text-[10px] font-heavy mt-2">CLOSE</button>
             </form>
         </div>
     </div>
@@ -169,28 +176,31 @@
         }
 
         function updateUI() {
-            let stats = { total: leadsData.length, today: 0, new: 0, follow: 0, closed: 0 };
-            const alertList = document.getElementById('alert-list');
-            alertList.innerHTML = '';
+            let stats = { total: leadsData.length, today: 0, new: 0, follow: 0, closed: 0, overdue: 0 };
+            const overdueList = document.getElementById('overdue-list');
+            const todayList = document.getElementById('today-list');
+            overdueList.innerHTML = ''; todayList.innerHTML = '';
             
             leadsData.forEach(l => {
                 if(l.status === 'New') stats.new++;
                 if(l.status === 'Follow-up') stats.follow++;
                 if(l.status === 'Converted') stats.closed++;
-                if(l.followUpDate === today && l.status !== 'Converted') {
-                    stats.today++;
-                    alertList.innerHTML += `
-                        <div class="min-w-[180px] emerald-card p-4 alert-glow">
-                            <h4 class="text-xs font-heavy truncate">${l.name}</h4>
-                            <div class="flex gap-2 mt-3">
-                                <a href="tel:${l.phone}" class="flex-1 bg-blue-500/10 text-blue-400 py-2 rounded-lg text-center text-[8px] font-black">CALL</a>
-                                <a href="https://wa.me/91${l.phone}" class="flex-1 bg-emerald-500/10 text-emerald-500 py-2 rounded-lg text-center text-[8px] font-black">WA</a>
-                            </div>
-                        </div>`;
+
+                const fDate = l.followUpDate;
+                if(fDate && l.status !== 'Converted') {
+                    if(fDate < today) {
+                        stats.overdue++;
+                        overdueList.innerHTML += createAlertCard(l, 'overdue-glow', 'RED');
+                    } else if(fDate === today) {
+                        stats.today++;
+                        todayList.innerHTML += createAlertCard(l, 'today-glow', 'DUE');
+                    }
                 }
             });
 
-            document.getElementById('alert-section').classList.toggle('hidden', stats.today === 0);
+            document.getElementById('overdue-container').classList.toggle('hidden', stats.overdue === 0);
+            document.getElementById('today-container').classList.toggle('hidden', stats.today === 0);
+            
             document.getElementById('count-all').innerText = stats.total;
             document.getElementById('count-today').innerText = stats.today;
             document.getElementById('count-new').innerText = stats.new;
@@ -201,43 +211,50 @@
             renderTable();
         }
 
+        function createAlertCard(l, glowClass, label) {
+            return `
+                <div class="min-w-[170px] emerald-card p-4 ${glowClass}">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-[11px] font-heavy truncate w-24 text-white">${l.name}</h4>
+                        <span class="text-[7px] font-black px-1.5 py-0.5 rounded bg-white/10">${label}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:${l.phone}" class="flex-1 bg-blue-500/10 text-blue-400 py-1.5 rounded-lg text-center text-[8px] font-black">CALL</a>
+                        <a href="https://wa.me/91${l.phone}" class="flex-1 bg-emerald-500/10 text-emerald-500 py-1.5 rounded-lg text-center text-[8px] font-black">WA</a>
+                    </div>
+                </div>`;
+        }
+
         function renderMainList(data) {
             const list = document.getElementById('main-list');
             list.innerHTML = data.slice().reverse().map(l => `
                 <div class="emerald-card p-5 flex justify-between items-center">
                     <div onclick="openModal('edit', '${l.id}')" class="flex-1">
-                        <h4 class="font-heavy text-md ${l.status==='Converted' ? 'opacity-20 line-through' : ''}">${l.name}</h4>
-                        <p class="text-[9px] font-heavy text-emerald-500/40 uppercase mt-1 tracking-widest">${l.status} • ${l.followUpDate || 'No Date'}</p>
+                        <h4 class="font-heavy text-sm ${l.status==='Converted' ? 'opacity-20 line-through' : ''}">${l.name}</h4>
+                        <p class="text-[8px] font-heavy text-emerald-500/40 uppercase mt-1">${l.status} • ${l.followUpDate || 'No Date'}</p>
                     </div>
                     <div class="flex gap-2">
-                        <a href="https://wa.me/91${l.phone}" class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
-                        <a href="tel:${l.phone}" class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
+                        <a href="https://wa.me/91${l.phone}" class="w-9 h-9 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
+                        <a href="tel:${l.phone}" class="w-9 h-9 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
                     </div>
                 </div>`).join('');
         }
 
-        // --- NEW: DATA TABLE RENDER ---
         function renderTable() {
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = leadsData.map(l => `
                 <tr class="table-row-item" data-name="${l.name.toLowerCase()}" data-phone="${l.phone}">
-                    <td class="text-center"><input type="checkbox" class="accent-emerald-500 h-4 w-4"></td>
-                    <td><div class="text-xs font-bold">${l.name}</div><div class="text-[9px] opacity-40">${l.phone}</div></td>
-                    <td><span class="text-[8px] font-black px-2 py-1 rounded bg-emerald-500/10 text-emerald-500 uppercase">${l.status}</span></td>
-                    <td>
-                        <div class="flex gap-2">
-                            <a href="tel:${l.phone}" class="text-blue-400"><i class="fas fa-phone-alt"></i></a>
-                            <a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a>
-                        </div>
-                    </td>
+                    <td class="text-center"><input type="checkbox" class="accent-emerald-500"></td>
+                    <td><div class="text-[11px] font-bold">${l.name}</div><div class="text-[8px] opacity-40">${l.phone}</div></td>
+                    <td><span class="text-[7px] font-black px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500">${l.status}</span></td>
+                    <td><a href="tel:${l.phone}" class="text-blue-400 mr-3"><i class="fas fa-phone-alt"></i></a><a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a></td>
                 </tr>`).join('');
         }
 
         function filterTable() {
             const q = document.getElementById('table-search').value.toLowerCase();
             document.querySelectorAll('.table-row-item').forEach(row => {
-                const visible = row.dataset.name.includes(q) || row.dataset.phone.includes(q);
-                row.style.display = visible ? '' : 'none';
+                row.style.display = (row.dataset.name.includes(q) || row.dataset.phone.includes(q)) ? '' : 'none';
             });
         }
 
@@ -259,7 +276,7 @@
             Papa.parse(file, {
                 header: true,
                 complete: async function(res) {
-                    const data = res.data.map(r => ({ id:"L"+Date.now()+Math.random(), name:r.name, phone:r.phone, status:r.status||"New", followUpDate:r.date||"" }));
+                    const data = res.data.map(r => ({ id:"L"+Date.now()+Math.random(), name:r.name||"No Name", phone:r.phone||"0", status:r.status||"New", followUpDate:r.date||"" }));
                     await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data}) });
                     fetchLeads();
                 }
@@ -293,33 +310,3 @@
             const data = { id: id || "L"+Date.now(), name: document.getElementById('f-name').value, phone: document.getElementById('f-phone').value, status: document.getElementById('f-status').value, followUpDate: document.getElementById('f-fdate').value };
             await fetch(id ? `${API_URL}/id/${id}` : API_URL, { method: id ? 'PATCH' : 'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data: id ? data : [data]}) });
             closeModal(); fetchLeads();
-        });
-
-        function closeModal() { document.getElementById('leadModal').classList.add('hidden'); }
-        
-        // Checklist Logic
-        function addTask() {
-            const val = document.getElementById('new-task').value;
-            if(!val.trim()) return;
-            tasks.push({id: Date.now(), text: val, done: false});
-            localStorage.setItem('crm_tasks', JSON.stringify(tasks));
-            document.getElementById('new-task').value = ""; renderTasks();
-        }
-        function toggleTask(id) {
-            tasks = tasks.map(t => t.id === id ? {...t, done: !t.done} : t);
-            localStorage.setItem('crm_tasks', JSON.stringify(tasks)); renderTasks();
-        }
-        function deleteTask(id) {
-            tasks = tasks.filter(t => t.id !== id);
-            localStorage.setItem('crm_tasks', JSON.stringify(tasks)); renderTasks();
-        }
-        function renderTasks() {
-            document.getElementById('task-list').innerHTML = tasks.map(t => `
-                <li class="emerald-card p-5 flex justify-between items-center">
-                    <span onclick="toggleTask(${t.id})" class="text-sm font-heavy cursor-pointer ${t.done ? 'opacity-20 line-through' : ''}">${t.done ? '✓' : '○'} ${t.text}</span>
-                    <button onclick="deleteTask(${t.id})" class="text-red-500/40 px-2"><i class="fas fa-times"></i></button>
-                </li>`).join('');
-        }
-    </script>
-</body>
-</html>
