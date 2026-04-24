@@ -14,7 +14,7 @@
             --accent: #10b981; 
             --bg-dark: #000000; 
             --card-dark: #121212; 
-            --ios-blur: blur(20px);
+            --ios-blur: blur(30px);
         }
 
         body { 
@@ -25,125 +25,131 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* ✨ iOS Smooth Transitions */
-        * { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; }
+        /* ✨ iPhone Smooth Transitions */
+        * { transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1); scroll-behavior: smooth; }
 
         .emerald-card { 
             background: var(--card-dark); 
             border: 1px solid rgba(255, 255, 255, 0.05); 
-            border-radius: 24px; 
+            border-radius: 28px; 
         }
 
         /* 📱 iOS Spring Interaction */
-        button:active { transform: scale(0.92); }
+        button:active, .emerald-card:active { transform: scale(0.94); }
 
         .font-heavy { font-weight: 800; }
-        .hidden-page { display: none !important; }
+        .hidden-page { display: none !important; opacity: 0; transform: scale(0.95); }
 
-        /* 🌊 Glassmorphism */
+        /* 🌊 Glassmorphism Nav */
         nav { 
-            background: rgba(18, 18, 18, 0.8) !important; 
+            background: rgba(18, 18, 18, 0.7) !important; 
             backdrop-filter: var(--ios-blur); 
             -webkit-backdrop-filter: var(--ios-blur);
+            border-top: 0.5px solid rgba(255,255,255,0.1);
         }
 
         /* 🚨 Alerts Glow */
-        @keyframes ios-glow-red { 0%, 100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); } }
-        @keyframes ios-glow-orange { 0%, 100% { box-shadow: 0 0 5px rgba(249, 115, 22, 0.2); } 50% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.5); } }
+        @keyframes ios-glow-red { 0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); } }
+        @keyframes ios-glow-orange { 0%, 100% { box-shadow: 0 0 8px rgba(249, 115, 22, 0.2); } 50% { box-shadow: 0 0 20px rgba(249, 115, 22, 0.5); } }
         
-        .overdue-glow { animation: ios-glow-red 3s infinite ease-in-out; border: 1px solid rgba(239, 68, 68, 0.3) !important; }
-        .today-glow { animation: ios-glow-orange 3s infinite ease-in-out; border: 1px solid rgba(249, 115, 22, 0.3) !important; }
+        .overdue-glow { animation: ios-glow-red 3s infinite ease-in-out; border: 1px solid rgba(239, 68, 68, 0.4) !important; }
+        .today-glow { animation: ios-glow-orange 3s infinite ease-in-out; border: 1px solid rgba(249, 115, 22, 0.4) !important; }
 
-        table { border-collapse: separate; border-spacing: 0 12px; }
-        td { background: #121212; padding: 16px; border: 1px solid rgba(255,255,255,0.03); }
-        td:first-child { border-radius: 20px 0 0 20px; }
-        td:last-child { border-radius: 0 20px 20px 0; }
+        /* 📊 Table Styling */
+        table { border-collapse: separate; border-spacing: 0 14px; }
+        td { background: #121212; padding: 18px; border: 1px solid rgba(255,255,255,0.02); }
+        td:first-child { border-radius: 22px 0 0 22px; }
+        td:last-child { border-radius: 0 22px 22px 0; }
+        
+        .editable-input { background: transparent; border: none; width: 100%; color: white; font-weight: 700; outline: none; }
+        .editable-select { background: transparent; border: none; color: var(--accent); font-weight: 800; cursor: pointer; outline: none; }
 
-        .filter-chip { padding: 10px 18px; border-radius: 15px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; white-space: nowrap; }
+        .filter-chip { padding: 12px 20px; border-radius: 18px; font-size: 11px; font-weight: 800; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; white-space: nowrap; background: #1c1c1e; }
         .filter-active { background: var(--accent) !important; color: black !important; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="pb-32">
 
-    <div id="login-screen" style="position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 2rem; transition: opacity 0.4s ease;">
+    <div id="login-screen" style="position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 2rem; transition: opacity 0.6s ease;">
         <div class="text-center w-full max-w-sm">
-            <div class="w-24 h-24 bg-emerald-500 rounded-[2.5rem] mx-auto mb-8 flex items-center justify-center text-black text-4xl shadow-2xl"><i class="fas fa-fingerprint"></i></div>
+            <div class="w-24 h-24 bg-emerald-500 rounded-[2.5rem] mx-auto mb-8 flex items-center justify-center text-black text-4xl"><i class="fas fa-fingerprint"></i></div>
             <h2 class="text-4xl font-heavy mb-8 tracking-tighter">Enter PIN</h2>
-            <input type="password" id="access-pin" oninput="autoCheck()" placeholder="••••" class="w-full p-6 rounded-3xl text-center text-2xl font-heavy outline-none mb-4 bg-[#1c1c1e] text-white">
+            <input type="password" id="access-pin" oninput="autoCheck()" placeholder="••••" class="w-full p-6 rounded-3xl text-center text-3xl font-heavy outline-none mb-6 bg-[#1c1c1e] text-white">
             <button onclick="checkAccess()" class="w-full bg-white text-black p-5 rounded-3xl font-heavy uppercase tracking-widest">Unlock</button>
         </div>
     </div>
 
-    <div id="main-app-content" style="display: none;">
+    <div id="main-app-content" style="display: none; opacity: 0;">
         
         <div id="page-dashboard" class="p-6 max-w-2xl mx-auto">
-            <header class="flex justify-between items-end mb-10">
+            <header class="flex justify-between items-end mb-12">
                 <div>
                     <p id="header-date" class="text-emerald-500 font-bold text-xs uppercase tracking-widest mb-1 opacity-70"></p>
-                    <h1 class="text-4xl font-heavy tracking-tighter">Dashboard</h1>
+                    <h1 class="text-5xl font-heavy tracking-tighter">Board</h1>
                 </div>
                 <div class="flex gap-3">
                     <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="handleCSV(this)">
-                    <button onclick="document.getElementById('csv-input').click()" class="w-12 h-12 emerald-card flex items-center justify-center text-blue-400"><i class="fas fa-file-import"></i></button>
-                    <button onclick="fetchLeads()" class="w-12 h-12 emerald-card flex items-center justify-center text-emerald-500"><i class="fas fa-sync-alt"></i></button>
+                    <button onclick="document.getElementById('csv-input').click()" class="w-14 h-14 emerald-card flex items-center justify-center text-blue-400"><i class="fas fa-file-import"></i></button>
+                    <button onclick="fetchLeads()" class="w-14 h-14 emerald-card flex items-center justify-center text-emerald-500"><i class="fas fa-sync-alt"></i></button>
                 </div>
             </header>
 
-            <div class="grid grid-cols-2 gap-4 mb-10">
-                <div onclick="setFilter('All', this)" class="emerald-card p-6 bg-gradient-to-br from-[#121212] to-[#1a1a1a]">
+            <div class="grid grid-cols-2 gap-5 mb-12">
+                <div onclick="setFilter('All', this)" class="emerald-card p-7 bg-gradient-to-br from-[#121212] to-[#1a1a1a]">
                     <p class="text-xs font-heavy text-emerald-500 uppercase opacity-60">Total Leads</p>
-                    <h2 id="count-all" class="text-4xl font-heavy mt-2">0</h2>
+                    <h2 id="count-all" class="text-5xl font-heavy mt-2">0</h2>
                 </div>
-                <div onclick="setFilter('Today', this)" class="emerald-card p-6 bg-gradient-to-br from-[#121212] to-[#1a1a1a]">
+                <div onclick="setFilter('Today', this)" class="emerald-card p-7 bg-gradient-to-br from-[#121212] to-[#1a1a1a]">
                     <p class="text-xs font-heavy text-blue-500 uppercase opacity-60">Today</p>
-                    <h2 id="count-today" class="text-4xl font-heavy mt-2 text-blue-400">0</h2>
+                    <h2 id="count-today" class="text-5xl font-heavy mt-2 text-blue-400">0</h2>
                 </div>
             </div>
 
-            <div id="alert-section" class="mb-10 space-y-6">
+            <div id="alert-section" class="mb-12 space-y-8">
                 <div id="overdue-container" class="hidden">
-                    <h3 class="text-xs font-black text-red-500 uppercase tracking-widest mb-3 ml-2">Overdue</h3>
+                    <h3 class="text-xs font-black text-red-500 uppercase tracking-widest mb-4 ml-2">Overdue</h3>
                     <div id="overdue-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar"></div>
                 </div>
                 <div id="today-container" class="hidden">
-                    <h3 class="text-xs font-black text-orange-500 uppercase tracking-widest mb-3 ml-2">Due Today</h3>
+                    <h3 class="text-xs font-black text-orange-500 uppercase tracking-widest mb-4 ml-2">Due Today</h3>
                     <div id="today-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar"></div>
                 </div>
             </div>
 
-            <div class="flex gap-3 overflow-x-auto no-scrollbar mb-8">
-                <div onclick="setFilter('New', this)" class="filter-chip bg-[#1c1c1e]">New <span id="count-new" class="ml-1 opacity-30">0</span></div>
-                <div onclick="setFilter('Follow-up', this)" class="filter-chip bg-[#1c1c1e]">Follow-up <span id="count-follow" class="ml-1 opacity-30">0</span></div>
-                <div onclick="setFilter('Converted', this)" class="filter-chip bg-[#1c1c1e]">Closed <span id="count-closed" class="ml-1 opacity-30">0</span></div>
+            <div class="flex gap-3 overflow-x-auto no-scrollbar mb-10">
+                <div onclick="setFilter('New', this)" class="filter-chip">New <span id="count-new" class="ml-1 opacity-30">0</span></div>
+                <div onclick="setFilter('Follow-up', this)" class="filter-chip">Follow-up <span id="count-follow" class="ml-1 opacity-30">0</span></div>
+                <div onclick="setFilter('Converted', this)" class="filter-chip">Closed <span id="count-closed" class="ml-1 opacity-30">0</span></div>
             </div>
 
-            <div class="space-y-4" id="main-list"></div>
+            <div class="space-y-5" id="main-list"></div>
         </div>
 
         <div id="page-checklist" class="p-6 max-w-2xl mx-auto hidden-page">
-            <h2 class="text-4xl font-heavy mb-8 tracking-tighter">Tasks</h2>
-            <div class="emerald-card p-4 mb-8 bg-[#1c1c1e]">
-                <div class="flex gap-3">
-                    <input type="text" id="new-task" placeholder="Add task..." class="flex-1 p-4 rounded-2xl outline-none font-bold bg-transparent">
-                    <button onclick="addTask()" class="bg-white text-black w-14 rounded-2xl font-heavy text-2xl">+</button>
+            <h2 class="text-5xl font-heavy mb-10 tracking-tighter">Tasks</h2>
+            <div class="emerald-card p-5 mb-10 bg-[#1c1c1e]">
+                <div class="flex gap-4">
+                    <input type="text" id="new-task" placeholder="Add mission..." class="flex-1 p-5 rounded-3xl outline-none font-bold bg-transparent">
+                    <button onclick="addTask()" class="bg-white text-black w-16 h-16 rounded-[1.5rem] font-heavy text-3xl">+</button>
                 </div>
             </div>
-            <ul id="task-list" class="space-y-4"></ul>
+            <ul id="task-list" class="space-y-5"></ul>
         </div>
 
-        <div id="page-data" class="p-6 max-w-4xl mx-auto hidden-page">
-            <div class="flex justify-between items-center mb-10">
-                <h2 class="text-4xl font-heavy tracking-tighter">Data</h2>
-                <div class="bg-[#1c1c1e] px-4 py-2 rounded-xl flex items-center gap-3">
-                    <i class="fas fa-search opacity-30"></i>
-                    <input type="text" id="table-search" oninput="filterTable()" placeholder="Search" class="bg-transparent border-none text-sm font-bold w-24 outline-none">
+        <div id="page-data" class="p-6 max-w-5xl mx-auto hidden-page">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-5xl font-heavy tracking-tighter">Data</h2>
+                <div class="bg-[#1c1c1e] px-5 py-3 rounded-2xl">
+                    <input type="text" id="table-search" oninput="filterTable()" placeholder="Search..." class="bg-transparent border-none text-sm font-bold w-28 outline-none">
                 </div>
             </div>
             <div class="overflow-x-auto no-scrollbar">
                 <table class="w-full text-left">
                     <thead>
-                        <tr class="text-[10px] uppercase opacity-40">
-                            <th class="pb-4">✔</th><th>Lead</th><th>Status</th><th>Action</th>
+                        <tr class="text-[11px] uppercase opacity-40">
+                            <th class="pb-5 px-4">Lead</th><th class="pb-5">Phone</th><th class="pb-5">Status</th><th class="pb-5">Action</th>
                         </tr>
                     </thead>
                     <tbody id="table-body"></tbody>
@@ -151,36 +157,36 @@
             </div>
         </div>
 
-        <nav class="fixed bottom-8 left-6 right-6 h-20 rounded-[2.5rem] flex justify-around items-center px-8 z-[500] border border-white/5">
+        <nav class="fixed bottom-10 left-6 right-6 h-24 rounded-[3rem] flex justify-around items-center px-10 z-[500]">
             <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col items-center text-emerald-500">
-                <i class="fas fa-th-large text-2xl mb-1"></i><span class="text-[9px] font-heavy uppercase tracking-widest">Board</span>
+                <i class="fas fa-home text-2xl mb-1"></i><span class="text-[10px] font-heavy uppercase tracking-widest">Board</span>
             </button>
             <button onclick="switchPage('checklist')" id="nav-checklist" class="flex flex-col items-center opacity-30">
-                <i class="fas fa-check-double text-2xl mb-1"></i><span class="text-[9px] font-heavy uppercase tracking-widest">Tasks</span>
+                <i class="fas fa-tasks text-2xl mb-1"></i><span class="text-[10px] font-heavy uppercase tracking-widest">Tasks</span>
             </button>
-            <button onclick="openModal('add')" class="bg-emerald-500 text-black w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl -mt-16 border-[6px] border-[#000]"><i class="fas fa-plus"></i></button>
+            <button onclick="openModal('add')" class="bg-emerald-500 text-black w-16 h-16 rounded-[2rem] flex items-center justify-center -mt-20 border-[8px] border-[#000]"><i class="fas fa-plus"></i></button>
             <button onclick="switchPage('data')" id="nav-data" class="flex flex-col items-center opacity-30">
-                <i class="fas fa-table text-2xl mb-1"></i><span class="text-[9px] font-heavy uppercase tracking-widest">Data</span>
+                <i class="fas fa-database text-2xl mb-1"></i><span class="text-[10px] font-heavy uppercase tracking-widest">Data</span>
             </button>
         </nav>
     </div>
 
-    <div id="leadModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center z-[1000] p-4">
-        <div class="emerald-card w-full max-w-sm p-8 bg-[#1c1c1e] rounded-t-[3rem] sm:rounded-[3rem] shadow-2xl">
-            <form id="lead-form" class="space-y-5">
+    <div id="leadModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-xl flex items-end sm:items-center justify-center z-[1000] p-4">
+        <div class="emerald-card w-full max-w-sm p-10 bg-[#1c1c1e] rounded-[3.5rem]">
+            <form id="lead-form" class="space-y-6">
                 <input type="hidden" id="f-id">
-                <input type="text" id="f-name" placeholder="Name" class="w-full p-4 rounded-2xl font-bold bg-[#2c2c2e] border-none" required>
-                <input type="text" id="f-phone" placeholder="Phone" class="w-full p-4 rounded-2xl font-bold bg-[#2c2c2e] border-none" required>
+                <input type="text" id="f-name" placeholder="Name" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] border-none" required>
+                <input type="text" id="f-phone" placeholder="Phone" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] border-none" required>
                 <div class="grid grid-cols-2 gap-4">
-                    <select id="f-status" class="w-full p-4 rounded-2xl font-bold bg-[#2c2c2e] border-none">
+                    <select id="f-status" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] border-none">
                         <option value="New">New</option>
                         <option value="Follow-up">Follow-up</option>
                         <option value="Converted">Closed</option>
                     </select>
-                    <input type="date" id="f-fdate" class="w-full p-4 rounded-2xl font-bold bg-[#2c2c2e] border-none">
+                    <input type="date" id="f-fdate" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] border-none">
                 </div>
-                <button type="submit" class="w-full bg-emerald-500 text-black p-5 rounded-2xl font-heavy uppercase">Sync Lead</button>
-                <button type="button" onclick="closeModal()" class="w-full text-white/30 text-xs font-heavy py-2">Close</button>
+                <button type="submit" class="w-full bg-emerald-500 text-black p-6 rounded-2xl font-heavy uppercase">Sync Database</button>
+                <button type="button" onclick="closeModal()" class="w-full text-white/30 text-xs font-heavy py-2">Dismiss</button>
             </form>
         </div>
     </div>
@@ -192,19 +198,18 @@
         let tasks = JSON.parse(localStorage.getItem('crm_tasks')) || [];
         const today = new Date().toISOString().split('T')[0];
 
-        function autoCheck() { 
-            if(document.getElementById('access-pin').value === SECRET_PIN) checkAccess(); 
-        }
-
+        function autoCheck() { if(document.getElementById('access-pin').value === SECRET_PIN) checkAccess(); }
+        
         function checkAccess() {
-            const pin = document.getElementById('access-pin').value.trim();
-            if(pin === SECRET_PIN) {
+            if(document.getElementById('access-pin').value.trim() === SECRET_PIN) {
                 document.getElementById('login-screen').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('main-app-content').style.display = 'block';
+                    const main = document.getElementById('main-app-content');
+                    main.style.display = 'block';
+                    setTimeout(() => main.style.opacity = '1', 50);
                     fetchLeads(); renderTasks();
-                }, 400);
+                }, 600);
             }
         }
 
@@ -215,6 +220,17 @@
                 leadsData = await res.json();
                 updateUI();
             } catch (e) { console.error("Sync Error"); }
+        }
+
+        async function inlineUpdate(id, field, value) {
+            const lead = leadsData.find(x => x.id === id);
+            lead[field] = value;
+            await fetch(`${API_URL}/id/${id}`, { 
+                method: 'PATCH', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({data: lead}) 
+            });
+            updateUI();
         }
 
         function updateUI() {
@@ -251,14 +267,14 @@
         }
 
         function createAlertCard(l, glowClass, label) {
-            return `<div class="min-w-[170px] emerald-card p-5 ${glowClass}">
-                        <div class="flex justify-between items-start mb-3">
-                            <h4 class="text-xs font-heavy truncate w-24">${l.name}</h4>
-                            <span class="text-[7px] font-black px-2 py-1 rounded-full bg-white/10 uppercase">${label}</span>
+            return `<div class="min-w-[190px] emerald-card p-6 ${glowClass}">
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="text-sm font-heavy truncate w-24">${l.name}</h4>
+                            <span class="text-[8px] font-black px-2.5 py-1 rounded-full bg-white/10 uppercase">${label}</span>
                         </div>
                         <div class="flex gap-2">
-                            <a href="tel:${l.phone}" class="flex-1 bg-white/5 py-2.5 rounded-xl text-center text-[8px] font-black">CALL</a>
-                            <a href="https://wa.me/91${l.phone}" class="flex-1 bg-emerald-500/10 text-emerald-500 py-2.5 rounded-xl text-center text-[8px] font-black">WA</a>
+                            <a href="tel:${l.phone}" class="flex-1 bg-white/10 py-3 rounded-2xl text-center text-[9px] font-black">CALL</a>
+                            <a href="https://wa.me/91${l.phone}" class="flex-1 bg-emerald-500/20 text-emerald-500 py-3 rounded-2xl text-center text-[9px] font-black">WA</a>
                         </div>
                     </div>`;
         }
@@ -266,14 +282,14 @@
         function renderMainList(data) {
             const list = document.getElementById('main-list');
             list.innerHTML = data.slice().reverse().map(l => `
-                <div class="emerald-card p-6 flex justify-between items-center active:scale-[0.98]">
+                <div class="emerald-card p-7 flex justify-between items-center active:scale-[0.97]">
                     <div onclick="openModal('edit', '${l.id}')" class="flex-1">
-                        <h4 class="font-heavy text-md ${l.status==='Converted' ? 'opacity-20 line-through' : ''}">${l.name}</h4>
-                        <p class="text-[9px] font-heavy text-emerald-500/40 uppercase mt-1 tracking-widest">${l.status} • ${l.followUpDate || 'No Date'}</p>
+                        <h4 class="font-heavy text-lg ${l.status==='Converted' ? 'opacity-20 line-through' : ''}">${l.name}</h4>
+                        <p class="text-[10px] font-heavy text-emerald-500/40 uppercase mt-2 tracking-widest">${l.status} • ${l.followUpDate || 'No Date'}</p>
                     </div>
-                    <div class="flex gap-3">
-                        <a href="https://wa.me/91${l.phone}" class="w-11 h-11 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
-                        <a href="tel:${l.phone}" class="w-11 h-11 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
+                    <div class="flex gap-4">
+                        <a href="https://wa.me/91${l.phone}" class="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center text-xl"><i class="fab fa-whatsapp"></i></a>
+                        <a href="tel:${l.phone}" class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center text-xl"><i class="fas fa-phone-alt"></i></a>
                     </div>
                 </div>`).join('');
         }
@@ -283,10 +299,16 @@
             if(!tbody) return;
             tbody.innerHTML = leadsData.map(l => `
                 <tr class="table-row-item" data-name="${l.name.toLowerCase()}" data-phone="${l.phone}">
-                    <td class="text-center"><input type="checkbox" class="accent-emerald-500"></td>
-                    <td><div class="text-sm font-bold">${l.name}</div><div class="text-[10px] opacity-30">${l.phone}</div></td>
-                    <td><span class="text-[8px] font-black px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-500 uppercase">${l.status}</span></td>
-                    <td><div class="flex gap-4"><a href="tel:${l.phone}" class="text-blue-400"><i class="fas fa-phone-alt"></i></a><a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a></div></td>
+                    <td class="px-4"><input class="editable-input" value="${l.name}" onchange="inlineUpdate('${l.id}', 'name', this.value)"></td>
+                    <td><input class="editable-input text-white/50 text-sm" value="${l.phone}" onchange="inlineUpdate('${l.id}', 'phone', this.value)"></td>
+                    <td>
+                        <select class="editable-select" onchange="inlineUpdate('${l.id}', 'status', this.value)">
+                            <option value="New" ${l.status==='New'?'selected':''}>New</option>
+                            <option value="Follow-up" ${l.status==='Follow-up'?'selected':''}>Follow</option>
+                            <option value="Converted" ${l.status==='Converted'?'selected':''}>Closed</option>
+                        </select>
+                    </td>
+                    <td><div class="flex gap-5"><a href="tel:${l.phone}" class="text-blue-400"><i class="fas fa-phone-alt"></i></a><a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a></div></td>
                 </tr>`).join('');
         }
 
@@ -299,7 +321,7 @@
 
         function setFilter(type, el) {
             if(el) {
-                document.querySelectorAll('.filter-chip, .emerald-card').forEach(c => c.classList.remove('filter-active'));
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('filter-active'));
                 el.classList.add('filter-active');
             }
             let f = leadsData;
@@ -313,25 +335,4 @@
         document.getElementById('lead-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('f-id').value;
-            const data = { id: id || "L"+Date.now(), name: document.getElementById('f-name').value, phone: document.getElementById('f-phone').value, status: document.getElementById('f-status').value, followUpDate: document.getElementById('f-fdate').value };
-            await fetch(id ? `${API_URL}/id/${id}` : API_URL, { method: id ? 'PATCH' : 'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data: id ? data : [data]}) });
-            closeModal(); fetchLeads();
-        });
-
-        function handleCSV(input) {
-            const file = input.files[0];
-            if(!file) return;
-            Papa.parse(file, {
-                header: true,
-                complete: async function(res) {
-                    const data = res.data.map(r => ({ id:"L"+Date.now()+Math.random(), name:r.name||"No Name", phone:r.phone||"0", status:r.status||"New", followUpDate:r.date||"" }));
-                    await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data}) });
-                    fetchLeads();
-                }
-            });
-        }
-
-        function switchPage(p) {
-            document.getElementById('page-dashboard').classList.toggle('hidden-page', p !== 'dashboard');
-            document.getElementById('page-checklist').classList.toggle('hidden-page', p !== 'checklist');
-            document.getElementById('page-data').classList.toggle('hidden-page', p !== 'data');
+            const data = { id: id || "L"+Date.now(), name: document.getElementById('f-name').value, phone: document.getElementById('f-phone').value, status: doc
