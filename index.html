@@ -3,132 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeadFlow | Krishna Raikwar CRM</title>
+    <title>LeadFlow Pro | Krishna</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         :root { --primary: #1e6b3e; --bg: #f4f7f6; }
         body { background-color: var(--bg); color: #333; font-family: 'Inter', sans-serif; }
-        .glass-card { background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e0e6e3; }
-        .stat-card { transition: 0.3s; cursor: pointer; border-bottom: 4px solid transparent; }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .active-filter { border-bottom-color: var(--primary) !important; background: #f0f9f4; }
+        .glass-card { background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e0e6e3; position: relative; }
+        .lead-done { text-decoration: line-through; opacity: 0.5; filter: grayscale(1); }
         .btn-action { transition: 0.2s; }
         .btn-action:active { transform: scale(0.95); }
-        .login-screen { position: fixed; inset: 0; z-index: 1000; background: var(--primary); display: flex; align-items: center; justify-content: center; }
+        .status-select { font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 6px; border: 1px solid #ddd; background: #f9f9f9; cursor: pointer; }
     </style>
 </head>
 <body class="p-2 md:p-6">
 
-    <div id="loginOverlay" class="login-screen">
-        <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm text-center shadow-2xl">
-            <div class="w-16 h-16 bg-[#1e6b3e] rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl shadow-lg">
-                <i class="fas fa-shield-alt"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">LeadFlow Access</h2>
-            <input type="password" id="passKey" placeholder="Access Key" class="w-full bg-gray-100 p-4 rounded-xl outline-none mb-4 text-center text-lg border-2 border-transparent focus:border-[#1e6b3e]">
-            <button onclick="checkLogin()" class="w-full bg-[#1e6b3e] text-white p-4 rounded-xl font-bold shadow-lg hover:bg-[#165230]">ENTER DASHBOARD</button>
-        </div>
-    </div>
-
-    <div id="crmContent" class="hidden max-w-5xl mx-auto">
+    <div id="crmContent" class="max-w-5xl mx-auto">
         <header class="flex justify-between items-center mb-6 bg-[#1e6b3e] p-4 rounded-2xl shadow-lg text-white">
             <div class="flex items-center gap-2">
                 <div class="bg-white text-[#1e6b3e] p-2 rounded-lg font-bold">LF</div>
-                <h1 class="font-bold text-lg tracking-tight">LeadFlow</h1>
+                <h1 class="font-bold text-lg tracking-tight">LeadFlow Pro</h1>
             </div>
-            <div class="flex items-center gap-4">
-                <span class="text-xs font-medium opacity-80">Hi, Krishna</span>
-                <button onclick="logout()" class="bg-white/20 p-2 rounded-lg hover:bg-white/30"><i class="fas fa-sign-out-alt"></i></button>
-            </div>
+            <button onclick="logout()" class="bg-white/20 p-2 rounded-lg"><i class="fas fa-sync"></i></button>
         </header>
 
-        <div class="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
-            <button onclick="toggleModal()" class="bg-[#1e6b3e] text-white px-6 py-3 rounded-xl font-bold text-sm whitespace-nowrap btn-action shadow-md">+ Add Lead</button>
-            <button onclick="document.getElementById('csvFileInput').click()" class="bg-white border border-gray-200 px-6 py-3 rounded-xl font-bold text-sm whitespace-nowrap btn-action">Import CSV</button>
-            <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div onclick="filterLeads('New')" class="glass-card p-4">
+                <p class="text-gray-400 text-[10px] font-bold uppercase">New</p>
+                <h2 id="new-leads" class="text-2xl font-black">0</h2>
+            </div>
+            <div onclick="filterLeads('Interested')" class="glass-card p-4">
+                <p class="text-gray-400 text-[10px] font-bold uppercase">Interested</p>
+                <h2 id="interested-leads" class="text-2xl font-black">0</h2>
+            </div>
+            <div onclick="filterLeads('Closed')" class="glass-card p-4">
+                <p class="text-gray-400 text-[10px] font-bold uppercase">Closed</p>
+                <h2 id="closed-leads" class="text-2xl font-black">0</h2>
+            </div>
+            <div onclick="filterLeads('All')" class="glass-card p-4 border-b-4 border-[#1e6b3e]">
+                <p class="text-gray-400 text-[10px] font-bold uppercase">Total</p>
+                <h2 id="total-leads" class="text-2xl font-black">0</h2>
+            </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div onclick="filterLeads('New')" id="card-New" class="glass-card p-4 stat-card">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg text-xs"><i class="fas fa-plus"></i></div>
-                    <span class="text-[10px] font-bold bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">New</span>
-                </div>
-                <h2 id="new-leads" class="text-3xl font-black text-gray-800">0</h2>
-                <p class="text-gray-400 text-[10px] font-medium uppercase mt-1">Uncontacted</p>
-            </div>
-            <div onclick="filterLeads('Interested')" id="card-Interested" class="glass-card p-4 stat-card">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="p-2 bg-purple-50 text-purple-600 rounded-lg text-xs"><i class="fas fa-star"></i></div>
-                    <span class="text-[10px] font-bold bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">Interested</span>
-                </div>
-                <h2 id="interested-leads" class="text-3xl font-black text-gray-800">0</h2>
-                <p class="text-gray-400 text-[10px] font-medium uppercase mt-1">Awaiting Response</p>
-            </div>
-            <div onclick="filterLeads('Closed')" id="card-Closed" class="glass-card p-4 stat-card">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="p-2 bg-green-50 text-green-600 rounded-lg text-xs"><i class="fas fa-check-circle"></i></div>
-                    <span class="text-[10px] font-bold bg-green-100 text-green-600 px-2 py-0.5 rounded-full">Closed</span>
-                </div>
-                <h2 id="closed-leads" class="text-3xl font-black text-gray-800">0</h2>
-                <p class="text-gray-400 text-[10px] font-medium uppercase mt-1">Deals Won</p>
-            </div>
-            <div onclick="filterLeads('All')" id="card-All" class="glass-card p-4 stat-card active-filter">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="p-2 bg-gray-50 text-gray-600 rounded-lg text-xs"><i class="fas fa-list"></i></div>
-                </div>
-                <h2 id="total-leads" class="text-3xl font-black text-gray-800">0</h2>
-                <p class="text-gray-400 text-[10px] font-medium uppercase mt-1">Total Pipeline</p>
-            </div>
+        <div class="flex gap-2 mb-6">
+            <button onclick="toggleModal()" class="bg-[#1e6b3e] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-md">+ NEW LEAD</button>
         </div>
 
         <div class="mb-8">
-            <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">
-                <i class="fas fa-calendar-check text-[#1e6b3e]"></i> Active Follow-ups
-            </h3>
+            <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2"><i class="fas fa-address-book text-[#1e6b3e]"></i> Leads & Follow-ups</h3>
             <div id="lead-list" class="grid gap-4">
                 </div>
         </div>
     </div>
 
     <div id="leadModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[500]">
-        <div class="bg-white w-full max-w-md p-6 rounded-[2rem] shadow-2xl">
-            <h2 class="text-xl font-bold mb-6">Add New Contact</h2>
+        <div class="bg-white w-full max-w-md p-6 rounded-[2rem]">
+            <h2 class="text-xl font-bold mb-6">Add Contact</h2>
             <form id="leadForm" class="space-y-4">
-                <input type="text" id="name" placeholder="Contact Name" class="w-full bg-gray-50 p-4 rounded-xl outline-none border border-gray-100 focus:border-[#1e6b3e]" required>
-                <input type="text" id="phone" placeholder="Phone (e.g. 9876543210)" class="w-full bg-gray-50 p-4 rounded-xl outline-none border border-gray-100 focus:border-[#1e6b3e]" required>
-                <select id="status" class="w-full bg-gray-50 p-4 rounded-xl outline-none border border-gray-100 focus:border-[#1e6b3e]">
-                    <option value="New">New Lead</option>
+                <input type="text" id="name" placeholder="Name" class="w-full bg-gray-50 p-4 rounded-xl outline-none" required>
+                <input type="text" id="phone" placeholder="Phone" class="w-full bg-gray-50 p-4 rounded-xl outline-none" required>
+                <select id="status" class="w-full bg-gray-50 p-4 rounded-xl outline-none">
+                    <option value="New">New</option>
                     <option value="Interested">Interested</option>
                     <option value="Closed">Closed</option>
                 </select>
-                <button type="submit" id="saveBtn" class="w-full bg-[#1e6b3e] text-white p-4 rounded-xl font-bold shadow-md">SAVE TO CLOUD</button>
-                <button type="button" onclick="toggleModal()" class="w-full text-gray-400 font-bold py-2">Go Back</button>
+                <button type="submit" id="saveBtn" class="w-full bg-[#1e6b3e] text-white p-4 rounded-xl font-bold">SAVE</button>
+                <button type="button" onclick="toggleModal()" class="w-full text-gray-400 font-bold py-2">Cancel</button>
             </form>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://sheetdb.io/api/v1/7skn6892hya7x"; // Your API
-        const MASTER_PASSWORD = "123"; // Update as needed
+        const API_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
         let allLeadsData = [];
-
-        function checkLogin() {
-            if(document.getElementById('passKey').value === MASTER_PASSWORD) {
-                localStorage.setItem('crmLoggedIn', 'true');
-                showDashboard();
-            } else { alert("Incorrect Key!"); }
-        }
-
-        function showDashboard() {
-            document.getElementById('loginOverlay').classList.add('hidden');
-            document.getElementById('crmContent').classList.remove('hidden');
-            fetchLeads();
-        }
-
-        function logout() { localStorage.removeItem('crmLoggedIn'); location.reload(); }
+        let completedLeads = JSON.parse(localStorage.getItem('completedLeads') || '[]');
 
         async function fetchLeads() {
             try {
@@ -136,7 +86,7 @@
                 allLeadsData = await res.json();
                 updateStats();
                 filterLeads('All');
-            } catch (e) { console.error("Sync Error"); }
+            } catch (e) { console.error("Error fetching data"); }
         }
 
         function updateStats() {
@@ -146,72 +96,80 @@
             document.getElementById('closed-leads').innerText = allLeadsData.filter(l => l.status === 'Closed').length;
         }
 
+        // Toggle Cross Mark (Strike-through)
+        function toggleDone(id) {
+            if (completedLeads.includes(id)) {
+                completedLeads = completedLeads.filter(i => i !== id);
+            } else {
+                completedLeads.push(id);
+            }
+            localStorage.setItem('completedLeads', JSON.stringify(completedLeads));
+            filterLeads('All');
+        }
+
+        // Status Update Function
+        async function updateLeadStatus(id, newStatus) {
+            const row = allLeadsData.find(l => l.id == id);
+            if(!row) return;
+            
+            // SheetDB update call
+            try {
+                await fetch(`${API_URL}/id/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: { status: newStatus } })
+                });
+                alert("Status Updated!");
+                fetchLeads();
+            } catch (e) { alert("Update Failed!"); }
+        }
+
         function filterLeads(status) {
             const list = document.getElementById('lead-list');
             list.innerHTML = '';
-            document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active-filter'));
-            document.getElementById('card-' + status).classList.add('active-filter');
-
             const filtered = status === 'All' ? allLeadsData : allLeadsData.filter(l => l.status === status);
-            
-            if(filtered.length === 0) {
-                list.innerHTML = `<div class="text-center py-20 text-gray-400">No leads found in this stage.</div>`;
-                return;
-            }
 
             filtered.reverse().forEach(l => {
+                const isDone = completedLeads.includes(l.id);
                 const statusColor = l.status === 'Closed' ? 'green' : (l.status === 'Interested' ? 'purple' : 'blue');
+                
                 list.innerHTML += `
-                    <div class="glass-card p-5 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div class="flex items-center gap-4 w-full">
-                            <div class="w-12 h-12 bg-${statusColor}-100 text-${statusColor}-600 rounded-full flex items-center justify-center font-bold text-lg">${l.name.charAt(0)}</div>
-                            <div>
-                                <h4 class="font-bold text-gray-800">${l.name}</h4>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] font-bold text-${statusColor}-600 uppercase tracking-tighter">${l.status}</span>
-                                    <span class="text-gray-300">•</span>
-                                    <span class="text-[11px] text-gray-500">${l.phone}</span>
+                    <div class="glass-card p-4 flex flex-col md:flex-row justify-between items-center gap-4 ${isDone ? 'lead-done' : ''}">
+                        <div class="flex items-center gap-3 w-full">
+                            <button onclick="toggleDone('${l.id}')" class="w-8 h-8 rounded-full border-2 border-gray-200 flex items-center justify-center hover:bg-green-100 transition-all">
+                                ${isDone ? '<i class="fas fa-check text-green-600"></i>' : ''}
+                            </button>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-sm text-gray-800">${l.name}</h4>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <select onchange="updateLeadStatus('${l.id}', this.value)" class="status-select text-${statusColor}-600">
+                                        <option value="New" ${l.status === 'New' ? 'selected' : ''}>New</option>
+                                        <option value="Interested" ${l.status === 'Interested' ? 'selected' : ''}>Interested</option>
+                                        <option value="Closed" ${l.status === 'Closed' ? 'selected' : ''}>Closed</option>
+                                    </select>
+                                    <span class="text-[11px] text-gray-400">${l.phone}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="flex gap-2 w-full md:w-auto">
-                            <a href="https://wa.me/91${l.phone}" target="_blank" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#25D366] text-white px-4 py-2.5 rounded-xl font-bold text-xs btn-action shadow-sm">
-                                <i class="fab fa-whatsapp text-sm"></i> WhatsApp
-                            </a>
-                            <a href="tel:${l.phone}" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs btn-action shadow-sm">
-                                <i class="fas fa-phone-alt text-sm"></i> Call
-                            </a>
+                            <a href="https://wa.me/91${l.phone}" target="_blank" class="flex-1 text-center bg-[#25D366] text-white px-4 py-2 rounded-xl text-xs font-bold btn-action"><i class="fab fa-whatsapp"></i> Chat</a>
+                            <a href="tel:${l.phone}" class="flex-1 text-center bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold btn-action"><i class="fas fa-phone-alt"></i> Call</a>
                         </div>
                     </div>`;
-            });
-        }
-
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                complete: async function(results) {
-                    const data = results.data.map(row => ({ id: Date.now()+Math.random(), name: row.name || row.Name, phone: row.phone || row.Phone, status: row.status || "New" }));
-                    if(confirm(`Import ${data.length} leads?`)) {
-                        await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data }) });
-                        fetchLeads();
-                    }
-                }
             });
         }
 
         document.getElementById('leadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn'); btn.innerText = "SAVING...";
-            const newLead = { data: [{ id: Date.now(), name: document.getElementById('name').value, phone: document.getElementById('phone').value, status: document.getElementById('status').value }] };
+            const id = "ID" + Date.now(); // Unique ID for each lead
+            const newLead = { data: [{ id: id, name: document.getElementById('name').value, phone: document.getElementById('phone').value, status: document.getElementById('status').value }] };
             await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newLead) });
-            toggleModal(); document.getElementById('leadForm').reset(); btn.innerText = "SAVE TO CLOUD"; fetchLeads();
+            toggleModal(); document.getElementById('leadForm').reset(); btn.innerText = "SAVE"; fetchLeads();
         });
 
         function toggleModal() { document.getElementById('leadModal').classList.toggle('hidden'); }
-        window.onload = () => { if(localStorage.getItem('crmLoggedIn') === 'true') showDashboard(); };
+        window.onload = fetchLeads;
     </script>
 </body>
 </html>
