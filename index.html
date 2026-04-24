@@ -31,10 +31,10 @@
             <h2 class="text-3xl font-black text-[#1e6b3e] mb-2 tracking-tighter">Secure Access</h2>
             <p class="text-[10px] font-black opacity-40 uppercase mb-8 tracking-widest">LeadFlow Omni • Krishna</p>
             <div class="space-y-4">
-                <input type="password" id="access-pin" placeholder="Enter PIN" class="w-full p-5 rounded-2xl bg-gray-100 outline-none font-bold text-center text-xl tracking-widest" autofocus>
-                <button onclick="checkAccess()" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black shadow-xl hover:scale-95 transition-transform uppercase">Unlock CRM</button>
+                <input type="password" id="access-pin" oninput="autoCheck()" placeholder="Enter PIN" class="w-full p-5 rounded-2xl bg-gray-100 outline-none font-bold text-center text-xl tracking-widest" autofocus>
+                <button type="button" onclick="checkAccess()" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black shadow-xl hover:scale-95 transition-transform uppercase">Unlock CRM</button>
             </div>
-            <p id="error-msg" class="text-red-500 text-[10px] font-bold mt-4 hidden">Galat PIN hai Krishna!</p>
+            <p id="error-msg" class="text-red-500 text-[10px] font-bold mt-4 hidden">PIN Galat hai Krishna!</p>
         </div>
     </div>
 
@@ -47,6 +47,227 @@
                 </div>
                 <div class="flex gap-2">
                     <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="importCSV(this)">
-                    <button onclick="document.getElementById('csv-file').click()" class="bg-blue-600 text-white h-10 px-4 rounded-full text-[10px] font-black shadow-lg flex items-center gap-2"><i class="fas fa-file-csv"></i> IMPORT</button>
+                    <button onclick="document.getElementById('csv-file').click()" class="bg-blue-600 text-white h-10 px-4 rounded-full text-[10px] font-black shadow-lg flex items-center gap-2"><i class="fas fa-file-csv"></i></button>
                     <button onclick="fetchLeads()" class="bg-[#1e6b3e] text-white h-10 w-10 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-sync-alt"></i></button>
-                    <button onclick="toggleTheme()" class="bg-white dark:bg-white/5 h-10 w-
+                    <button onclick="toggleTheme()" class="bg-white dark:bg-white/5 h-10 w-10 rounded-full flex items-center justify-center shadow-sm"><i class="fas fa-moon"></i></button>
+                </div>
+            </header>
+
+            <div id="alert-box" class="mb-8 hidden">
+                <h3 class="text-[11px] font-black text-orange-600 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fas fa-bell animate-bounce"></i> Today's Priority</h3>
+                <div id="alert-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar"></div>
+            </div>
+
+            <div class="mb-8 bg-white dark:bg-[#141d16] p-6 rounded-[2rem] shadow-sm border border-black/5">
+                <h3 class="text-[11px] font-black text-[#1e6b3e] uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fas fa-check-circle"></i> Daily Tasks</h3>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="new-task" placeholder="Add a task..." class="flex-1 p-3 rounded-xl bg-gray-100 dark:bg-black outline-none text-sm font-bold">
+                    <button onclick="addTask()" class="bg-[#1e6b3e] text-white px-4 rounded-xl font-black text-sm">+</button>
+                </div>
+                <ul id="task-list" class="space-y-2"></ul>
+            </div>
+
+            <div id="stat-cards" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                <div id="btn-all" onclick="setFilter('All', this)" class="glass-card p-4 border-b-4 border-gray-400 filter-active">
+                    <p class="text-[9px] font-black opacity-50 uppercase">Total</p>
+                    <h2 id="count-all" class="text-2xl font-black">0</h2>
+                </div>
+                <div id="btn-today" onclick="setFilter('Today', this)" class="glass-card p-4 border-b-4 border-blue-500">
+                    <p class="text-[9px] font-black text-blue-500 uppercase">Today</p>
+                    <h2 id="count-today" class="text-2xl font-black text-blue-500">0</h2>
+                </div>
+                <div id="btn-overdue" onclick="setFilter('Overdue', this)" class="glass-card p-4 border-b-4 border-red-500">
+                    <p class="text-[9px] font-black text-red-500 uppercase">Overdue</p>
+                    <h2 id="count-over" class="text-2xl font-black text-red-500">0</h2>
+                </div>
+                <div id="btn-won" onclick="setFilter('Converted', this)" class="glass-card p-4 border-b-4 border-green-600">
+                    <p class="text-[9px] font-black text-green-600 uppercase">Won</p>
+                    <h2 id="count-won" class="text-2xl font-black text-green-600">0</h2>
+                </div>
+            </div>
+
+            <div id="main-list" class="grid gap-3"></div>
+        </div>
+
+        <div id="page-calling" class="p-4 max-w-5xl mx-auto hidden-page">
+            <h2 class="text-xl font-black mb-6">Dialer Mode</h2>
+            <div id="dialer-container" class="glass-card p-10 text-center shadow-2xl min-h-[400px] flex flex-col justify-center">
+                <div id="dialer-active">
+                    <h3 id="dialer-name" class="text-4xl font-black mb-2">---</h3>
+                    <p id="dialer-sub" class="text-sm opacity-50 mb-8 font-bold">---</p>
+                    <div class="flex justify-center gap-6 mb-8">
+                        <a id="dialer-call" href="#" class="h-20 w-20 bg-blue-600 text-white rounded-[2rem] flex items-center justify-center text-3xl shadow-xl"><i class="fas fa-phone"></i></a>
+                        <a id="dialer-wa" href="#" class="h-20 w-20 bg-[#25D366] text-white rounded-[2rem] flex items-center justify-center text-3xl shadow-xl"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                    <button onclick="saveDialerData()" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black">SAVE & NEXT</button>
+                </div>
+            </div>
+        </div>
+
+        <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#141d16] border-t border-gray-100 flex justify-around p-4 shadow-2xl z-[500]">
+            <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col items-center gap-1 opacity-50 nav-active"><i class="fas fa-th-large text-xl"></i></button>
+            <button onclick="openModal('add')" class="flex flex-col items-center -mt-10 bg-[#1e6b3e] h-14 w-14 rounded-full text-white justify-center shadow-xl border-4 border-white"><i class="fas fa-plus"></i></button>
+            <button onclick="switchPage('calling')" id="nav-calling" class="flex flex-col items-center gap-1 opacity-50"><i class="fas fa-phone-volume text-xl"></i></button>
+        </nav>
+    </div>
+
+    <div id="leadModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-[1000]">
+        <div class="bg-white dark:bg-[#141d16] w-full max-w-lg p-8 rounded-[2.5rem]">
+            <form id="lead-form" class="space-y-4">
+                <input type="hidden" id="f-id">
+                <input type="text" id="f-name" placeholder="Name" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black font-bold" required>
+                <input type="text" id="f-phone" placeholder="Phone" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black font-bold" required>
+                <select id="f-status" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black font-bold">
+                    <option value="New">New</option>
+                    <option value="Interested">Interested</option>
+                    <option value="Follow-up">Follow-up</option>
+                    <option value="Converted">Converted</option>
+                </select>
+                <input type="date" id="f-fdate" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black font-bold">
+                <button type="submit" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black">SAVE DATA</button>
+                <button type="button" onclick="closeModal()" class="w-full text-xs font-bold opacity-30 mt-2">CANCEL</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
+        const SECRET_PIN = "1321";
+        let leadsData = [];
+        let tasks = JSON.parse(localStorage.getItem('crm_tasks')) || [];
+        const today = new Date().toISOString().split('T')[0];
+
+        // --- 🔐 LOGIN FORCE (Fixed) ---
+        function autoCheck() {
+            const val = document.getElementById('access-pin').value;
+            if(val === SECRET_PIN) {
+                checkAccess();
+            }
+        }
+
+        function checkAccess() {
+            const pinVal = document.getElementById('access-pin').value.trim();
+            if(pinVal === SECRET_PIN) {
+                document.getElementById('login-screen').style.setProperty('display', 'none', 'important');
+                document.getElementById('main-app-content').style.display = 'block';
+                fetchLeads();
+                renderTasks();
+            } else {
+                document.getElementById('error-msg').classList.remove('hidden');
+            }
+        }
+
+        // --- ✅ TASKS ---
+        function addTask() {
+            const input = document.getElementById('new-task');
+            if (!input.value.trim()) return;
+            tasks.push({ id: Date.now(), text: input.value, done: false });
+            localStorage.setItem('crm_tasks', JSON.stringify(tasks));
+            input.value = ""; renderTasks();
+        }
+        function toggleTask(id) {
+            tasks = tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+            localStorage.setItem('crm_tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            localStorage.setItem('crm_tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+        function renderTasks() {
+            const list = document.getElementById('task-list');
+            if(!list) return;
+            list.innerHTML = tasks.map(t => `
+                <li class="flex justify-between items-center p-3 bg-gray-50 dark:bg-black/20 rounded-xl">
+                    <span onclick="toggleTask(${t.id})" class="text-sm font-bold cursor-pointer ${t.done ? 'strikethrough opacity-40' : ''}">
+                        ${t.done ? '✅' : '⭕'} ${t.text}
+                    </span>
+                    <button onclick="deleteTask(${t.id})" class="text-red-400 px-2"><i class="fas fa-trash"></i></button>
+                </li>`).join('');
+        }
+
+        // --- 📊 CRM ---
+        async function fetchLeads() {
+            document.getElementById('header-date').innerText = new Date().toDateString();
+            try {
+                const res = await fetch(API_URL);
+                leadsData = await res.json();
+                updateUI();
+            } catch(e) { console.log("Fetch error"); }
+        }
+
+        function updateUI() {
+            let stats = { total: leadsData.length, today: 0, over: 0, won: 0 };
+            const alertList = document.getElementById('alert-list');
+            alertList.innerHTML = '';
+            leadsData.forEach(l => {
+                if(l.followUpDate === today && l.status !== 'Converted') {
+                    stats.today++;
+                    alertList.innerHTML += `<div class="min-w-[180px] glass-card p-4 border-t-4 border-orange-500 alert-card"><h4 class="font-black text-xs truncate">${l.name}</h4><button onclick="quickTalked('${l.id}')" class="w-full bg-[#1e6b3e] text-white text-[9px] font-black py-2 mt-2 rounded-lg uppercase">Done</button></div>`;
+                }
+                if(l.followUpDate < today && l.status !== 'Converted') stats.over++;
+                if(l.status === 'Converted') stats.won++;
+            });
+            document.getElementById('alert-box').classList.toggle('hidden', stats.today === 0);
+            document.getElementById('count-all').innerText = stats.total;
+            document.getElementById('count-today').innerText = stats.today;
+            document.getElementById('count-over').innerText = stats.over;
+            document.getElementById('count-won').innerText = stats.won;
+            setFilter('All', document.getElementById('btn-all'));
+        }
+
+        function renderMainList(data) {
+            const list = document.getElementById('main-list');
+            list.innerHTML = data.slice().reverse().map(l => `
+                <div class="glass-card p-5 flex justify-between items-center ${l.status === 'Converted' ? 'opacity-50' : ''}" onclick="openModal('edit', '${l.id}')">
+                    <div><h4 class="font-bold text-sm ${l.status==='Converted' ? 'strikethrough' : ''}">${l.name}</h4><p class="text-[9px] font-black opacity-40 uppercase">${l.status} • ${l.followUpDate || 'No Date'}</p></div>
+                    <i class="fas fa-chevron-right opacity-20"></i>
+                </div>`).join('');
+        }
+
+        function setFilter(type, el) {
+            document.querySelectorAll('#stat-cards .glass-card').forEach(c => c.classList.remove('filter-active'));
+            el.classList.add('filter-active');
+            let f = leadsData;
+            if(type==='Today') f = leadsData.filter(x => x.followUpDate === today);
+            else if(type==='Overdue') f = leadsData.filter(x => x.followUpDate < today && x.status !== 'Converted');
+            else if(type==='Converted') f = leadsData.filter(x => x.status === 'Converted');
+            renderMainList(f);
+        }
+
+        function openModal(mode, id) {
+            if(mode === 'edit') {
+                const l = leadsData.find(x => x.id === id);
+                document.getElementById('f-id').value = l.id;
+                document.getElementById('f-name').value = l.name;
+                document.getElementById('f-phone').value = l.phone;
+                document.getElementById('f-status').value = l.status;
+                document.getElementById('f-fdate').value = l.followUpDate || "";
+            } else { document.getElementById('lead-form').reset(); document.getElementById('f-id').value = ""; }
+            document.getElementById('leadModal').classList.remove('hidden');
+        }
+
+        document.getElementById('lead-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('f-id').value;
+            const data = { id: id || "L" + Date.now(), name: document.getElementById('f-name').value, phone: document.getElementById('f-phone').value, status: document.getElementById('f-status').value, followUpDate: document.getElementById('f-fdate').value };
+            await fetch(id ? `${API_URL}/id/${id}` : API_URL, { method: id ? 'PATCH' : 'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data: id ? data : [data]}) });
+            closeModal(); fetchLeads();
+        });
+
+        function closeModal() { document.getElementById('leadModal').classList.add('hidden'); }
+        function switchPage(p) {
+            document.getElementById('page-dashboard').classList.toggle('hidden-page', p !== 'dashboard');
+            document.getElementById('page-calling').classList.toggle('hidden-page', p !== 'calling');
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
+            document.getElementById('nav-' + p).classList.add('nav-active');
+        }
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); document.body.classList.toggle('light-mode'); }
+        async function quickTalked(id) {
+            const d = prompt("Next Follow-up?", today);
+            if(d) { await fetch(`${API_URL}/id/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({data: {followUpDate: d, status: 'Follow-up'}}) }); fetchLeads(); }
+        }
+    </script>
+</body>
+</html>
