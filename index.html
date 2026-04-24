@@ -9,7 +9,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
         :root { --accent: #10b981; --bg: #000; --card: #121212; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #fff; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #fff; -webkit-tap-highlight-color: transparent; }
         .emerald-card { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; }
         .hidden-page { display: none !important; }
         .task-done { opacity: 0.3; text-decoration: line-through; }
@@ -18,6 +18,8 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         nav { background: rgba(18,18,18,0.8); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); }
         .active-filter { border: 1px solid var(--accent) !important; background: rgba(16, 185, 129, 0.1); }
+        .alert-card { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body class="pb-32">
@@ -40,6 +42,8 @@
                     <button onclick="fetchLeads()" class="text-emerald-500"><i class="fas fa-sync-alt"></i></button>
                 </div>
             </header>
+
+            <div id="alert-zone" class="space-y-3 mb-8"></div>
 
             <div class="grid grid-cols-2 gap-3 mb-8">
                 <div class="stat-box" id="box-all" onclick="filterBy('all')">
@@ -166,19 +170,52 @@
         }
 
         function renderAll() {
-            const total = leadsData.length;
-            const closed = leadsData.filter(l => l.status === 'Converted').length;
-            const todayL = leadsData.filter(l => l.followUpDate === todayStr).length;
-            const overdue = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted').length;
+            const todayLeads = leadsData.filter(l => l.followUpDate === todayStr && l.status !== 'Converted');
+            const overdueLeads = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted');
 
-            document.getElementById('stat-total').innerText = total;
-            document.getElementById('stat-closed').innerText = closed;
-            document.getElementById('stat-today').innerText = todayL;
-            document.getElementById('stat-overdue').innerText = overdue;
+            // Update Stats
+            document.getElementById('stat-total').innerText = leadsData.length;
+            document.getElementById('stat-closed').innerText = leadsData.filter(l => l.status === 'Converted').length;
+            document.getElementById('stat-today').innerText = todayLeads.length;
+            document.getElementById('stat-overdue').innerText = overdueLeads.length;
 
-            filterBy('all'); // Default view
+            // 🚨 ALERTS RENDER
+            let alertHtml = '';
             
-            // Database render
+            // Overdue Alerts (Red)
+            overdueLeads.forEach(l => {
+                alertHtml += `
+                <div class="alert-card bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex justify-between items-center">
+                    <div>
+                        <p class="text-[9px] text-red-500 font-black uppercase tracking-tighter mb-1">⚠️ Missed Follow-up</p>
+                        <p class="font-bold text-sm">${l.name}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:${l.phone}" class="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center text-xs opacity-50"><i class="fas fa-phone"></i></a>
+                        <a href="https://wa.me/91${l.phone}" class="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-lg flex items-center justify-center text-xs"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>`;
+            });
+
+            // Today Alerts (Blue)
+            todayLeads.forEach(l => {
+                alertHtml += `
+                <div class="alert-card bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl flex justify-between items-center">
+                    <div>
+                        <p class="text-[9px] text-blue-400 font-black uppercase tracking-tighter mb-1">📅 Scheduled Today</p>
+                        <p class="font-bold text-sm">${l.name}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:${l.phone}" class="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center text-xs opacity-50"><i class="fas fa-phone"></i></a>
+                        <a href="https://wa.me/91${l.phone}" class="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-lg flex items-center justify-center text-xs"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>`;
+            });
+
+            document.getElementById('alert-zone').innerHTML = alertHtml;
+
+            filterBy('all'); 
+            
             document.getElementById('table-body').innerHTML = leadsData.map(l => `
                 <div class="data-row" data-name="${l.name.toLowerCase()}">${cardTemplate(l)}</div>
             `).join('');
@@ -202,7 +239,7 @@
                 </div>
             </div>`;
 
-        // CSV, CHECKLIST & MODAL functions... (Same as previous)
+        // CSV IMPORT
         function handleCSV(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
@@ -212,7 +249,7 @@
                 const imported = rows.map(row => {
                     const cols = row.split(',');
                     if(cols.length < 2) return null;
-                    return { id: "L"+Date.now()+Math.random(), name: cols[0], phone: cols[1], status: 'New', history: "[]" };
+                    return { id: "L"+Date.now()+Math.floor(Math.random()*999), name: cols[0].trim(), phone: cols[1].trim(), status: 'New', history: "[]" };
                 }).filter(x => x);
                 await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: imported}) });
                 fetchLeads();
@@ -220,6 +257,7 @@
             reader.readAsText(file);
         }
 
+        // CHECKLIST
         function renderTasks() {
             document.getElementById('task-list').innerHTML = tasks.map(t => `
                 <li class="emerald-card p-4 flex justify-between items-center ${t.done ? 'task-done' : ''}">
@@ -239,6 +277,7 @@
         function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); saveT(); renderTasks(); }
         function saveT() { localStorage.setItem('crm_tasks', JSON.stringify(tasks)); }
 
+        // MODAL
         function openModal(mode, id) {
             const hSec = document.getElementById('history-section');
             if(mode === 'edit') {
