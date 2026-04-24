@@ -5,51 +5,208 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LeadFlow Pro | Krishna</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #1e6b3e; }
-        body.light-mode { background-color: #f4f7f6; color: #333; }
-        body.dark-mode { background-color: #0f172a; color: #f1f5f9; }
-        .glass-card { border-radius: 20px; transition: 0.3s; position: relative; overflow: hidden; }
-        .light-mode .glass-card { background: white; border: 1px solid #e0e6e3; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .dark-mode .glass-card { background: #1e293b; border: 1px solid #334155; }
-        
-        .overdue-card { border-left: 5px solid #ef4444 !important; background: #fef2f2 !important; }
-        .dark-mode .overdue-card { background: #451a1a !important; }
-        
-        .today-card { border-left: 5px solid #f59e0b !important; background: #fffbeb !important; }
-        .dark-mode .today-card { background: #452e1a !important; }
-
-        .lead-done { text-decoration: line-through; opacity: 0.4; filter: grayscale(1); }
-        .btn-action { transition: 0.2s; cursor: pointer; }
-        .btn-action:active { transform: scale(0.95); }
+        body.light-mode { background-color: #f0f4f1; color: #1a2e21; }
+        body.dark-mode { background-color: #0a0f0b; color: #e8f5e9; }
+        .glass-card { border-radius: 24px; transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); }
+        .light-mode .glass-card { background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.03); }
+        .dark-mode .glass-card { background: #141d16; border-color: #1e2e22; }
+        .overdue-badge { background: #fee2e2; color: #ef4444; padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: bold; }
+        .lead-done { opacity: 0.3; text-decoration: line-through; filter: grayscale(1); }
     </style>
 </head>
-<body class="light-mode p-2 md:p-6 transition-colors duration-300">
+<body class="light-mode p-3 md:p-6 transition-all duration-500">
 
-    <div id="crmContent" class="max-w-5xl mx-auto">
-        <header class="flex justify-between items-center mb-6 bg-[#1e6b3e] p-4 rounded-2xl shadow-lg text-white">
-            <div class="flex items-center gap-2">
-                <div class="bg-white text-[#1e6b3e] h-10 w-10 rounded-xl flex items-center justify-center font-bold">LF</div>
-                <h1 class="font-bold text-lg">LeadFlow Krishna</h1>
+    <div class="max-w-5xl mx-auto">
+        <header class="flex justify-between items-center mb-8 bg-[#1e6b3e] p-5 rounded-[2rem] shadow-xl text-white">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 h-12 w-12 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                    <i class="fas fa-chart-line text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-xl tracking-tight">LeadFlow</h1>
+                    <p class="text-[10px] opacity-70 uppercase font-bold tracking-widest">Krishna Raikwar</p>
+                </div>
             </div>
-            <div class="flex gap-3">
-                <button onclick="toggleTheme()" class="bg-white/20 p-2.5 rounded-xl"><i id="theme-icon" class="fas fa-moon"></i></button>
-                <button onclick="fetchLeads()" class="bg-white/20 p-2.5 rounded-xl"><i class="fas fa-sync-alt"></i></button>
+            <div class="flex gap-2">
+                <button onclick="toggleTheme()" class="bg-white/10 h-10 w-10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all">
+                    <i id="theme-icon" class="fas fa-moon"></i>
+                </button>
+                <button onclick="fetchLeads()" class="bg-white/10 h-10 w-10 rounded-full flex items-center justify-center hover:rotate-180 transition-all">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
             </div>
         </header>
 
-        <div id="alert-container" class="space-y-4 mb-8">
-            <div id="overdue-section" class="hidden">
-                <h3 class="text-red-500 font-bold text-xs uppercase tracking-widest mb-2 ml-2"><i class="fas fa-exclamation-triangle"></i> Overdue Leads</h3>
-                <div id="overdue-list" class="grid gap-3"></div>
-            </div>
-            <div id="today-section" class="hidden">
-                <h3 class="text-orange-500 font-bold text-xs uppercase tracking-widest mb-2 ml-2"><i class="fas fa-clock"></i> Due Today</h3>
-                <div id="today-list" class="grid gap-3"></div>
-            </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="glass-card p-5"><p class="text-[10px] font-bold opacity-50 uppercase">New</p><h2 id="s-new" class="text-3xl font-black text-blue-500">0</h2></div>
+            <div class="glass-card p-5"><p class="text-[10px] font-bold opacity-50 uppercase">Contacted</p><h2 id="s-cont" class="text-3xl font-black text-orange-500">0</h2></div>
+            <div class="glass-card p-5 border-b-4 border-red-500"><p class="text-[10px] font-bold text-red-500 uppercase">Overdue</p><h2 id="s-over" class="text-3xl font-black text-red-500">0</h2></div>
+            <div class="glass-card p-5 border-b-4 border-[#1e6b3e]"><p class="text-[10px] font-bold text-[#1e6b3e] uppercase">Won</p><h2 id="s-won" class="text-3xl font-black text-[#1e6b3e]">0</h2></div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="glass-card p-4 border-b-4 border-red-500"><p class="text-[10px] font-bold opacity-60">OVERDUE</p><h2 id="stat-overdue" class="text-2xl font-black text-red-500">0</h2></div>
-            <div class="glass-card p-4 border-b-4 border-orange-500"><p class="text-[10px] font-bold opacity-60">TODAY</p><h2 id="stat-today" class="text-2xl font-black text-orange
+        <div class="glass-card p-6 mb-8">
+            <h3 class="font-bold mb-4 flex justify-between items-center">
+                Pipeline Breakdown <span id="total-badge" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">0 total</span>
+            </h3>
+            <canvas id="pipelineChart" height="100"></canvas>
+        </div>
+
+        <div id="overdue-container" class="hidden mb-8">
+            <div class="flex items-center gap-2 mb-4 text-red-500 font-bold uppercase text-xs tracking-widest">
+                <i class="fas fa-exclamation-circle animate-pulse"></i> Missed Follow-ups
+            </div>
+            <div id="overdue-list" class="grid gap-3"></div>
+        </div>
+
+        <div class="fixed bottom-6 right-6 z-50">
+            <button onclick="toggleModal()" class="bg-[#1e6b3e] text-white h-16 w-16 rounded-full shadow-2xl flex items-center justify-center text-2xl hover:scale-110 transition-all">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+
+        <h3 class="font-bold opacity-50 text-xs uppercase mb-4 tracking-widest">Active Pipeline</h3>
+        <div id="main-list" class="grid gap-4 mb-24"></div>
+    </div>
+
+    <div id="leadModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
+        <div class="bg-white dark:bg-[#141d16] w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl border border-white/10">
+            <h2 class="text-2xl font-black mb-6 text-[#1e6b3e]">Add New Lead</h2>
+            <form id="leadForm" class="space-y-4">
+                <input type="text" id="name" placeholder="Client Name" class="w-full bg-gray-50 dark:bg-black p-4 rounded-2xl outline-none border border-gray-100 dark:border-white/5" required>
+                <input type="text" id="phone" placeholder="WhatsApp Number" class="w-full bg-gray-50 dark:bg-black p-4 rounded-2xl outline-none border border-gray-100 dark:border-white/5" required>
+                <div>
+                    <label class="text-[10px] font-bold opacity-40 ml-2">FOLLOW-UP DATE</label>
+                    <input type="date" id="fDate" class="w-full bg-gray-50 dark:bg-black p-4 rounded-2xl outline-none border border-gray-100 dark:border-white/5" required>
+                </div>
+                <select id="status" class="w-full bg-gray-50 dark:bg-black p-4 rounded-2xl outline-none border border-gray-100 dark:border-white/5">
+                    <option value="New">New</option>
+                    <option value="Contacted">Contacted</option>
+                    <option value="Interested">Interested</option>
+                    <option value="Closed">Closed</option>
+                </select>
+                <button type="submit" id="saveBtn" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black shadow-lg shadow-green-900/20">SAVE TO CLOUD</button>
+                <button type="button" onclick="toggleModal()" class="w-full text-gray-400 font-bold py-2 text-sm">Maybe Later</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API = "https://sheetdb.io/api/v1/7skn6892hya7x";
+        let leads = [];
+        let completed = JSON.parse(localStorage.getItem('k_done') || '[]');
+        let myChart;
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('light-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('theme-icon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            localStorage.setItem('k_theme', isDark ? 'dark' : 'light');
+        }
+        if(localStorage.getItem('k_theme') === 'dark') toggleTheme();
+
+        async function fetchLeads() {
+            const res = await fetch(API);
+            leads = await res.json();
+            render();
+        }
+
+        function render() {
+            const today = new Date().toISOString().split('T')[0];
+            const mainList = document.getElementById('main-list');
+            const overList = document.getElementById('overdue-list');
+            mainList.innerHTML = ''; overList.innerHTML = '';
+            
+            let stats = { New: 0, Contacted: 0, Interested: 0, Closed: 0, Overdue: 0 };
+
+            leads.reverse().forEach(l => {
+                const isOverdue = l.followUpDate < today && l.status !== 'Closed';
+                const card = createCard(l, isOverdue);
+                
+                stats[l.status]++;
+                if(isOverdue) { stats.Overdue++; overList.innerHTML += card; }
+                mainList.innerHTML += card;
+            });
+
+            // Update UI
+            document.getElementById('s-new').innerText = stats.New;
+            document.getElementById('s-cont').innerText = stats.Contacted + stats.Interested;
+            document.getElementById('s-over').innerText = stats.Overdue;
+            document.getElementById('s-won').innerText = stats.Closed;
+            document.getElementById('total-badge').innerText = leads.length + " total";
+            document.getElementById('overdue-container').classList.toggle('hidden', stats.Overdue === 0);
+
+            updateChart(stats);
+        }
+
+        function createCard(l, isOverdue) {
+            const isDone = completed.includes(l.id);
+            return `
+                <div class="glass-card p-5 flex flex-col md:flex-row justify-between items-center gap-4 ${isDone ? 'lead-done' : ''} ${isOverdue ? 'border-l-4 border-red-500' : ''}">
+                    <div class="flex items-center gap-4 w-full">
+                        <button onclick="toggleDone('${l.id}')" class="w-10 h-10 rounded-2xl border-2 border-gray-100 flex items-center justify-center bg-gray-50 dark:bg-black">
+                            ${isDone ? '<i class="fas fa-check text-green-500"></i>' : ''}
+                        </button>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-base tracking-tight">${l.name}</h4>
+                            <div class="flex flex-wrap items-center gap-3 mt-1">
+                                <span class="text-[9px] font-black px-2 py-0.5 bg-gray-100 dark:bg-white/5 rounded-md uppercase opacity-70">${l.status}</span>
+                                <span class="text-xs font-medium opacity-50"><i class="fas fa-phone-alt mr-1"></i>${l.phone}</span>
+                                <span class="text-xs font-bold ${isOverdue ? 'text-red-500' : 'opacity-50'}">
+                                    <i class="far fa-calendar-alt mr-1"></i>${l.followUpDate}
+                                    ${isOverdue ? '<span class="ml-1 text-[8px] uppercase">Overdue</span>' : ''}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <a href="https://wa.me/91${l.phone}" class="flex-1 bg-[#25D366] text-white px-4 py-3 rounded-2xl text-[10px] font-black text-center shadow-lg shadow-green-500/10">WHATSAPP</a>
+                        <a href="tel:${l.phone}" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-2xl text-[10px] font-black text-center shadow-lg shadow-blue-500/10">CALL</a>
+                    </div>
+                </div>`;
+        }
+
+        function updateChart(s) {
+            const ctx = document.getElementById('pipelineChart').getContext('2d');
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['New', 'Contacted', 'Interested', 'Closed'],
+                    datasets: [{
+                        label: 'Leads',
+                        data: [s.New, s.Contacted, s.Interested, s.Closed],
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#a855f7', '#1e6b3e'],
+                        borderRadius: 12
+                    }]
+                },
+                options: { 
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { display: false }, ticks: { display: false } }, x: { grid: { display: false } } }
+                }
+            });
+        }
+
+        function toggleDone(id) {
+            completed.includes(id) ? completed = completed.filter(i => i !== id) : completed.push(id);
+            localStorage.setItem('k_done', JSON.stringify(completed));
+            render();
+        }
+
+        document.getElementById('leadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveBtn'); btn.innerText = "UPLOADING...";
+            const data = [{ id: "K"+Date.now(), name: document.getElementById('name').value, phone: document.getElementById('phone').value, status: document.getElementById('status').value, followUpDate: document.getElementById('fDate').value }];
+            await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data }) });
+            toggleModal(); document.getElementById('leadForm').reset(); fetchLeads();
+        });
+
+        function toggleModal() { document.getElementById('leadModal').classList.toggle('hidden'); }
+        window.onload = fetchLeads;
+    </script>
+</body>
+</html>
