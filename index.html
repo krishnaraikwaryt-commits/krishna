@@ -25,7 +25,7 @@
         <div class="max-w-md w-full glass-panel rounded-[2.5rem] p-10 text-center">
             <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-indigo-600 text-white text-3xl mb-6 shadow-xl"><i class="fas fa-shield-halved"></i></div>
             <h1 class="text-3xl font-black text-slate-900">Nexus<span class="text-indigo-600">CRM</span></h1>
-            <p class="text-slate-500 mt-2 mb-8 font-medium">Verify Identity</p>
+            <p class="text-slate-500 mt-2 mb-8 font-medium">Identity Secured</p>
             <input type="password" id="sys-pin" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="PIN" class="w-full p-5 rounded-2xl bg-slate-100 border-none outline-none text-center text-2xl font-bold tracking-[0.5em]">
         </div>
     </div>
@@ -36,6 +36,7 @@
             <nav class="flex md:flex-col gap-2">
                 <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500 active-link"><i class="fas fa-th-large"></i> Dashboard</button>
                 <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-list"></i> Pipeline</button>
+                <button onclick="System.logout()" class="mt-auto hidden md:flex items-center gap-3 p-4 rounded-xl font-bold text-red-400 hover:bg-red-50"><i class="fas fa-power-off"></i> Logout</button>
             </nav>
         </aside>
 
@@ -115,24 +116,40 @@
             Data: [],
             Today: new Date().toISOString().split('T')[0],
 
-            auth: () => {
-                if(document.getElementById('sys-pin').value === System.PIN) {
+            // 🛠️ CHECK LOGIN ON LOAD
+            init: () => {
+                const isAuth = localStorage.getItem('nexus_authenticated');
+                if (isAuth === 'true') {
                     document.getElementById('auth-gateway').classList.add('hidden');
                     document.getElementById('app-shell').classList.remove('hidden');
                     System.sync();
                 }
             },
+
+            auth: () => {
+                if(document.getElementById('sys-pin').value === System.PIN) {
+                    localStorage.setItem('nexus_authenticated', 'true'); // Save Status
+                    document.getElementById('auth-gateway').classList.add('hidden');
+                    document.getElementById('app-shell').classList.remove('hidden');
+                    System.sync();
+                }
+            },
+
+            logout: () => {
+                localStorage.removeItem('nexus_authenticated');
+                location.reload();
+            },
+
             sync: async () => {
                 const icon = document.getElementById('sync-icon');
-                icon.classList.add('fa-spin');
+                if(icon) icon.classList.add('fa-spin');
                 try {
                     const res = await fetch(System.API);
                     System.Data = await res.json();
                     UI.renderAll();
-                } finally { icon.classList.remove('fa-spin'); }
+                } finally { if(icon) icon.classList.remove('fa-spin'); }
             },
 
-            // 📂 CSV IMPORT (ADDITION)
             importCSV: async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -213,7 +230,7 @@
                         </div>
                     </div>
                 `;
-                document.getElementById('today-grid').innerHTML = todayTasks.length ? todayTasks.map(card).join('') : `<p class="text-slate-400 text-sm">No tasks for today.</p>`;
+                document.getElementById('today-grid').innerHTML = todayTasks.length ? todayTasks.map(card).join('') : `<p class="text-slate-400 text-sm">Clear for today.</p>`;
                 document.getElementById('full-pipeline').innerHTML = System.Data.slice().reverse().map(card).join('');
                 document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
             },
@@ -228,6 +245,9 @@
                 `).join('');
             }
         };
+
+        // RUN INITIALIZER
+        System.init();
 
         document.getElementById('core-form').addEventListener('submit', async (e) => {
             e.preventDefault();
