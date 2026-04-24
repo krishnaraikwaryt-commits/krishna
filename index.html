@@ -3,72 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Krishna CRM Pro</title>
+    <title>Krishna CRM | Secure Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0b0f1a; color: #e2e8f0; font-family: sans-serif; overflow-x: hidden; }
         .glass { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .active-nav { background: #3b82f6; color: white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
-        .card-stat { cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
+        .login-screen { position: fixed; inset: 0; z-index: 1000; background: #0b0f1a; display: flex; align-items: center; justify-content: center; }
+        .card-stat { cursor: pointer; transition: 0.3s; }
         .card-stat:hover { transform: translateY(-5px); background: rgba(59, 130, 246, 0.1); }
-        .card-stat.active-filter { border-color: #3b82f6; background: rgba(59, 130, 246, 0.15); }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        .active-filter { border: 2px solid #3b82f6; background: rgba(59, 130, 246, 0.15); }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
-    <nav class="glass rounded-2xl p-2 mb-8 flex items-center overflow-x-auto no-scrollbar">
-        <div class="bg-blue-600 h-10 w-10 min-w-[40px] rounded-xl flex items-center justify-center font-bold mr-4 shadow-lg shadow-blue-600/20">KR</div>
-        <div class="flex gap-2">
-            <button onclick="filterLeads('All')" class="px-4 py-2 rounded-xl active-nav font-bold text-xs whitespace-nowrap">DASHBOARD</button>
-            <button class="px-4 py-2 rounded-xl text-gray-400 font-bold text-xs hover:bg-white/5 whitespace-nowrap">KANBAN</button>
-        </div>
-    </nav>
-
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-black tracking-tight">Sales <span class="text-blue-500 text-sm block md:inline">Live Panel</span></h1>
-        <button onclick="toggleModal()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-2xl text-xs font-black transition-all">+ NEW LEAD</button>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div onclick="filterLeads('All')" id="card-All" class="glass p-6 rounded-[2rem] card-stat active-filter">
-            <p class="text-gray-500 text-[10px] font-black uppercase mb-2 tracking-widest">Total Pipeline</p>
-            <h2 id="total-leads" class="text-4xl font-black">0</h2>
-        </div>
-        <div onclick="filterLeads('New')" id="card-New" class="glass p-6 rounded-[2rem] card-stat">
-            <p class="text-gray-500 text-[10px] font-black uppercase mb-2 tracking-widest">New Leads</p>
-            <h2 id="new-leads" class="text-4xl font-black text-blue-400">0</h2>
-        </div>
-        <div onclick="filterLeads('Interested')" id="card-Interested" class="glass p-6 rounded-[2rem] card-stat border-l-4 border-orange-500">
-            <p class="text-gray-500 text-[10px] font-black uppercase mb-2 tracking-widest">Interested</p>
-            <h2 id="interested-leads" class="text-4xl font-black text-orange-400">0</h2>
-        </div>
-        <div onclick="filterLeads('Closed')" id="card-Closed" class="glass p-6 rounded-[2rem] card-stat border-l-4 border-green-500">
-            <p class="text-gray-500 text-[10px] font-black uppercase mb-2 tracking-widest">Closed Won</p>
-            <h2 id="closed-leads" class="text-4xl font-black text-green-500">0</h2>
+    <div id="loginOverlay" class="login-screen">
+        <div class="glass p-10 rounded-[2.5rem] w-full max-w-md text-center border border-white/10 shadow-2xl">
+            <div class="w-20 h-20 bg-blue-600 rounded-3xl mx-auto mb-6 flex items-center justify-center text-3xl shadow-lg shadow-blue-600/30">
+                <i class="fas fa-lock text-white"></i>
+            </div>
+            <h2 class="text-3xl font-black mb-2">Secure <span class="text-blue-500">Login</span></h2>
+            <p class="text-gray-500 text-sm mb-8">Enter your access key to manage leads</p>
+            
+            <input type="password" id="passKey" placeholder="Enter Password" class="w-full bg-slate-800/50 p-5 rounded-2xl outline-none border border-white/5 focus:border-blue-500 text-center text-xl tracking-widest mb-4">
+            
+            <button onclick="checkLogin()" class="w-full bg-blue-600 p-5 rounded-2xl font-black text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20">ACCESS DASHBOARD</button>
+            <p id="errorMsg" class="text-red-500 text-xs mt-4 hidden">Invalid Password! Try again.</p>
         </div>
     </div>
 
-    <div class="glass rounded-[2.5rem] overflow-hidden shadow-2xl">
-        <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-            <h3 class="font-bold" id="table-title">All Leads</h3>
-            <div id="loader" class="hidden text-blue-500 animate-spin"><i class="fas fa-spinner"></i></div>
+    <div id="crmContent" class="hidden">
+        <nav class="glass rounded-2xl p-2 mb-8 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="bg-blue-600 h-10 w-10 rounded-xl flex items-center justify-center font-bold mr-4">KR</div>
+                <span class="font-bold text-xs uppercase tracking-widest">Workspace Live</span>
+            </div>
+            <button onclick="logout()" class="text-red-500 font-bold text-xs px-4 py-2 hover:bg-red-500/10 rounded-xl transition-all">LOGOUT</button>
+        </nav>
+
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-black">Sales <span class="text-blue-500">Dashboard</span></h1>
+            <button onclick="toggleModal()" class="bg-blue-600 px-6 py-3 rounded-2xl text-xs font-black">+ NEW LEAD</button>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-white/5 text-[10px] font-black uppercase text-gray-400 tracking-widest">
-                    <tr>
-                        <th class="p-5">Client Information</th>
-                        <th class="p-5">Stage</th>
-                        <th class="p-5 text-center">Chat</th>
-                    </tr>
-                </thead>
-                <tbody id="lead-list" class="text-sm">
-                    <tr><td colspan="3" class="p-10 text-center text-gray-500">Loading Data...</td></tr>
-                </tbody>
-            </table>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div onclick="filterLeads('All')" id="card-All" class="glass p-6 rounded-[2rem] card-stat active-filter">
+                <p class="text-gray-500 text-[10px] font-black uppercase mb-2">Total Pipeline</p>
+                <h2 id="total-leads" class="text-4xl font-black">0</h2>
+            </div>
+            <div onclick="filterLeads('New')" id="card-New" class="glass p-6 rounded-[2rem] card-stat">
+                <p class="text-gray-500 text-[10px] font-black uppercase mb-2">New</p>
+                <h2 id="new-leads" class="text-4xl font-black text-blue-400">0</h2>
+            </div>
+            <div onclick="filterLeads('Interested')" id="card-Interested" class="glass p-6 rounded-[2rem] card-stat">
+                <p class="text-gray-500 text-[10px] font-black uppercase mb-2">Interested</p>
+                <h2 id="interested-leads" class="text-4xl font-black text-orange-400">0</h2>
+            </div>
+            <div onclick="filterLeads('Closed')" id="card-Closed" class="glass p-6 rounded-[2rem] card-stat">
+                <p class="text-gray-500 text-[10px] font-black uppercase mb-2">Closed</p>
+                <h2 id="closed-leads" class="text-4xl font-black text-green-500">0</h2>
+            </div>
+        </div>
+
+        <div class="glass rounded-[2.5rem] overflow-hidden">
+            <div class="p-6 border-b border-white/5 flex justify-between">
+                <h3 id="table-title" class="font-bold text-gray-300">All Leads</h3>
+                <div id="loader" class="hidden text-blue-500 animate-spin"><i class="fas fa-spinner"></i></div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-white/5 text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                        <tr><th class="p-5">Client</th><th class="p-5">Stage</th><th class="p-5 text-center">Chat</th></tr>
+                    </thead>
+                    <tbody id="lead-list" class="text-sm"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -76,14 +85,12 @@
         <div class="glass w-full max-w-md p-8 rounded-[2.5rem]">
             <h2 class="text-2xl font-black mb-6">New <span class="text-blue-500">Entry</span></h2>
             <form id="leadForm" class="space-y-4">
-                <input type="text" id="name" placeholder="Full Name" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none" required>
-                <input type="text" id="phone" placeholder="WhatsApp Number" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none" required>
+                <input type="text" id="name" placeholder="Name" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none" required>
+                <input type="text" id="phone" placeholder="Phone" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none" required>
                 <select id="status" class="w-full bg-slate-800/50 p-4 rounded-2xl outline-none">
-                    <option value="New">New Lead</option>
-                    <option value="Interested">Interested</option>
-                    <option value="Closed">Closed</option>
+                    <option value="New">New</option><option value="Interested">Interested</option><option value="Closed">Closed</option>
                 </select>
-                <button type="submit" id="saveBtn" class="w-full bg-blue-600 p-4 rounded-2xl font-black text-white mt-4">SAVE TO SHEET</button>
+                <button type="submit" id="saveBtn" class="w-full bg-blue-600 p-4 rounded-2xl font-black">SAVE TO SHEET</button>
                 <button type="button" onclick="toggleModal()" class="w-full text-gray-500 font-bold py-2">Close</button>
             </form>
         </div>
@@ -91,8 +98,39 @@
 
     <script>
         const API_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
-        let allLeadsData = []; // Local cache for filtering
+        const MASTER_PASSWORD = "123"; // Yahan apna password set karo
+        let allLeadsData = [];
 
+        // --- LOGIN LOGIC ---
+        function checkLogin() {
+            const input = document.getElementById('passKey').value;
+            if(input === MASTER_PASSWORD) {
+                localStorage.setItem('crmLoggedIn', 'true');
+                showDashboard();
+            } else {
+                document.getElementById('errorMsg').classList.remove('hidden');
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('crmContent').classList.remove('hidden');
+            fetchLeads();
+        }
+
+        function logout() {
+            localStorage.removeItem('crmLoggedIn');
+            location.reload();
+        }
+
+        // Check session on load
+        window.onload = () => {
+            if(localStorage.getItem('crmLoggedIn') === 'true') {
+                showDashboard();
+            }
+        };
+
+        // --- CRM LOGIC ---
         function toggleModal() { document.getElementById('leadModal').classList.toggle('hidden'); }
 
         async function fetchLeads() {
@@ -100,74 +138,45 @@
             try {
                 const response = await fetch(API_URL);
                 allLeadsData = await response.json();
-                
-                // Update Stats
-                document.getElementById('total-leads').innerText = allLeadsData.length;
-                document.getElementById('new-leads').innerText = allLeadsData.filter(l => l.status === 'New').length;
-                document.getElementById('interested-leads').innerText = allLeadsData.filter(l => l.status === 'Interested').length;
-                document.getElementById('closed-leads').innerText = allLeadsData.filter(l => l.status === 'Closed').length;
-
-                filterLeads('All'); // Initially show all
-            } catch (e) { console.error("Error"); }
+                updateStats();
+                filterLeads('All');
+            } catch (e) { console.error(e); }
             document.getElementById('loader').classList.add('hidden');
+        }
+
+        function updateStats() {
+            document.getElementById('total-leads').innerText = allLeadsData.length;
+            document.getElementById('new-leads').innerText = allLeadsData.filter(l => l.status === 'New').length;
+            document.getElementById('interested-leads').innerText = allLeadsData.filter(l => l.status === 'Interested').length;
+            document.getElementById('closed-leads').innerText = allLeadsData.filter(l => l.status === 'Closed').length;
         }
 
         function filterLeads(status) {
             const list = document.getElementById('lead-list');
-            const title = document.getElementById('table-title');
             list.innerHTML = '';
-            
-            // UI Update: Active Card Highlight
             document.querySelectorAll('.card-stat').forEach(c => c.classList.remove('active-filter'));
             document.getElementById('card-' + status).classList.add('active-filter');
 
-            title.innerText = status === 'All' ? "All Leads" : status + " Leads";
-
             const filtered = status === 'All' ? allLeadsData : allLeadsData.filter(l => l.status === status);
-
-            if(filtered.length === 0) {
-                list.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-gray-500 font-bold">No leads found in this category.</td></tr>`;
-                return;
-            }
-
             filtered.reverse().forEach(l => {
                 list.innerHTML += `
-                    <tr class="border-b border-white/5 hover:bg-white/5">
-                        <td class="p-5 flex items-center gap-3">
-                            <div class="w-10 h-10 bg-blue-600/20 text-blue-500 rounded-xl flex items-center justify-center font-black">${l.name.charAt(0)}</div>
-                            <div><div class="font-bold">${l.name}</div><div class="text-[10px] text-gray-500">${l.phone}</div></div>
-                        </td>
-                        <td class="p-5">
-                            <span class="text-[9px] font-black uppercase px-2 py-1 rounded border ${getStatusClass(l.status)}">${l.status}</span>
-                        </td>
-                        <td class="p-5 text-center">
-                            <a href="https://wa.me/91${l.phone}" target="_blank" class="text-green-500 text-xl"><i class="fab fa-whatsapp"></i></a>
-                        </td>
+                    <tr class="border-b border-white/5">
+                        <td class="p-5 font-bold">${l.name}<div class="text-[10px] text-gray-500 font-normal">${l.phone}</div></td>
+                        <td class="p-5 text-xs">${l.status}</td>
+                        <td class="p-5 text-center"><a href="https://wa.me/91${l.phone}" class="text-green-500"><i class="fab fa-whatsapp"></i></a></td>
                     </tr>`;
             });
-        }
-
-        function getStatusClass(s) {
-            if(s === 'Closed') return 'text-green-500 border-green-500/20 bg-green-500/5';
-            if(s === 'Interested') return 'text-orange-400 border-orange-500/20 bg-orange-500/5';
-            return 'text-blue-400 border-blue-500/20 bg-blue-500/5';
         }
 
         document.getElementById('leadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveBtn');
             btn.innerText = "SAVING..."; btn.disabled = true;
-
             const newLead = { data: [{ id: Date.now(), name: document.getElementById('name').value, phone: document.getElementById('phone').value, status: document.getElementById('status').value }] };
-
             await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newLead) });
-            toggleModal();
-            document.getElementById('leadForm').reset();
-            fetchLeads();
+            toggleModal(); document.getElementById('leadForm').reset(); fetchLeads();
             btn.innerText = "SAVE TO SHEET"; btn.disabled = false;
         });
-
-        window.onload = fetchLeads;
     </script>
 </body>
 </html>
