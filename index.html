@@ -31,7 +31,7 @@
             <h2 class="text-4xl font-heavy mb-2 tracking-tighter text-white">Secure Access</h2>
             <div class="space-y-4">
                 <input type="password" id="access-pin" oninput="autoCheck()" placeholder="••••" class="w-full p-6 rounded-[2rem] text-center text-3xl tracking-[0.5em] font-heavy outline-none">
-                <button onclick="checkAccess()" class="w-full bg-emerald-500 text-black p-6 rounded-[2rem] font-heavy text-lg uppercase btn-glow">Unlock System</button>
+                <button onclick="checkAccess()" class="w-full bg-emerald-500 text-black p-6 rounded-[2rem] font-heavy text-lg uppercase btn-glow">Unlock</button>
             </div>
         </div>
     </div>
@@ -43,31 +43,34 @@
                     <p id="header-date" class="text-emerald-500 font-bold text-[10px] uppercase tracking-[0.2em] mb-1"></p>
                     <h1 class="text-3xl font-heavy tracking-tighter">Dashboard</h1>
                 </div>
-                <button onclick="fetchLeads()" class="w-12 h-12 emerald-card flex items-center justify-center text-emerald-500"><i class="fas fa-redo-alt"></i></button>
+                <div class="flex gap-2">
+                    <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="handleCSV(this)">
+                    <button onclick="document.getElementById('csv-input').click()" class="w-12 h-12 emerald-card flex items-center justify-center text-blue-400"><i class="fas fa-file-import"></i></button>
+                    <button onclick="fetchLeads()" class="w-12 h-12 emerald-card flex items-center justify-center text-emerald-500"><i class="fas fa-redo-alt"></i></button>
+                </div>
             </header>
 
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div onclick="setFilter('All', this)" class="emerald-card p-6 border-l-4 border-emerald-500 bg-emerald-500/5 cursor-pointer">
-                    <p class="text-[10px] font-heavy text-emerald-500/60 uppercase">Total System</p>
+                    <p class="text-[10px] font-heavy text-emerald-500/60 uppercase">Total</p>
                     <h2 id="count-all" class="text-4xl font-heavy mt-1">0</h2>
                 </div>
                 <div onclick="setFilter('Today', this)" class="emerald-card p-6 border-l-4 border-blue-500 cursor-pointer">
-                    <p class="text-[10px] font-heavy text-blue-500/60 uppercase">Scheduled Today</p>
+                    <p class="text-[10px] font-heavy text-blue-500/60 uppercase">Today</p>
                     <h2 id="count-today" class="text-4xl font-heavy mt-1 text-blue-400">0</h2>
                 </div>
             </div>
 
             <div id="alert-section" class="mb-8 hidden">
-                <h3 class="text-[11px] font-black text-orange-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2"><i class="fas fa-bell animate-bounce"></i> Urgent Follow-ups</h3>
+                <h3 class="text-[11px] font-black text-orange-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2"><i class="fas fa-bell animate-bounce"></i> Action Required</h3>
                 <div id="alert-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar"></div>
             </div>
 
             <div class="mb-8">
-                <h3 class="text-[11px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-4">Browse Categories</h3>
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                    <div onclick="setFilter('New', this)" class="filter-chip bg-[#141b15]">New <span id="count-new" class="ml-1 opacity-50 text-[9px]">0</span></div>
-                    <div onclick="setFilter('Follow-up', this)" class="filter-chip bg-[#141b15]">Follow-up <span id="count-follow" class="ml-1 opacity-50 text-[9px]">0</span></div>
-                    <div onclick="setFilter('Converted', this)" class="filter-chip bg-[#141b15]">Closed <span id="count-closed" class="ml-1 opacity-50 text-[9px]">0</span></div>
+                    <div onclick="setFilter('New', this)" class="filter-chip bg-[#141b15]">New <span id="count-new" class="ml-1 opacity-50">0</span></div>
+                    <div onclick="setFilter('Follow-up', this)" class="filter-chip bg-[#141b15]">Follow-up <span id="count-follow" class="ml-1 opacity-50">0</span></div>
+                    <div onclick="setFilter('Converted', this)" class="filter-chip bg-[#141b15]">Closed <span id="count-closed" class="ml-1 opacity-50">0</span></div>
                 </div>
             </div>
 
@@ -90,9 +93,7 @@
                 <i class="fas fa-grid-2 text-2xl mb-1"></i>
                 <span class="text-[9px] font-heavy uppercase">Board</span>
             </button>
-            <button onclick="openModal('add')" class="bg-emerald-500 text-black w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-[0_10px_30px_rgba(16,185,129,0.4)] -mt-12 border-4 border-[#050705]">
-                <i class="fas fa-plus"></i>
-            </button>
+            <button onclick="openModal('add')" class="bg-emerald-500 text-black w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-[0_10px_30px_rgba(16,185,129,0.4)] -mt-12 border-4 border-[#050705]"><i class="fas fa-plus"></i></button>
             <button onclick="switchPage('checklist')" id="nav-checklist" class="flex flex-col items-center opacity-40">
                 <i class="fas fa-list-check text-2xl mb-1"></i>
                 <span class="text-[9px] font-heavy uppercase">Tasks</span>
@@ -114,7 +115,7 @@
                     </select>
                     <input type="date" id="f-fdate" class="p-4 rounded-2xl font-bold outline-none">
                 </div>
-                <button type="submit" class="w-full bg-emerald-500 text-black p-5 rounded-2xl font-heavy mt-4 uppercase">Save to Cloud</button>
+                <button type="submit" class="w-full bg-emerald-500 text-black p-5 rounded-2xl font-heavy mt-4 uppercase">Sync Cloud</button>
                 <button type="button" onclick="closeModal()" class="w-full text-white/30 font-heavy text-xs mt-2">CLOSE</button>
             </form>
         </div>
@@ -136,6 +137,33 @@
             }
         }
 
+        // --- 📥 CSV HANDLER ---
+        function handleCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: async function(results) {
+                    const formatted = results.data.map(row => ({
+                        id: "L" + Math.random().toString(36).substr(2, 9),
+                        name: row.name || row.Name || "No Name",
+                        phone: row.phone || row.Phone || "000",
+                        status: row.status || "New",
+                        followUpDate: row.date || row.followUpDate || ""
+                    }));
+                    
+                    alert(`Uploading ${formatted.length} leads... please wait.`);
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ data: formatted })
+                    });
+                    fetchLeads();
+                }
+            });
+        }
+
         async function fetchLeads() {
             document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
             const res = await fetch(API_URL);
@@ -145,7 +173,6 @@
 
         function updateUI() {
             let stats = { total: leadsData.length, today: 0, new: 0, follow: 0, closed: 0 };
-            const alertSection = document.getElementById('alert-section');
             const alertList = document.getElementById('alert-list');
             alertList.innerHTML = '';
             
@@ -153,41 +180,39 @@
                 if(l.status === 'New') stats.new++;
                 if(l.status === 'Follow-up') stats.follow++;
                 if(l.status === 'Converted') stats.closed++;
-                
                 if(l.followUpDate === today && l.status !== 'Converted') {
                     stats.today++;
                     alertList.innerHTML += `
                         <div class="min-w-[200px] emerald-card p-4 alert-glow bg-orange-500/5">
-                            <h4 class="font-heavy text-sm truncate">${l.name}</h4>
+                            <h4 class="font-heavy text-sm truncate text-white">${l.name}</h4>
                             <div class="flex gap-2 mt-3">
-                                <a href="tel:${l.phone}" class="flex-1 bg-blue-500/20 text-blue-400 py-2 rounded-xl text-center text-xs font-bold"><i class="fas fa-phone-alt"></i></a>
-                                <a href="https://wa.me/91${l.phone}" class="flex-1 bg-green-500/20 text-emerald-500 py-2 rounded-xl text-center text-xs font-bold"><i class="fab fa-whatsapp"></i></a>
+                                <a href="tel:${l.phone}" class="flex-1 bg-blue-500/20 text-blue-400 py-2 rounded-xl text-center text-[10px] font-bold">CALL</a>
+                                <a href="https://wa.me/91${l.phone}" class="flex-1 bg-green-500/20 text-emerald-500 py-2 rounded-xl text-center text-[10px] font-bold">WA</a>
                             </div>
                         </div>`;
                 }
             });
 
-            alertSection.classList.toggle('hidden', stats.today === 0);
+            document.getElementById('alert-section').classList.toggle('hidden', stats.today === 0);
             document.getElementById('count-all').innerText = stats.total;
             document.getElementById('count-today').innerText = stats.today;
             document.getElementById('count-new').innerText = stats.new;
             document.getElementById('count-follow').innerText = stats.follow;
             document.getElementById('count-closed').innerText = stats.closed;
-            
             setFilter('All');
         }
 
         function renderMainList(data) {
             const list = document.getElementById('main-list');
             list.innerHTML = data.slice().reverse().map(l => `
-                <div class="emerald-card p-6 flex justify-between items-center bg-[#141b15]">
+                <div class="emerald-card p-5 flex justify-between items-center bg-[#141b15]">
                     <div onclick="openModal('edit', '${l.id}')" class="flex-1">
                         <h4 class="font-heavy text-lg ${l.status==='Converted' ? 'opacity-30 line-through' : ''}">${l.name}</h4>
-                        <p class="text-[10px] font-heavy text-emerald-500/50 uppercase mt-1 tracking-widest">${l.status} • ${l.followUpDate || 'No Date'}</p>
+                        <p class="text-[10px] font-heavy text-emerald-500/50 uppercase mt-1">${l.status} • ${l.followUpDate || 'No Date'}</p>
                     </div>
                     <div class="flex gap-3">
-                        <a href="https://wa.me/91${l.phone}" class="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center text-xl"><i class="fab fa-whatsapp"></i></a>
-                        <a href="tel:${l.phone}" class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center text-xl"><i class="fas fa-phone-alt"></i></a>
+                        <a href="https://wa.me/91${l.phone}" class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
+                        <a href="tel:${l.phone}" class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
                     </div>
                 </div>`).join('');
         }
@@ -197,16 +222,15 @@
                 document.querySelectorAll('.filter-chip, .emerald-card').forEach(c => c.classList.remove('filter-active'));
                 el.classList.add('filter-active');
             }
-            
             let f = leadsData;
             if(type==='Today') f = leadsData.filter(x => x.followUpDate === today);
             else if(type==='New') f = leadsData.filter(x => x.status === 'New');
             else if(type==='Follow-up') f = leadsData.filter(x => x.status === 'Follow-up');
             else if(type==='Converted') f = leadsData.filter(x => x.status === 'Converted');
-            
             renderMainList(f);
         }
 
+        // --- TASKS ---
         function addTask() {
             const val = document.getElementById('new-task').value;
             if(!val.trim()) return;
@@ -225,8 +249,8 @@
         function renderTasks() {
             document.getElementById('task-list').innerHTML = tasks.map(t => `
                 <li class="emerald-card p-5 flex justify-between items-center">
-                    <span onclick="toggleTask(${t.id})" class="text-md font-heavy cursor-pointer ${t.done ? 'opacity-20 line-through' : ''}">${t.done ? '✓' : '○'} ${t.text}</span>
-                    <button onclick="deleteTask(${t.id})" class="text-red-500/50 px-2"><i class="fas fa-times"></i></button>
+                    <span onclick="toggleTask(${t.id})" class="font-heavy cursor-pointer ${t.done ? 'opacity-20 line-through' : ''}">${t.done ? '✓' : '○'} ${t.text}</span>
+                    <button onclick="deleteTask(${t.id})" class="text-red-500/50"><i class="fas fa-times"></i></button>
                 </li>`).join('');
         }
 
