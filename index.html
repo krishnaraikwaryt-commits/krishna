@@ -10,19 +10,18 @@
         :root { --primary: #1e6b3e; }
         body.light-mode { background-color: #f3f7f4; color: #1a2e21; }
         body.dark-mode { background-color: #0a0f0b; color: #e8f5e9; }
-        .glass-card { border-radius: 24px; transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); cursor: pointer; position: relative; overflow: hidden; }
+        .glass-card { border-radius: 24px; transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); cursor: pointer; }
         .dark-mode .glass-card { background: #141d16; border-color: #1e2e22; }
         .light-mode .glass-card { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        
-        /* Filter Active States */
-        .filter-active { border: 2px solid var(--primary) !important; transform: scale(1.05); z-index: 10; box-shadow: 0 10px 20px rgba(30, 107, 62, 0.15) !important; }
-        .filter-inactive { opacity: 0.5; transform: scale(0.95); }
-        
-        .nav-active { color: #1e6b3e !important; }
+        .filter-active { border: 2px solid var(--primary) !important; transform: scale(1.02); z-index: 10; }
         .hidden-page { display: none; }
-        .priority-high { border-left: 6px solid #ef4444 !important; }
-        .priority-medium { border-left: 6px solid #f59e0b !important; }
-        .priority-low { border-left: 6px solid #3b82f6 !important; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .alert-pulse { animation: pulse-border 2s infinite; }
+        @keyframes pulse-border {
+            0% { border-color: rgba(30, 107, 62, 0.2); }
+            50% { border-color: rgba(30, 107, 62, 1); }
+            100% { border-color: rgba(30, 107, 62, 0.2); }
+        }
     </style>
 </head>
 <body class="light-mode pb-24 transition-all duration-500">
@@ -31,26 +30,40 @@
         <header class="flex justify-between items-center mb-6">
             <div>
                 <h1 class="font-black text-2xl tracking-tighter text-[#1e6b3e]">LeadFlow Ultra</h1>
-                <p id="current-date-display" class="text-[10px] font-bold opacity-50 uppercase tracking-widest"></p>
+                <p id="current-date-display" class="text-[10px] font-bold opacity-50 uppercase"></p>
             </div>
             <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="bg-white dark:bg-white/5 h-10 w-10 rounded-full shadow-sm flex items-center justify-center"><i id="theme-icon" class="fas fa-moon"></i></button>
-                <button onclick="fetchLeads()" class="bg-[#1e6b3e] text-white h-10 w-10 rounded-full shadow-lg flex items-center justify-center"><i class="fas fa-sync-alt"></i></button>
+                <button onclick="toggleTheme()" class="bg-white dark:bg-white/5 h-10 w-10 rounded-full flex items-center justify-center shadow-sm"><i id="theme-icon" class="fas fa-moon"></i></button>
+                <button onclick="fetchLeads()" class="bg-[#1e6b3e] text-white h-10 w-10 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-sync-alt"></i></button>
             </div>
         </header>
 
-        <div id="filter-container" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <div id="alert-section" class="mb-8 hidden">
+            <div class="flex justify-between items-center mb-3 px-1">
+                <h3 class="text-[11px] font-black text-orange-600 uppercase tracking-widest flex items-center gap-2">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                    </span>
+                    Today's Priority Alerts
+                </h3>
+            </div>
+            <div id="alert-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+                </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
             <div id="btn-all" onclick="filterLeads('All', this)" class="glass-card p-4 border-b-4 border-gray-400 filter-active">
                 <p class="text-[9px] font-black opacity-50 uppercase">Total Leads</p>
                 <h2 id="total-count" class="text-2xl font-black">0</h2>
             </div>
-            <div id="btn-today" onclick="filterLeads('Today', this)" class="glass-card p-4 border-b-4 border-blue-500">
-                <p class="text-[9px] font-black text-blue-600 uppercase">Today's Alerts</p>
-                <h2 id="s-today" class="text-2xl font-black text-blue-600">0</h2>
-            </div>
             <div id="btn-overdue" onclick="filterLeads('Overdue', this)" class="glass-card p-4 border-b-4 border-red-500">
                 <p class="text-[9px] font-black text-red-500 uppercase">Overdue</p>
                 <h2 id="s-over" class="text-2xl font-black text-red-500">0</h2>
+            </div>
+            <div id="btn-today" onclick="filterLeads('Today', this)" class="glass-card p-4 border-b-4 border-blue-500">
+                <p class="text-[9px] font-black text-blue-500 uppercase">Today</p>
+                <h2 id="s-today" class="text-2xl font-black text-blue-500">0</h2>
             </div>
             <div id="btn-won" onclick="filterLeads('Converted', this)" class="glass-card p-4 border-b-4 border-green-600">
                 <p class="text-[9px] font-black text-green-600 uppercase">Won</p>
@@ -58,90 +71,58 @@
             </div>
         </div>
 
-        <div class="mb-4 flex justify-between items-center px-1">
-            <h3 id="list-title" class="text-[10px] font-black opacity-40 uppercase tracking-widest italic">Showing: All Pipeline</h3>
-            <button onclick="filterLeads('All', document.getElementById('btn-all'))" class="text-[9px] font-bold text-[#1e6b3e] underline">Reset</button>
-        </div>
-        
         <div id="main-list" class="grid gap-3"></div>
     </div>
 
     <div id="page-calling" class="p-4 max-w-5xl mx-auto hidden-page">
-        <h2 class="text-xl font-black mb-6">Dialer Entry Mode</h2>
-        <div id="calling-box" class="glass-card p-6 md:p-10 text-center shadow-xl">
-            <div id="call-active-ui">
-                <div class="flex justify-center mb-4"><span id="call-prio" class="px-4 py-1 rounded-full text-[10px] font-black uppercase"></span></div>
+        <h2 class="text-xl font-black mb-6">Smart Dialer</h2>
+        <div id="calling-box" class="glass-card p-8 text-center shadow-xl min-h-[450px] flex flex-col justify-center items-center">
+            <div id="call-active-ui" class="w-full max-w-md">
                 <h3 id="call-name" class="text-3xl font-black mb-1">---</h3>
-                <p id="call-sub" class="text-sm opacity-50 mb-8 font-bold">---</p>
-                
-                <div class="flex justify-center gap-4 mb-8">
-                    <a id="link-call" href="#" class="h-16 w-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg"><i class="fas fa-phone"></i></a>
-                    <a id="link-wa" href="#" class="h-16 w-16 bg-[#25D366] text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg"><i class="fab fa-whatsapp"></i></a>
+                <p id="call-sub" class="text-sm opacity-50 mb-8">---</p>
+                <div class="flex justify-center gap-6 mb-8">
+                    <a id="link-call" href="#" class="h-20 w-20 bg-blue-600 text-white rounded-[2rem] flex items-center justify-center text-3xl shadow-xl"><i class="fas fa-phone"></i></a>
+                    <a id="link-wa" href="#" class="h-20 w-20 bg-[#25D366] text-white rounded-[2rem] flex items-center justify-center text-3xl shadow-xl"><i class="fab fa-whatsapp"></i></a>
                 </div>
-
-                <div class="max-w-md mx-auto space-y-4 text-left">
-                    <textarea id="entry-notes" placeholder="Notes: Client ne kya kaha?" class="w-full p-4 rounded-2xl bg-gray-50 dark:bg-black/50 border border-gray-100 dark:border-white/5 outline-none text-sm h-28"></textarea>
-                    <div class="grid grid-cols-2 gap-3">
-                        <select id="entry-status" class="p-4 rounded-2xl bg-gray-50 dark:bg-black/50 outline-none font-bold text-xs">
-                            <option value="Interested">Interested</option>
-                            <option value="Follow-up">Follow-up</option>
-                            <option value="Converted">Converted 💰</option>
-                            <option value="Lost">Lost</option>
-                        </select>
-                        <input type="date" id="entry-fdate" class="p-4 rounded-2xl bg-gray-50 dark:bg-black/50 outline-none font-bold text-xs">
-                    </div>
-                    <button onclick="submitCallingEntry()" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black shadow-lg">SAVE & NEXT</button>
-                </div>
+                <textarea id="entry-notes" placeholder="Notes..." class="w-full p-4 rounded-2xl bg-gray-50 dark:bg-black/50 outline-none text-sm mb-4 h-24 border border-black/5"></textarea>
+                <button onclick="submitCallingEntry()" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black">SUBMIT & NEXT</button>
             </div>
-            <div id="call-empty-ui" class="hidden py-20 text-gray-400 font-bold italic">Pipeline clear! No calls pending.</div>
         </div>
     </div>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#141d16] border-t border-gray-100 dark:border-white/5 flex justify-around p-4 shadow-2xl z-[500]">
         <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col items-center gap-1 opacity-50 nav-active">
-            <i class="fas fa-list text-xl"></i><span class="text-[9px] font-black uppercase">Leads</span>
+            <i class="fas fa-th-large text-xl"></i><span class="text-[9px] font-black uppercase">Board</span>
         </button>
         <button onclick="openLeadModal('add')" class="flex flex-col items-center -mt-10 bg-[#1e6b3e] h-14 w-14 rounded-full text-white justify-center shadow-xl border-4 border-white dark:border-[#0a0f0b]">
             <i class="fas fa-plus"></i>
         </button>
         <button onclick="switchPage('calling')" id="nav-calling" class="flex flex-col items-center gap-1 opacity-50">
-            <i class="fas fa-phone-volume text-xl"></i><span class="text-[9px] font-black uppercase">Calling</span>
+            <i class="fas fa-phone-volume text-xl"></i><span class="text-[9px] font-black uppercase">Calls</span>
         </button>
     </nav>
 
     <div id="leadModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-[1000]">
-        <div class="bg-white dark:bg-[#141d16] w-full max-w-lg p-8 rounded-[2.5rem] shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h2 id="modalTitle" class="text-2xl font-black mb-6 text-[#1e6b3e]">Edit Lead</h2>
-            <form id="leadForm" class="space-y-4 text-xs font-bold">
+        <div class="bg-white dark:bg-[#141d16] w-full max-w-lg p-8 rounded-[2.5rem] shadow-2xl overflow-y-auto">
+            <h2 id="modalTitle" class="text-2xl font-black mb-6 text-[#1e6b3e]">Manage Lead</h2>
+            <form id="leadForm" class="space-y-4">
                 <input type="hidden" id="form-id">
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="form-name" placeholder="Name" class="p-4 rounded-xl bg-gray-50 dark:bg-black outline-none" required>
-                    <input type="text" id="form-phone" placeholder="Phone" class="p-4 rounded-xl bg-gray-50 dark:bg-black outline-none" required>
+                    <input type="text" id="form-name" placeholder="Name" class="p-4 rounded-xl bg-gray-100 dark:bg-black outline-none" required>
+                    <input type="text" id="form-phone" placeholder="Phone" class="p-4 rounded-xl bg-gray-100 dark:bg-black outline-none" required>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="form-business" placeholder="Business" class="p-4 rounded-xl bg-gray-50 dark:bg-black outline-none">
-                    <select id="form-priority" class="p-4 rounded-xl bg-gray-50 dark:bg-black outline-none">
-                        <option value="High">🔥 High</option>
-                        <option value="Medium">⚡ Medium</option>
-                        <option value="Low">❄️ Low</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <select id="form-status" class="p-4 rounded-xl bg-gray-50 dark:bg-black outline-none">
-                        <option value="New">New Lead</option>
+                    <select id="form-status" class="p-4 rounded-xl bg-gray-100 dark:bg-black outline-none">
+                        <option value="New">New</option>
                         <option value="Interested">Interested</option>
                         <option value="Follow-up">Follow-up</option>
-                        <option value="Converted">Converted</option>
-                        <option value="Lost">Lost</option>
+                        <option value="Converted">Won</option>
                     </select>
-                    <input type="date" id="form-fdate" class="p-4 rounded-xl bg-gray-50 dark:bg-black outline-none">
+                    <input type="date" id="form-fdate" class="p-4 rounded-xl bg-gray-100 dark:bg-black outline-none">
                 </div>
-                <input type="number" id="form-deal" placeholder="Deal Value ₹" class="p-4 rounded-xl bg-gray-50 dark:bg-black outline-none w-full">
-                <textarea id="form-notes" placeholder="History..." class="p-4 rounded-xl bg-gray-50 dark:bg-black outline-none w-full h-24"></textarea>
-                <div class="flex gap-3">
-                    <button type="submit" id="form-save-btn" class="flex-1 bg-[#1e6b3e] text-white p-5 rounded-2xl font-black">SAVE CHANGES</button>
-                    <button type="button" onclick="closeModal()" class="px-6 bg-gray-100 dark:bg-white/5 rounded-2xl">Cancel</button>
-                </div>
+                <textarea id="form-notes" placeholder="Notes..." class="p-4 rounded-xl bg-gray-100 dark:bg-black outline-none w-full h-24"></textarea>
+                <button type="submit" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black">SAVE CHANGES</button>
+                <button type="button" onclick="closeModal()" class="w-full text-center py-2 opacity-50 font-bold">Dismiss</button>
             </form>
         </div>
     </div>
@@ -155,57 +136,75 @@
             document.getElementById('current-date-display').innerText = new Date().toDateString();
             const res = await fetch(API);
             leads = await res.json();
-            updateStats();
-            filterLeads('All', document.getElementById('btn-all'));
-            setupNextCall();
+            updateDashboard();
         }
 
-        function updateStats() {
+        function updateDashboard() {
+            // Stats
             let s = { total: leads.length, today: 0, over: 0, won: 0 };
+            const alertList = document.getElementById('alert-list');
+            alertList.innerHTML = '';
+            
             leads.forEach(l => {
-                if(l.followUpDate === todayStr && l.status !== 'Converted') s.today++;
-                if(l.followUpDate < todayStr && l.status !== 'Converted' && l.status !== 'Lost') s.over++;
+                const isToday = l.followUpDate === todayStr && l.status !== 'Converted';
+                const isOverdue = l.followUpDate < todayStr && l.status !== 'Converted' && l.status !== 'Lost';
+                
+                if(isToday) {
+                    s.today++;
+                    alertList.innerHTML += createAlertCard(l);
+                }
+                if(isOverdue) s.over++;
                 if(l.status === 'Converted') s.won++;
             });
+
+            document.getElementById('alert-section').classList.toggle('hidden', s.today === 0);
             document.getElementById('total-count').innerText = s.total;
             document.getElementById('s-today').innerText = s.today;
             document.getElementById('s-over').innerText = s.over;
             document.getElementById('s-won').innerText = s.won;
+            
+            filterLeads('All', document.getElementById('btn-all'));
+            setupNextCall();
         }
 
-        function filterLeads(type, element) {
-            // UI Update
-            document.querySelectorAll('.glass-card').forEach(c => {
-                c.classList.remove('filter-active');
-                c.classList.add('filter-inactive');
-            });
-            element.classList.add('filter-active');
-            element.classList.remove('filter-inactive');
+        function createAlertCard(l) {
+            return `
+                <div class="min-w-[200px] glass-card p-4 border-t-4 border-orange-500 shadow-lg relative alert-pulse">
+                    <h4 class="font-black text-sm mb-1">${l.name}</h4>
+                    <p class="text-[10px] opacity-60 mb-3 font-bold">${l.phone}</p>
+                    <div class="flex gap-2">
+                        <a href="tel:${l.phone}" class="h-8 w-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-xs"><i class="fas fa-phone"></i></a>
+                        <button onclick="quickComplete('${l.id}')" class="h-8 flex-1 bg-[#1e6b3e] text-white rounded-lg text-[10px] font-black uppercase">Talked</button>
+                    </div>
+                </div>`;
+        }
 
+        async function quickComplete(id) {
+            const nextDate = prompt("Next Follow-up Date? (YYYY-MM-DD)", new Date(Date.now() + 86400000).toISOString().split('T')[0]);
+            if(!nextDate) return;
+            await fetch(`${API}/id/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({data: {followUpDate: nextDate, status: 'Follow-up'}}) });
+            fetchLeads();
+        }
+
+        function filterLeads(type, el) {
+            document.querySelectorAll('.glass-card').forEach(c => c.classList.remove('filter-active'));
+            el.classList.add('filter-active');
             const list = document.getElementById('main-list');
-            document.getElementById('list-title').innerText = "Showing: " + type + " Leads";
             list.innerHTML = '';
-
+            
             let filtered = leads;
             if(type === 'Today') filtered = leads.filter(l => l.followUpDate === todayStr);
             else if(type === 'Overdue') filtered = leads.filter(l => l.followUpDate < todayStr && l.status !== 'Converted' && l.status !== 'Lost');
             else if(type === 'Converted') filtered = leads.filter(l => l.status === 'Converted');
 
             filtered.slice().reverse().forEach(l => {
-                const pColor = l.priority === 'High' ? 'priority-high' : (l.priority === 'Medium' ? 'priority-medium' : 'priority-low');
                 list.innerHTML += `
-                    <div class="glass-card p-5 flex justify-between items-center ${pColor}" onclick="openLeadModal('edit', '${l.id}')">
+                    <div class="glass-card p-5 flex justify-between items-center" onclick="openLeadModal('edit', '${l.id}')">
                         <div>
-                            <div class="flex items-center gap-2">
-                                <h4 class="font-bold text-sm">${l.name}</h4>
-                                <span class="text-[8px] font-black px-1.5 py-0.5 bg-gray-100 dark:bg-white/5 rounded">${l.priority}</span>
-                            </div>
-                            <p class="text-[10px] opacity-40 font-bold mt-1 uppercase">${l.status} • ${l.followUpDate || 'No Date'}</p>
+                            <h4 class="font-bold text-sm">${l.name}</h4>
+                            <p class="text-[9px] font-black opacity-40 uppercase mt-1">${l.status} • ${l.followUpDate || 'No Date'}</p>
                         </div>
-                        <div class="text-right">
-                            <p class="text-xs font-black text-[#1e6b3e]">₹${l.dealValue || 0}</p>
-                            <i class="fas fa-edit text-[10px] opacity-20"></i>
-                        </div>
+                        <i class="fas fa-chevron-right opacity-20"></i>
                     </div>`;
             });
         }
@@ -214,33 +213,18 @@
             const pending = leads.filter(l => l.status !== 'Converted' && l.status !== 'Lost');
             if(pending.length > 0) {
                 currentCallingLead = pending[0];
-                document.getElementById('call-active-ui').classList.remove('hidden');
-                document.getElementById('call-empty-ui').classList.add('hidden');
                 document.getElementById('call-name').innerText = currentCallingLead.name;
-                document.getElementById('call-sub').innerText = (currentCallingLead.business || "Individual") + " • " + currentCallingLead.phone;
-                document.getElementById('entry-notes').value = currentCallingLead.notes || "";
+                document.getElementById('call-sub').innerText = currentCallingLead.phone;
                 document.getElementById('link-call').href = "tel:" + currentCallingLead.phone;
                 document.getElementById('link-wa').href = "https://wa.me/91" + currentCallingLead.phone;
-                const prio = document.getElementById('call-prio');
-                prio.innerText = currentCallingLead.priority + " Priority";
-                prio.className = `px-4 py-1 rounded-full text-[10px] font-black uppercase priority-${currentCallingLead.priority?.toLowerCase()}`;
-            } else {
-                document.getElementById('call-active-ui').classList.add('hidden');
-                document.getElementById('call-empty-ui').classList.remove('hidden');
             }
         }
 
         async function submitCallingEntry() {
-            const btn = event.target;
-            const data = {
-                status: document.getElementById('entry-status').value,
-                followUpDate: document.getElementById('entry-fdate').value,
-                notes: document.getElementById('entry-notes').value
-            };
-            btn.innerText = "SAVING...";
-            await fetch(`${API}/id/${currentCallingLead.id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({data}) });
-            await fetchLeads();
-            btn.innerText = "SAVE & NEXT";
+            const notes = document.getElementById('entry-notes').value;
+            const nextDate = prompt("Next Call Date? (YYYY-MM-DD)", todayStr);
+            await fetch(`${API}/id/${currentCallingLead.id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({data: {notes, followUpDate: nextDate}}) });
+            fetchLeads();
         }
 
         function openLeadModal(mode, id) {
@@ -249,11 +233,8 @@
                 document.getElementById('form-id').value = l.id;
                 document.getElementById('form-name').value = l.name;
                 document.getElementById('form-phone').value = l.phone;
-                document.getElementById('form-business').value = l.business || "";
-                document.getElementById('form-priority').value = l.priority || "Low";
                 document.getElementById('form-status').value = l.status;
                 document.getElementById('form-fdate').value = l.followUpDate || "";
-                document.getElementById('form-deal').value = l.dealValue || "";
                 document.getElementById('form-notes').value = l.notes || "";
             } else {
                 document.getElementById('leadForm').reset();
@@ -269,11 +250,8 @@
                 id: id || "L" + Date.now(),
                 name: document.getElementById('form-name').value,
                 phone: document.getElementById('form-phone').value,
-                business: document.getElementById('form-business').value,
-                priority: document.getElementById('form-priority').value,
                 status: document.getElementById('form-status').value,
                 followUpDate: document.getElementById('form-fdate').value,
-                dealValue: document.getElementById('form-deal').value,
                 notes: document.getElementById('form-notes').value
             };
             if(id) await fetch(`${API}/id/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({data}) });
