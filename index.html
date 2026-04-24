@@ -10,38 +10,42 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
         :root { --accent: #10b981; --bg-dark: #050705; --card-dark: #0f1410; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: #ecfdf5; }
-        .emerald-card { background: var(--card-dark); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 28px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: #ecfdf5; overflow-x: hidden; }
+        .emerald-card { background: var(--card-dark); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 28px; transition: 0.3s; }
         .font-heavy { font-weight: 800; }
         .hidden-page { display: none !important; }
-        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
         input, select, textarea { background: #161d17 !important; border: 1px solid rgba(16, 185, 129, 0.2) !important; color: white !important; }
-        .filter-chip { padding: 10px 20px; border-radius: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; border: 1px solid rgba(16, 185, 129, 0.2); cursor: pointer; transition: 0.3s; }
-        .filter-active { background: var(--accent) !important; color: black !important; border-color: var(--accent); box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+        .filter-chip { padding: 10px 18px; border-radius: 15px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid rgba(16, 185, 129, 0.1); cursor: pointer; white-space: nowrap; }
+        .filter-active { background: var(--accent) !important; color: black !important; }
         @keyframes pulse-alert { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
         .alert-glow { animation: pulse-alert 2s infinite; border-color: #f97316 !important; }
+        table { border-collapse: separate; border-spacing: 0 8px; }
+        th { color: rgba(16, 185, 129, 0.5); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 12px; }
+        td { background: #0f1410; padding: 14px; border-top: 1px solid rgba(255,255,255,0.02); }
+        td:first-child { border-radius: 15px 0 0 15px; }
+        td:last-child { border-radius: 0 15px 15px 0; }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-28">
 
     <div id="login-screen" style="position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 2rem;">
         <div class="text-center w-full max-w-sm">
-            <div class="w-24 h-24 bg-emerald-500 rounded-[2.5rem] mx-auto mb-8 flex items-center justify-center text-black text-4xl shadow-[0_0_40px_rgba(16,185,129,0.4)]"><i class="fas fa-fingerprint"></i></div>
-            <h2 class="text-4xl font-heavy mb-2 tracking-tighter text-white">Secure Access</h2>
-            <div class="space-y-4">
-                <input type="password" id="access-pin" oninput="autoCheck()" placeholder="••••" class="w-full p-6 rounded-[2rem] text-center text-3xl tracking-[0.5em] font-heavy outline-none">
-                <button onclick="checkAccess()" class="w-full bg-emerald-500 text-black p-6 rounded-[2rem] font-heavy text-lg uppercase btn-glow">Unlock</button>
-            </div>
+            <div class="w-20 h-20 bg-emerald-500 rounded-[2rem] mx-auto mb-8 flex items-center justify-center text-black text-3xl shadow-[0_0_30px_rgba(16,185,129,0.3)]"><i class="fas fa-fingerprint"></i></div>
+            <h2 class="text-3xl font-heavy mb-8 tracking-tighter">System Locked</h2>
+            <input type="password" id="access-pin" oninput="autoCheck()" placeholder="••••" class="w-full p-6 rounded-[2rem] text-center text-3xl font-heavy outline-none mb-4">
+            <button onclick="checkAccess()" class="w-full bg-emerald-500 text-black p-5 rounded-[2rem] font-heavy uppercase tracking-widest">Verify Access</button>
         </div>
     </div>
 
     <div id="main-app-content" style="display: none;">
+        
         <div id="page-dashboard" class="p-6 max-w-2xl mx-auto">
             <header class="flex justify-between items-center mb-8">
                 <div>
-                    <p id="header-date" class="text-emerald-500 font-bold text-[10px] uppercase tracking-[0.2em] mb-1"></p>
-                    <h1 class="text-3xl font-heavy tracking-tighter">Dashboard</h1>
+                    <p id="header-date" class="text-emerald-500 font-bold text-[10px] uppercase tracking-widest mb-1"></p>
+                    <h1 class="text-3xl font-heavy tracking-tighter">Board</h1>
                 </div>
                 <div class="flex gap-2">
                     <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="handleCSV(this)">
@@ -50,73 +54,93 @@
                 </div>
             </header>
 
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div onclick="setFilter('All', this)" class="emerald-card p-6 border-l-4 border-emerald-500 bg-emerald-500/5 cursor-pointer">
-                    <p class="text-[10px] font-heavy text-emerald-500/60 uppercase">Total</p>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div onclick="setFilter('All', this)" class="emerald-card p-6 border-l-4 border-emerald-500 bg-emerald-500/5">
+                    <p class="text-[10px] font-heavy text-emerald-500/60 uppercase">System Leads</p>
                     <h2 id="count-all" class="text-4xl font-heavy mt-1">0</h2>
                 </div>
-                <div onclick="setFilter('Today', this)" class="emerald-card p-6 border-l-4 border-blue-500 cursor-pointer">
-                    <p class="text-[10px] font-heavy text-blue-500/60 uppercase">Today</p>
+                <div onclick="setFilter('Today', this)" class="emerald-card p-6 border-l-4 border-blue-500">
+                    <p class="text-[10px] font-heavy text-blue-500/60 uppercase">Today's Goal</p>
                     <h2 id="count-today" class="text-4xl font-heavy mt-1 text-blue-400">0</h2>
                 </div>
             </div>
 
             <div id="alert-section" class="mb-8 hidden">
-                <h3 class="text-[11px] font-black text-orange-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2"><i class="fas fa-bell animate-bounce"></i> Action Required</h3>
                 <div id="alert-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar"></div>
             </div>
 
-            <div class="mb-8">
-                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                    <div onclick="setFilter('New', this)" class="filter-chip bg-[#141b15]">New <span id="count-new" class="ml-1 opacity-50">0</span></div>
-                    <div onclick="setFilter('Follow-up', this)" class="filter-chip bg-[#141b15]">Follow-up <span id="count-follow" class="ml-1 opacity-50">0</span></div>
-                    <div onclick="setFilter('Converted', this)" class="filter-chip bg-[#141b15]">Closed <span id="count-closed" class="ml-1 opacity-50">0</span></div>
-                </div>
+            <div class="flex gap-2 overflow-x-auto no-scrollbar mb-6">
+                <div onclick="setFilter('New', this)" class="filter-chip bg-[#141b15]">New <span id="count-new" class="ml-1 opacity-40">0</span></div>
+                <div onclick="setFilter('Follow-up', this)" class="filter-chip bg-[#141b15]">Follow-up <span id="count-follow" class="ml-1 opacity-40">0</span></div>
+                <div onclick="setFilter('Converted', this)" class="filter-chip bg-[#141b15]">Closed <span id="count-closed" class="ml-1 opacity-40">0</span></div>
             </div>
 
             <div class="space-y-4" id="main-list"></div>
         </div>
 
         <div id="page-checklist" class="p-6 max-w-2xl mx-auto hidden-page">
-            <h2 class="text-4xl font-heavy mb-8 tracking-tighter text-emerald-500">Tasks</h2>
-            <div class="emerald-card p-6 mb-6">
-                <div class="flex gap-3">
-                    <input type="text" id="new-task" placeholder="What's next?" class="flex-1 p-5 rounded-2xl outline-none font-bold">
-                    <button onclick="addTask()" class="bg-emerald-500 text-black w-16 rounded-2xl font-heavy text-2xl">+</button>
+            <h2 class="text-3xl font-heavy mb-8 tracking-tighter text-emerald-500">Checklist</h2>
+            <div class="emerald-card p-5 mb-6">
+                <div class="flex gap-2">
+                    <input type="text" id="new-task" placeholder="Add daily task..." class="flex-1 p-4 rounded-xl outline-none font-bold">
+                    <button onclick="addTask()" class="bg-emerald-500 text-black px-6 rounded-xl font-heavy">+</button>
                 </div>
             </div>
             <ul id="task-list" class="space-y-3"></ul>
         </div>
 
-        <nav class="fixed bottom-6 left-6 right-6 h-20 bg-[#0f1410]/90 backdrop-blur-xl border border-white/5 rounded-[2.5rem] flex justify-around items-center px-4 shadow-2xl z-[500]">
+        <div id="page-data" class="p-6 max-w-4xl mx-auto hidden-page">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-heavy tracking-tighter text-emerald-500">Leads Data</h2>
+                <div class="emerald-card px-4 py-2 flex items-center gap-2">
+                    <i class="fas fa-search text-emerald-500/50"></i>
+                    <input type="text" id="table-search" oninput="filterTable()" placeholder="Search..." class="bg-transparent border-none text-sm font-bold w-32 focus:outline-none">
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto no-scrollbar">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="w-12">✔</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <nav class="fixed bottom-6 left-6 right-6 h-20 bg-[#0f1410]/95 backdrop-blur-xl border border-white/5 rounded-[2.5rem] flex justify-around items-center px-6 shadow-2xl z-[500]">
             <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col items-center text-emerald-500">
-                <i class="fas fa-grid-2 text-2xl mb-1"></i>
-                <span class="text-[9px] font-heavy uppercase">Board</span>
+                <i class="fas fa-th-large text-xl mb-1"></i><span class="text-[8px] font-heavy uppercase tracking-widest">Board</span>
             </button>
-            <button onclick="openModal('add')" class="bg-emerald-500 text-black w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-[0_10px_30px_rgba(16,185,129,0.4)] -mt-12 border-4 border-[#050705]"><i class="fas fa-plus"></i></button>
-            <button onclick="switchPage('checklist')" id="nav-checklist" class="flex flex-col items-center opacity-40">
-                <i class="fas fa-list-check text-2xl mb-1"></i>
-                <span class="text-[9px] font-heavy uppercase">Tasks</span>
+            <button onclick="switchPage('checklist')" id="nav-checklist" class="flex flex-col items-center opacity-30">
+                <i class="fas fa-check-square text-xl mb-1"></i><span class="text-[8px] font-heavy uppercase tracking-widest">Tasks</span>
+            </button>
+            <button onclick="openModal('add')" class="bg-emerald-500 text-black w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg -mt-12 border-4 border-[#050705]"><i class="fas fa-plus"></i></button>
+            <button onclick="switchPage('data')" id="nav-data" class="flex flex-col items-center opacity-30">
+                <i class="fas fa-table text-xl mb-1"></i><span class="text-[8px] font-heavy uppercase tracking-widest">Data</span>
             </button>
         </nav>
     </div>
 
-    <div id="leadModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center p-6 z-[1000]">
-        <div class="emerald-card w-full max-w-md p-8 bg-[#0f1410]">
+    <div id="leadModal" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center p-6 z-[1000]">
+        <div class="emerald-card w-full max-w-sm p-8 bg-[#0f1410]">
             <form id="lead-form" class="space-y-4">
                 <input type="hidden" id="f-id">
-                <input type="text" id="f-name" placeholder="Name" class="w-full p-4 rounded-2xl outline-none font-bold" required>
-                <input type="text" id="f-phone" placeholder="Phone" class="w-full p-4 rounded-2xl outline-none font-bold" required>
-                <div class="grid grid-cols-2 gap-4">
-                    <select id="f-status" class="p-4 rounded-2xl font-heavy outline-none">
-                        <option value="New">New</option>
-                        <option value="Follow-up">Follow-up</option>
-                        <option value="Converted">Closed</option>
-                    </select>
-                    <input type="date" id="f-fdate" class="p-4 rounded-2xl font-bold outline-none">
-                </div>
-                <button type="submit" class="w-full bg-emerald-500 text-black p-5 rounded-2xl font-heavy mt-4 uppercase">Sync Cloud</button>
-                <button type="button" onclick="closeModal()" class="w-full text-white/30 font-heavy text-xs mt-2">CLOSE</button>
+                <input type="text" id="f-name" placeholder="Name" class="w-full p-4 rounded-xl font-bold" required>
+                <input type="text" id="f-phone" placeholder="Phone" class="w-full p-4 rounded-xl font-bold" required>
+                <select id="f-status" class="w-full p-4 rounded-xl font-bold">
+                    <option value="New">New</option>
+                    <option value="Follow-up">Follow-up</option>
+                    <option value="Converted">Closed</option>
+                </select>
+                <input type="date" id="f-fdate" class="w-full p-4 rounded-xl font-bold">
+                <button type="submit" class="w-full bg-emerald-500 text-black p-4 rounded-xl font-heavy uppercase">Sync Cloud</button>
+                <button type="button" onclick="closeModal()" class="w-full text-white/20 text-xs font-heavy mt-2">CANCEL</button>
             </form>
         </div>
     </div>
@@ -137,35 +161,8 @@
             }
         }
 
-        // --- 📥 CSV HANDLER ---
-        function handleCSV(input) {
-            const file = input.files[0];
-            if (!file) return;
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                complete: async function(results) {
-                    const formatted = results.data.map(row => ({
-                        id: "L" + Math.random().toString(36).substr(2, 9),
-                        name: row.name || row.Name || "No Name",
-                        phone: row.phone || row.Phone || "000",
-                        status: row.status || "New",
-                        followUpDate: row.date || row.followUpDate || ""
-                    }));
-                    
-                    alert(`Uploading ${formatted.length} leads... please wait.`);
-                    await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ data: formatted })
-                    });
-                    fetchLeads();
-                }
-            });
-        }
-
         async function fetchLeads() {
-            document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+            document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
             const res = await fetch(API_URL);
             leadsData = await res.json();
             updateUI();
@@ -183,11 +180,11 @@
                 if(l.followUpDate === today && l.status !== 'Converted') {
                     stats.today++;
                     alertList.innerHTML += `
-                        <div class="min-w-[200px] emerald-card p-4 alert-glow bg-orange-500/5">
-                            <h4 class="font-heavy text-sm truncate text-white">${l.name}</h4>
+                        <div class="min-w-[180px] emerald-card p-4 alert-glow">
+                            <h4 class="text-xs font-heavy truncate">${l.name}</h4>
                             <div class="flex gap-2 mt-3">
-                                <a href="tel:${l.phone}" class="flex-1 bg-blue-500/20 text-blue-400 py-2 rounded-xl text-center text-[10px] font-bold">CALL</a>
-                                <a href="https://wa.me/91${l.phone}" class="flex-1 bg-green-500/20 text-emerald-500 py-2 rounded-xl text-center text-[10px] font-bold">WA</a>
+                                <a href="tel:${l.phone}" class="flex-1 bg-blue-500/10 text-blue-400 py-2 rounded-lg text-center text-[8px] font-black">CALL</a>
+                                <a href="https://wa.me/91${l.phone}" class="flex-1 bg-emerald-500/10 text-emerald-500 py-2 rounded-lg text-center text-[8px] font-black">WA</a>
                             </div>
                         </div>`;
                 }
@@ -199,22 +196,49 @@
             document.getElementById('count-new').innerText = stats.new;
             document.getElementById('count-follow').innerText = stats.follow;
             document.getElementById('count-closed').innerText = stats.closed;
+            
             setFilter('All');
+            renderTable();
         }
 
         function renderMainList(data) {
             const list = document.getElementById('main-list');
             list.innerHTML = data.slice().reverse().map(l => `
-                <div class="emerald-card p-5 flex justify-between items-center bg-[#141b15]">
+                <div class="emerald-card p-5 flex justify-between items-center">
                     <div onclick="openModal('edit', '${l.id}')" class="flex-1">
-                        <h4 class="font-heavy text-lg ${l.status==='Converted' ? 'opacity-30 line-through' : ''}">${l.name}</h4>
-                        <p class="text-[10px] font-heavy text-emerald-500/50 uppercase mt-1">${l.status} • ${l.followUpDate || 'No Date'}</p>
+                        <h4 class="font-heavy text-md ${l.status==='Converted' ? 'opacity-20 line-through' : ''}">${l.name}</h4>
+                        <p class="text-[9px] font-heavy text-emerald-500/40 uppercase mt-1 tracking-widest">${l.status} • ${l.followUpDate || 'No Date'}</p>
                     </div>
-                    <div class="flex gap-3">
+                    <div class="flex gap-2">
                         <a href="https://wa.me/91${l.phone}" class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
                         <a href="tel:${l.phone}" class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
                     </div>
                 </div>`).join('');
+        }
+
+        // --- NEW: DATA TABLE RENDER ---
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = leadsData.map(l => `
+                <tr class="table-row-item" data-name="${l.name.toLowerCase()}" data-phone="${l.phone}">
+                    <td class="text-center"><input type="checkbox" class="accent-emerald-500 h-4 w-4"></td>
+                    <td><div class="text-xs font-bold">${l.name}</div><div class="text-[9px] opacity-40">${l.phone}</div></td>
+                    <td><span class="text-[8px] font-black px-2 py-1 rounded bg-emerald-500/10 text-emerald-500 uppercase">${l.status}</span></td>
+                    <td>
+                        <div class="flex gap-2">
+                            <a href="tel:${l.phone}" class="text-blue-400"><i class="fas fa-phone-alt"></i></a>
+                            <a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function filterTable() {
+            const q = document.getElementById('table-search').value.toLowerCase();
+            document.querySelectorAll('.table-row-item').forEach(row => {
+                const visible = row.dataset.name.includes(q) || row.dataset.phone.includes(q);
+                row.style.display = visible ? '' : 'none';
+            });
         }
 
         function setFilter(type, el) {
@@ -230,28 +254,25 @@
             renderMainList(f);
         }
 
-        // --- TASKS ---
-        function addTask() {
-            const val = document.getElementById('new-task').value;
-            if(!val.trim()) return;
-            tasks.push({id: Date.now(), text: val, done: false});
-            localStorage.setItem('crm_tasks', JSON.stringify(tasks));
-            document.getElementById('new-task').value = ""; renderTasks();
+        function handleCSV(input) {
+            const file = input.files[0];
+            Papa.parse(file, {
+                header: true,
+                complete: async function(res) {
+                    const data = res.data.map(r => ({ id:"L"+Date.now()+Math.random(), name:r.name, phone:r.phone, status:r.status||"New", followUpDate:r.date||"" }));
+                    await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data}) });
+                    fetchLeads();
+                }
+            });
         }
-        function toggleTask(id) {
-            tasks = tasks.map(t => t.id === id ? {...t, done: !t.done} : t);
-            localStorage.setItem('crm_tasks', JSON.stringify(tasks)); renderTasks();
-        }
-        function deleteTask(id) {
-            tasks = tasks.filter(t => t.id !== id);
-            localStorage.setItem('crm_tasks', JSON.stringify(tasks)); renderTasks();
-        }
-        function renderTasks() {
-            document.getElementById('task-list').innerHTML = tasks.map(t => `
-                <li class="emerald-card p-5 flex justify-between items-center">
-                    <span onclick="toggleTask(${t.id})" class="font-heavy cursor-pointer ${t.done ? 'opacity-20 line-through' : ''}">${t.done ? '✓' : '○'} ${t.text}</span>
-                    <button onclick="deleteTask(${t.id})" class="text-red-500/50"><i class="fas fa-times"></i></button>
-                </li>`).join('');
+
+        function switchPage(p) {
+            document.getElementById('page-dashboard').classList.toggle('hidden-page', p !== 'dashboard');
+            document.getElementById('page-checklist').classList.toggle('hidden-page', p !== 'checklist');
+            document.getElementById('page-data').classList.toggle('hidden-page', p !== 'data');
+            document.getElementById('nav-dashboard').classList.toggle('opacity-30', p !== 'dashboard');
+            document.getElementById('nav-checklist').classList.toggle('opacity-30', p !== 'checklist');
+            document.getElementById('nav-data').classList.toggle('opacity-30', p !== 'data');
         }
 
         function openModal(mode, id) {
@@ -275,11 +296,29 @@
         });
 
         function closeModal() { document.getElementById('leadModal').classList.add('hidden'); }
-        function switchPage(p) {
-            document.getElementById('page-dashboard').classList.toggle('hidden-page', p !== 'dashboard');
-            document.getElementById('page-checklist').classList.toggle('hidden-page', p !== 'checklist');
-            document.getElementById('nav-dashboard').classList.toggle('opacity-40', p !== 'dashboard');
-            document.getElementById('nav-checklist').classList.toggle('opacity-40', p !== 'checklist');
+        
+        // Checklist Logic
+        function addTask() {
+            const val = document.getElementById('new-task').value;
+            if(!val.trim()) return;
+            tasks.push({id: Date.now(), text: val, done: false});
+            localStorage.setItem('crm_tasks', JSON.stringify(tasks));
+            document.getElementById('new-task').value = ""; renderTasks();
+        }
+        function toggleTask(id) {
+            tasks = tasks.map(t => t.id === id ? {...t, done: !t.done} : t);
+            localStorage.setItem('crm_tasks', JSON.stringify(tasks)); renderTasks();
+        }
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            localStorage.setItem('crm_tasks', JSON.stringify(tasks)); renderTasks();
+        }
+        function renderTasks() {
+            document.getElementById('task-list').innerHTML = tasks.map(t => `
+                <li class="emerald-card p-5 flex justify-between items-center">
+                    <span onclick="toggleTask(${t.id})" class="text-sm font-heavy cursor-pointer ${t.done ? 'opacity-20 line-through' : ''}">${t.done ? '✓' : '○'} ${t.text}</span>
+                    <button onclick="deleteTask(${t.id})" class="text-red-500/40 px-2"><i class="fas fa-times"></i></button>
+                </li>`).join('');
         }
     </script>
 </body>
