@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeadFlow Pro | Ultimate Edition</title>
+    <title>LeadFlow Pro | Krishna Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,31 +14,25 @@
         * { transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1); }
         .emerald-card { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 28px; }
         .hidden-page { display: none !important; opacity: 0; }
-        nav { background: rgba(18,18,18,0.7); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-top: 0.5px solid rgba(255,255,255,0.1); }
+        nav { background: rgba(18,18,18,0.7); backdrop-filter: blur(30px); border-top: 0.5px solid rgba(255,255,255,0.1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .ios-btn:active { transform: scale(0.94); }
+        .task-done { opacity: 0.3; text-decoration: line-through; }
         
         /* Glow Alerts */
         @keyframes glow-red { 0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); } }
-        @keyframes glow-orange { 0%, 100% { box-shadow: 0 0 10px rgba(249, 115, 22, 0.2); } 50% { box-shadow: 0 0 20px rgba(249, 115, 22, 0.4); } }
         .overdue-glow { animation: glow-red 3s infinite ease-in-out; border-color: rgba(239,68,68,0.3) !important; }
-        .today-glow { animation: glow-orange 3s infinite ease-in-out; border-color: rgba(249,115,22,0.3) !important; }
-
-        /* Filter Chips */
-        .filter-chip { padding: 10px 18px; border-radius: 16px; background: #1c1c1e; font-size: 10px; font-weight: 800; text-transform: uppercase; cursor: pointer; border: 1px solid transparent; }
-        .filter-active { background: var(--accent) !important; color: #000 !important; }
-
-        /* History Timeline */
-        .history-dot { position: relative; padding-left: 20px; border-left: 2px solid #10b981; margin-bottom: 12px; }
-        .history-dot::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: #10b981; border-radius: 50%; }
         
-        .ios-btn:active { transform: scale(0.94); }
+        /* History Dots */
+        .h-dot { position: relative; padding-left: 20px; border-left: 2px solid var(--accent); margin-bottom: 12px; }
+        .h-dot::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
     </style>
 </head>
 <body class="pb-32">
 
     <div id="login-screen" style="position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column;">
         <div class="w-20 h-20 bg-emerald-500 rounded-[2.2rem] flex items-center justify-center text-black text-3xl mb-8 shadow-2xl"><i class="fas fa-fingerprint"></i></div>
-        <h2 class="text-3xl font-extrabold mb-6 tracking-tighter">Enter PIN</h2>
+        <h2 class="text-3xl font-extrabold mb-6">System PIN</h2>
         <input type="password" id="access-pin" maxlength="4" oninput="autoCheck()" placeholder="••••" class="w-64 p-5 rounded-3xl text-center text-3xl font-bold bg-[#111] border border-white/10 mb-6 outline-none text-white">
         <button onclick="checkAccess()" class="w-64 bg-white text-black py-5 rounded-3xl font-black uppercase tracking-widest ios-btn">Unlock</button>
     </div>
@@ -59,31 +53,13 @@
             </header>
 
             <div class="grid grid-cols-2 gap-4 mb-10">
-                <div onclick="setFilter('All')" class="emerald-card p-6 ios-btn cursor-pointer">
-                    <p class="text-[10px] font-bold text-emerald-500 uppercase opacity-60">Total Leads</p>
-                    <h2 id="count-all" class="text-4xl font-extrabold mt-1">0</h2>
-                </div>
-                <div onclick="setFilter('Today')" class="emerald-card p-6 ios-btn cursor-pointer">
-                    <p class="text-[10px] font-bold text-blue-500 uppercase opacity-60">Due Today</p>
-                    <h2 id="count-today" class="text-4xl font-extrabold mt-1">0</h2>
-                </div>
+                <div class="emerald-card p-6"><p class="text-[10px] font-bold text-emerald-500 uppercase opacity-60">Total</p><h2 id="count-all" class="text-4xl font-extrabold">0</h2></div>
+                <div class="emerald-card p-6"><p class="text-[10px] font-bold text-blue-500 uppercase opacity-60">Today</p><h2 id="count-today" class="text-4xl font-extrabold">0</h2></div>
             </div>
 
-            <div id="alert-section" class="mb-10 space-y-6">
-                <div id="overdue-container" class="hidden">
-                    <h3 class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-3 ml-2">Overdue Alerts</h3>
-                    <div id="overdue-list" class="flex gap-4 overflow-x-auto pb-2 no-scrollbar"></div>
-                </div>
-                <div id="today-container" class="hidden">
-                    <h3 class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-3 ml-2">Today's Tasks</h3>
-                    <div id="today-list" class="flex gap-4 overflow-x-auto pb-2 no-scrollbar"></div>
-                </div>
-            </div>
-
-            <div class="flex gap-3 overflow-x-auto no-scrollbar mb-8">
-                <div onclick="setFilter('New', this)" class="filter-chip filter-active">New</div>
-                <div onclick="setFilter('Follow-up', this)" class="filter-chip">Follows</div>
-                <div onclick="setFilter('Converted', this)" class="filter-chip">Closed</div>
+            <div id="overdue-container" class="hidden mb-10">
+                <h3 class="text-[10px] font-black text-red-500 uppercase mb-3 ml-2">Overdue Alerts</h3>
+                <div id="overdue-list" class="flex gap-4 overflow-x-auto pb-2 no-scrollbar"></div>
             </div>
 
             <div class="space-y-4" id="main-list"></div>
@@ -91,17 +67,15 @@
 
         <div id="page-data" class="p-6 max-w-4xl mx-auto hidden-page">
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-4xl font-extrabold tracking-tighter">Database</h2>
+                <h2 class="text-4xl font-extrabold tracking-tighter">Data</h2>
                 <div class="bg-[#1c1c1e] px-4 py-2 rounded-2xl border border-white/5 flex items-center gap-2">
                     <i class="fas fa-search opacity-30 text-xs"></i>
-                    <input type="text" id="table-search" oninput="filterTable()" placeholder="Search..." class="bg-transparent text-sm font-bold w-28 outline-none">
+                    <input type="text" id="table-search" oninput="filterTable()" placeholder="Search..." class="bg-transparent text-sm font-bold w-24 outline-none">
                 </div>
             </div>
             <div class="overflow-x-auto no-scrollbar">
-                <table class="w-full text-left border-separate border-spacing-y-3">
-                    <thead class="text-[10px] uppercase opacity-40 font-black">
-                        <tr><th class="px-4">Lead</th><th>Phone</th><th>Status</th></tr>
-                    </thead>
+                <table class="w-full text-left">
+                    <thead class="text-[10px] uppercase opacity-30 font-black"><tr><th class="px-4 pb-2">Lead</th><th class="pb-2">Contact</th><th class="pb-2">WA</th></tr></thead>
                     <tbody id="table-body"></tbody>
                 </table>
             </div>
@@ -110,7 +84,7 @@
         <div id="page-checklist" class="p-6 max-w-2xl mx-auto hidden-page">
             <h2 class="text-4xl font-extrabold mb-8">Tasks</h2>
             <div class="emerald-card p-4 mb-6 flex gap-3">
-                <input type="text" id="new-task" placeholder="Add task..." class="flex-1 bg-transparent p-2 font-bold outline-none">
+                <input type="text" id="new-task" placeholder="Add mission..." class="flex-1 bg-transparent p-2 font-bold outline-none">
                 <button onclick="addTask()" class="bg-white text-black w-12 h-12 rounded-2xl font-bold text-xl ios-btn">+</button>
             </div>
             <ul id="task-list" class="space-y-4"></ul>
@@ -120,39 +94,32 @@
             <button onclick="switchPage('dashboard')" id="nav-dashboard" class="text-emerald-500 ios-btn"><i class="fas fa-th-large text-xl"></i></button>
             <button onclick="switchPage('checklist')" id="nav-checklist" class="opacity-30 ios-btn"><i class="fas fa-check-circle text-xl"></i></button>
             <button onclick="openModal('add')" class="bg-emerald-500 text-black w-14 h-14 rounded-2xl flex items-center justify-center -mt-12 border-[6px] border-black shadow-xl ios-btn"><i class="fas fa-plus"></i></button>
-            <button onclick="switchPage('data')" id="nav-data" class="opacity-30 ios-btn"><i class="fas fa-history text-xl"></i></button>
+            <button onclick="switchPage('data')" id="nav-data" class="opacity-30 ios-btn"><i class="fas fa-database text-xl"></i></button>
         </nav>
     </div>
 
     <div id="leadModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-xl flex items-end sm:items-center justify-center z-[1000] p-4">
-        <div class="emerald-card w-full max-w-md p-8 bg-[#1c1c1e] rounded-[3.5rem] border-none shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar">
+        <div class="emerald-card w-full max-w-md p-8 bg-[#1c1c1e] rounded-[3rem] overflow-y-auto max-h-[90vh] no-scrollbar">
             <form id="lead-form" class="space-y-5">
                 <input type="hidden" id="f-id">
                 <div class="flex justify-between items-center mb-2">
-                    <h3 id="modal-title" class="text-2xl font-black">Edit Lead</h3>
+                    <h3 id="modal-title" class="text-2xl font-black">Lead Info</h3>
                     <button type="button" onclick="closeModal()" class="text-white/20"><i class="fas fa-times text-xl"></i></button>
                 </div>
-                
                 <input type="text" id="f-name" placeholder="Name" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] outline-none" required>
                 <input type="text" id="f-phone" placeholder="Phone" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] outline-none" required>
-                
                 <div class="grid grid-cols-2 gap-3">
                     <select id="f-status" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] outline-none">
-                        <option value="New">New</option>
-                        <option value="Follow-up">Follow-up</option>
-                        <option value="Converted">Closed</option>
+                        <option value="New">New</option><option value="Follow-up">Follow</option><option value="Converted">Closed</option>
                     </select>
-                    <input type="date" id="f-fdate" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] outline-none text-xs">
+                    <input type="date" id="f-fdate" class="w-full p-5 rounded-2xl font-bold bg-[#2c2c2e] text-xs outline-none">
                 </div>
-
                 <div id="history-section" class="mt-4 pt-6 border-t border-white/5 hidden">
-                    <h4 class="text-[10px] font-black uppercase text-emerald-500 mb-4 tracking-widest">Activity History</h4>
+                    <h4 class="text-[10px] font-black text-emerald-500 uppercase mb-4 tracking-widest">History</h4>
                     <div id="history-content" class="max-h-40 overflow-y-auto mb-4 no-scrollbar"></div>
-                    <textarea id="f-note" placeholder="Add conversation update..." class="w-full p-4 rounded-2xl font-bold bg-[#111] border border-white/5 outline-none text-xs resize-none" rows="2"></textarea>
+                    <textarea id="f-note" placeholder="Add update note..." class="w-full p-4 rounded-2xl font-bold bg-[#111] border border-white/5 text-xs outline-none resize-none" rows="2"></textarea>
                 </div>
-
-                <button type="submit" class="w-full bg-emerald-500 text-black py-5 rounded-2xl font-black uppercase tracking-widest ios-btn">Sync Data</button>
-                <button type="button" onclick="closeModal()" class="w-full text-white/20 text-[10px] font-bold py-1">Dismiss</button>
+                <button type="submit" class="w-full bg-emerald-500 text-black py-5 rounded-2xl font-black uppercase ios-btn">Sync Database</button>
             </form>
         </div>
     </div>
@@ -164,7 +131,6 @@
         let tasks = JSON.parse(localStorage.getItem('crm_tasks')) || [];
         const todayStr = new Date().toISOString().split('T')[0];
 
-        // 🔐 LOGIN LOGIC
         function autoCheck() { if(document.getElementById('access-pin').value === SECRET_PIN) checkAccess(); }
         function checkAccess() {
             if(document.getElementById('access-pin').value === SECRET_PIN) {
@@ -175,94 +141,82 @@
             }
         }
 
-        // 📊 API FETCH
         async function fetchLeads() {
             document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
             try {
                 const res = await fetch(API_URL);
                 leadsData = await res.json();
-                updateUI();
+                renderUI();
             } catch (e) { console.error("Sync Error"); }
         }
 
-        function updateUI() {
-            let stats = { all: leadsData.length, today: 0 };
-            let overdueHTML = '', todayHTML = '';
-
+        function renderUI() {
+            let overdueHTML = '';
+            let tCount = 0;
             leadsData.forEach(l => {
-                const fDate = l.followUpDate;
-                if(fDate && l.status !== 'Converted') {
-                    if(fDate < todayStr) {
-                        overdueHTML += createAlertCard(l, 'overdue-glow', 'OVERDUE');
-                    } else if(fDate === todayStr) {
-                        stats.today++;
-                        todayHTML += createAlertCard(l, 'today-glow', 'DUE TODAY');
-                    }
+                if(l.followUpDate === todayStr) tCount++;
+                if(l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted') {
+                    overdueHTML += `<div class="min-w-[160px] emerald-card p-5 overdue-glow">
+                        <h4 class="text-[10px] font-black truncate mb-3">${l.name}</h4>
+                        <div class="flex gap-2">
+                            <a href="tel:${l.phone}" class="flex-1 bg-white text-black py-2 rounded-xl text-center text-[8px] font-black">CALL</a>
+                            <a href="https://wa.me/91${l.phone}" class="flex-1 bg-emerald-500/10 text-emerald-500 py-2 rounded-xl text-center text-sm font-black"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </div>`;
                 }
             });
-
-            document.getElementById('count-all').innerText = stats.all;
-            document.getElementById('count-today').innerText = stats.today;
-            
+            document.getElementById('count-all').innerText = leadsData.length;
+            document.getElementById('count-today').innerText = tCount;
             document.getElementById('overdue-container').classList.toggle('hidden', overdueHTML === '');
-            document.getElementById('today-container').classList.toggle('hidden', todayHTML === '');
             document.getElementById('overdue-list').innerHTML = overdueHTML;
-            document.getElementById('today-list').innerHTML = todayHTML;
 
-            setFilter('All');
-            renderTable();
-        }
-
-        function createAlertCard(l, glow, label) {
-            return `<div class="min-w-[170px] emerald-card p-5 ${glow}">
-                <h4 class="text-xs font-black truncate mb-3">${l.name}</h4>
-                <div class="flex gap-2">
-                    <a href="tel:${l.phone}" class="flex-1 bg-white text-black py-2 rounded-xl text-center text-[9px] font-black">CALL</a>
-                    <a href="https://wa.me/91${l.phone}" class="flex-1 bg-emerald-500/10 text-emerald-500 py-2 rounded-xl text-center text-[9px] font-black">WA</a>
-                </div>
-            </div>`;
-        }
-
-        function setFilter(type, el) {
-            if(el) {
-                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('filter-active'));
-                el.classList.add('filter-active');
-            }
-            let filtered = (type === 'All' || type === 'Today') ? leadsData : leadsData.filter(x => x.status === type);
-            if(type === 'Today') filtered = leadsData.filter(x => x.followUpDate === todayStr);
-
-            document.getElementById('main-list').innerHTML = filtered.slice().reverse().map(l => `
+            document.getElementById('main-list').innerHTML = leadsData.slice().reverse().map(l => `
                 <div onclick="openModal('edit', '${l.id}')" class="emerald-card p-6 flex justify-between items-center ios-btn cursor-pointer">
-                    <div>
-                        <h4 class="font-extrabold text-lg">${l.name}</h4>
-                        <p class="text-[9px] font-black text-emerald-500 uppercase mt-1 opacity-40">${l.status} • ${l.followUpDate || 'No Date'}</p>
-                    </div>
+                    <div><h4 class="font-extrabold text-lg">${l.name}</h4><p class="text-[9px] font-black text-emerald-500 uppercase mt-1 opacity-40">${l.status}</p></div>
                     <div class="flex gap-3">
-                        <a href="tel:${l.phone}" class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-xs"><i class="fas fa-phone"></i></a>
+                        <a href="https://wa.me/91${l.phone}" class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center text-sm"><i class="fab fa-whatsapp"></i></a>
                         <i class="fas fa-chevron-right opacity-10"></i>
                     </div>
                 </div>`).join('');
-        }
-
-        function renderTable() {
+            
             document.getElementById('table-body').innerHTML = leadsData.map(l => `
                 <tr class="table-row" data-name="${l.name.toLowerCase()}">
                     <td class="p-4 bg-[#121212] rounded-l-2xl font-bold">${l.name}</td>
-                    <td class="bg-[#121212] text-white/30 text-sm">${l.phone}</td>
-                    <td class="p-4 bg-[#121212] rounded-r-2xl text-emerald-500 font-black text-[10px] uppercase">${l.status}</td>
+                    <td class="bg-[#121212] text-white/30 text-xs">${l.phone}</td>
+                    <td class="p-4 bg-[#121212] rounded-r-2xl text-center"><a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a></td>
                 </tr>`).join('');
         }
 
-        function filterTable() {
-            const q = document.getElementById('table-search').value.toLowerCase();
-            document.querySelectorAll('.table-row').forEach(row => {
-                row.style.display = row.dataset.name.includes(q) ? '' : 'none';
-            });
+        // --- TASKS ---
+        function addTask() {
+            const v = document.getElementById('new-task').value;
+            if(!v) return;
+            tasks.push({id: Date.now(), text: v, done: false});
+            saveT(); renderTasks(); document.getElementById('new-task').value = '';
+        }
+        function toggleTask(id) {
+            const t = tasks.find(x => x.id === id);
+            if(t) t.done = !t.done;
+            saveT(); renderTasks();
+        }
+        function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); saveT(); renderTasks(); }
+        function saveT() { localStorage.setItem('crm_tasks', JSON.stringify(tasks)); }
+        function renderTasks() {
+            document.getElementById('task-list').innerHTML = tasks.map(t => `
+                <li class="emerald-card p-5 flex justify-between items-center ${t.done ? 'task-done' : ''}">
+                    <div onclick="toggleTask(${t.id})" class="flex items-center gap-4 cursor-pointer flex-1">
+                        <div class="w-6 h-6 rounded-lg border-2 border-emerald-500 flex items-center justify-center text-[10px]">
+                            ${t.done ? '<i class="fas fa-check"></i>' : ''}
+                        </div>
+                        <span class="font-bold">${t.text}</span>
+                    </div>
+                    <button onclick="deleteTask(${t.id})" class="text-red-500/20 px-2"><i class="fas fa-trash"></i></button>
+                </li>`).join('');
         }
 
-        // 📝 MODAL LOGIC
+        // --- MODAL ---
         function openModal(mode, id) {
-            const historySec = document.getElementById('history-section');
+            const hSec = document.getElementById('history-section');
             if(mode === 'edit') {
                 const l = leadsData.find(x => x.id === id);
                 document.getElementById('f-id').value = l.id;
@@ -270,18 +224,13 @@
                 document.getElementById('f-phone').value = l.phone;
                 document.getElementById('f-status').value = l.status;
                 document.getElementById('f-fdate').value = l.followUpDate || "";
-                
-                historySec.classList.remove('hidden');
-                const historyArr = l.history ? JSON.parse(l.history) : [];
-                document.getElementById('history-content').innerHTML = historyArr.reverse().map(h => `
-                    <div class="history-dot">
-                        <p class="text-[9px] font-black text-white/20">${h.date}</p>
-                        <p class="text-xs font-bold text-white/70">${h.note}</p>
-                    </div>`).join('') || '<p class="text-[10px] opacity-20">Fresh Lead - No history.</p>';
+                hSec.classList.remove('hidden');
+                const hArr = l.history ? JSON.parse(l.history) : [];
+                document.getElementById('history-content').innerHTML = hArr.reverse().map(h => `
+                    <div class="h-dot"><p class="text-[8px] opacity-30">${h.date}</p><p class="text-xs font-bold">${h.note}</p></div>`).join('') || '<p class="text-[10px] opacity-20">No history log.</p>';
             } else {
                 document.getElementById('lead-form').reset();
-                document.getElementById('f-id').value = "";
-                historySec.classList.add('hidden');
+                document.getElementById('f-id').value = ""; hSec.classList.add('hidden');
             }
             document.getElementById('leadModal').classList.remove('hidden');
         }
@@ -290,9 +239,9 @@
             e.preventDefault();
             const id = document.getElementById('f-id').value;
             const note = document.getElementById('f-note').value;
-            let currentLead = leadsData.find(x => x.id === id) || { history: "[]" };
-            let historyArr = JSON.parse(currentLead.history || "[]");
-            if(note.trim()) historyArr.push({ date: new Date().toLocaleString(), note: note });
+            let current = leadsData.find(x => x.id === id) || { history: "[]" };
+            let hArr = JSON.parse(current.history || "[]");
+            if(note.trim()) hArr.push({ date: new Date().toLocaleString(), note: note });
 
             const payload = {
                 id: id || "L" + Date.now(),
@@ -300,7 +249,7 @@
                 phone: document.getElementById('f-phone').value,
                 status: document.getElementById('f-status').value,
                 followUpDate: document.getElementById('f-fdate').value,
-                history: JSON.stringify(historyArr)
+                history: JSON.stringify(hArr)
             };
 
             await fetch(id ? `${API_URL}/id/${id}` : API_URL, {
@@ -312,36 +261,25 @@
         });
 
         function closeModal() { document.getElementById('leadModal').classList.add('hidden'); }
-
         function switchPage(p) {
             ['dashboard', 'data', 'checklist'].forEach(pg => document.getElementById('page-'+pg).classList.add('hidden-page'));
             document.getElementById('page-'+p).classList.remove('hidden-page');
             ['dashboard', 'data', 'checklist'].forEach(nv => document.getElementById('nav-'+nv).classList.add('opacity-30'));
             document.getElementById('nav-'+p).classList.remove('opacity-30');
+            document.getElementById('nav-'+p).classList.add('text-emerald-500');
         }
-
-        function addTask() {
-            const val = document.getElementById('new-task').value;
-            if(!val) return;
-            tasks.push({id: Date.now(), text: val});
-            localStorage.setItem('crm_tasks', JSON.stringify(tasks));
-            document.getElementById('new-task').value = ''; renderTasks();
+        function filterTable() {
+            const q = document.getElementById('table-search').value.toLowerCase();
+            document.querySelectorAll('.table-row').forEach(row => {
+                row.style.display = row.dataset.name.includes(q) ? '' : 'none';
+            });
         }
-        function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); localStorage.setItem('crm_tasks', JSON.stringify(tasks)); renderTasks(); }
-        function renderTasks() {
-            document.getElementById('task-list').innerHTML = tasks.map(t => `
-                <li class="emerald-card p-5 flex justify-between items-center bg-[#111] border-none">
-                    <span class="font-bold">${t.text}</span>
-                    <button onclick="deleteTask(${t.id})" class="text-red-500/20"><i class="fas fa-trash"></i></button>
-                </li>`).join('');
-        }
-
         function handleCSV(input) {
-            const file = input.files[0];
-            if(!file) return;
-            Papa.parse(file, {
+            const f = input.files[0];
+            if(!f) return;
+            Papa.parse(f, {
                 header: true,
-                complete: async function(res) {
+                complete: async (res) => {
                     const data = res.data.map(r => ({ id:"L"+Date.now()+Math.random(), name:r.name||"No Name", phone:r.phone||"0", status:r.status||"New", followUpDate:r.date||"", history:"[]" }));
                     await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data}) });
                     fetchLeads();
