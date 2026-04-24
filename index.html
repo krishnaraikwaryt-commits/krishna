@@ -123,205 +123,210 @@
     </div>
 
     <script>
-        const API_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
-        const SECRET_PIN = "1321";
-        let leadsData = [];
-        let tasks = JSON.parse(localStorage.getItem('crm_tasks')) || [];
-        const todayStr = new Date().toISOString().split('T')[0];
+        <script>
+    const API_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
+    const SECRET_PIN = "1321";
+    let leadsData = [];
+    let tasks = JSON.parse(localStorage.getItem('crm_tasks')) || [];
+    const todayStr = new Date().toISOString().split('T')[0];
 
-        function autoCheck() { if(document.getElementById('access-pin').value === SECRET_PIN) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-app-content').style.display = 'block';
-            fetchLeads(); renderTasks();
-        }}
+    // 🛡️ REFRESH FIX: Page load hote hi check karega ki login hai ya nahi
+    window.onload = () => {
+        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            showApp();
+        }
+    };
 
-        async function fetchLeads() {
-            try {
-                const res = await fetch(API_URL);
-                leadsData = await res.json();
-                renderAll();
-            } catch (e) { console.error("Sync Error"); }
+    function autoCheck() { 
+        if(document.getElementById('access-pin').value === SECRET_PIN) {
+            sessionStorage.setItem('isLoggedIn', 'true'); // Memory mein lock kar diya
+            showApp();
+        }
+    }
+
+    function showApp() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app-content').style.display = 'block';
+        fetchLeads(); 
+        renderTasks();
+    }
+
+    async function fetchLeads() {
+        try {
+            const res = await fetch(API_URL);
+            leadsData = await res.json();
+            renderAll();
+        } catch (e) { console.error("Sync Error"); }
+    }
+
+    function filterBy(type) {
+        document.querySelectorAll('.stat-box').forEach(b => b.classList.remove('active-filter'));
+        let filtered = [];
+        let title = "Recent Leads";
+
+        if(type === 'all') {
+            filtered = leadsData.slice().reverse().slice(0, 20);
+            document.getElementById('box-all').classList.add('active-filter');
+        } else if(type === 'closed') {
+            filtered = leadsData.filter(l => l.status === 'Converted');
+            title = "Closed Leads";
+            document.getElementById('box-closed').classList.add('active-filter');
+        } else if(type === 'today') {
+            filtered = leadsData.filter(l => l.followUpDate === todayStr);
+            title = "Today's Followups";
+            document.getElementById('box-today').classList.add('active-filter');
+        } else if(type === 'overdue') {
+            filtered = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted');
+            title = "Overdue Leads";
+            document.getElementById('box-overdue').classList.add('active-filter');
         }
 
-        function filterBy(type) {
-            document.querySelectorAll('.stat-box').forEach(b => b.classList.remove('active-filter'));
-            let filtered = [];
-            let title = "Recent Leads";
+        document.getElementById('list-title').innerText = title;
+        renderList(filtered);
+    }
 
-            if(type === 'all') {
-                filtered = leadsData.slice().reverse().slice(0, 20);
-                document.getElementById('box-all').classList.add('active-filter');
-            } else if(type === 'closed') {
-                filtered = leadsData.filter(l => l.status === 'Converted');
-                title = "Closed Leads";
-                document.getElementById('box-closed').classList.add('active-filter');
-            } else if(type === 'today') {
-                filtered = leadsData.filter(l => l.followUpDate === todayStr);
-                title = "Today's Followups";
-                document.getElementById('box-today').classList.add('active-filter');
-            } else if(type === 'overdue') {
-                filtered = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted');
-                title = "Overdue Leads";
-                document.getElementById('box-overdue').classList.add('active-filter');
-            }
+    function renderAll() {
+        const todayLeads = leadsData.filter(l => l.followUpDate === todayStr && l.status !== 'Converted');
+        const overdueLeads = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted');
 
-            document.getElementById('list-title').innerText = title;
-            renderList(filtered);
-        }
+        document.getElementById('stat-total').innerText = leadsData.length;
+        document.getElementById('stat-closed').innerText = leadsData.filter(l => l.status === 'Converted').length;
+        document.getElementById('stat-today').innerText = todayLeads.length;
+        document.getElementById('stat-overdue').innerText = overdueLeads.length;
 
-        function renderAll() {
-            const todayLeads = leadsData.filter(l => l.followUpDate === todayStr && l.status !== 'Converted');
-            const overdueLeads = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted');
-
-            // Update Stats
-            document.getElementById('stat-total').innerText = leadsData.length;
-            document.getElementById('stat-closed').innerText = leadsData.filter(l => l.status === 'Converted').length;
-            document.getElementById('stat-today').innerText = todayLeads.length;
-            document.getElementById('stat-overdue').innerText = overdueLeads.length;
-
-            // 🚨 ALERTS RENDER
-            let alertHtml = '';
-            
-            // Overdue Alerts (Red)
-            overdueLeads.forEach(l => {
-                alertHtml += `
-                <div class="alert-card bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex justify-between items-center">
-                    <div>
-                        <p class="text-[9px] text-red-500 font-black uppercase tracking-tighter mb-1">⚠️ Missed Follow-up</p>
-                        <p class="font-bold text-sm">${l.name}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <a href="tel:${l.phone}" class="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center text-xs opacity-50"><i class="fas fa-phone"></i></a>
-                        <a href="https://wa.me/91${l.phone}" class="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-lg flex items-center justify-center text-xs"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                </div>`;
-            });
-
-            // Today Alerts (Blue)
-            todayLeads.forEach(l => {
-                alertHtml += `
-                <div class="alert-card bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl flex justify-between items-center">
-                    <div>
-                        <p class="text-[9px] text-blue-400 font-black uppercase tracking-tighter mb-1">📅 Scheduled Today</p>
-                        <p class="font-bold text-sm">${l.name}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <a href="tel:${l.phone}" class="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center text-xs opacity-50"><i class="fas fa-phone"></i></a>
-                        <a href="https://wa.me/91${l.phone}" class="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-lg flex items-center justify-center text-xs"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                </div>`;
-            });
-
-            document.getElementById('alert-zone').innerHTML = alertHtml;
-
-            filterBy('all'); 
-            
-            document.getElementById('table-body').innerHTML = leadsData.map(l => `
-                <div class="data-row" data-name="${l.name.toLowerCase()}">${cardTemplate(l)}</div>
-            `).join('');
-        }
-
-        function renderList(list) {
-            document.getElementById('main-list').innerHTML = list.length > 0 
-                ? list.map(cardTemplate).join('') 
-                : `<p class="text-center opacity-20 text-xs py-10">No leads found</p>`;
-        }
-
-        const cardTemplate = (l) => `
-            <div class="emerald-card p-4 flex justify-between items-center">
-                <div onclick="openModal('edit', '${l.id}')" class="flex-1">
+        let alertHtml = '';
+        overdueLeads.forEach(l => {
+            alertHtml += `
+            <div class="alert-card bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex justify-between items-center mb-2">
+                <div>
+                    <p class="text-[9px] text-red-500 font-black uppercase tracking-tighter mb-1">⚠️ Missed Follow-up</p>
                     <p class="font-bold text-sm">${l.name}</p>
-                    <p class="text-[9px] opacity-40 uppercase font-black">${l.status} | ${l.phone}</p>
                 </div>
-                <div class="flex gap-4">
-                    <a href="tel:${l.phone}" class="text-white/20"><i class="fas fa-phone"></i></a>
-                    <a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a>
+                <div class="flex gap-2">
+                    <a href="tel:${l.phone}" class="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center text-xs opacity-50"><i class="fas fa-phone"></i></a>
+                    <a href="https://wa.me/91${l.phone}" class="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-lg flex items-center justify-center text-xs"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>`;
-
-        // CSV IMPORT
-        function handleCSV(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const text = e.target.result;
-                const rows = text.split('\n').slice(1);
-                const imported = rows.map(row => {
-                    const cols = row.split(',');
-                    if(cols.length < 2) return null;
-                    return { id: "L"+Date.now()+Math.floor(Math.random()*999), name: cols[0].trim(), phone: cols[1].trim(), status: 'New', history: "[]" };
-                }).filter(x => x);
-                await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: imported}) });
-                fetchLeads();
-            };
-            reader.readAsText(file);
-        }
-
-        // CHECKLIST
-        function renderTasks() {
-            document.getElementById('task-list').innerHTML = tasks.map(t => `
-                <li class="emerald-card p-4 flex justify-between items-center ${t.done ? 'task-done' : ''}">
-                    <div onclick="toggleTask(${t.id})" class="flex items-center gap-3 cursor-pointer">
-                        <i class="fas ${t.done ? 'fa-check-circle text-emerald-500' : 'fa-circle opacity-20'}"></i>
-                        <span class="text-sm font-bold">${t.text}</span>
-                    </div>
-                    <button onclick="deleteTask(${t.id})" class="text-red-500/20 text-xs"><i class="fas fa-trash"></i></button>
-                </li>`).join('');
-        }
-        function addTask() {
-            const v = document.getElementById('new-task').value; if(!v) return;
-            tasks.push({id: Date.now(), text: v, done: false}); saveT(); renderTasks();
-            document.getElementById('new-task').value = '';
-        }
-        function toggleTask(id) { const t = tasks.find(x => x.id === id); if(t) t.done = !t.done; saveT(); renderTasks(); }
-        function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); saveT(); renderTasks(); }
-        function saveT() { localStorage.setItem('crm_tasks', JSON.stringify(tasks)); }
-
-        // MODAL
-        function openModal(mode, id) {
-            const hSec = document.getElementById('history-section');
-            if(mode === 'edit') {
-                const l = leadsData.find(x => x.id === id);
-                document.getElementById('f-id').value = l.id;
-                document.getElementById('f-name').value = l.name;
-                document.getElementById('f-phone').value = l.phone;
-                document.getElementById('f-status').value = l.status;
-                document.getElementById('f-fdate').value = l.followUpDate || '';
-                hSec.classList.remove('hidden');
-                const hArr = l.history ? JSON.parse(l.history) : [];
-                document.getElementById('history-content').innerHTML = hArr.map(h => `
-                    <div class="bg-black/40 p-2 rounded-lg"><p class="text-[8px] opacity-30">${h.date}</p><p class="text-[10px]">${h.note}</p></div>
-                `).join('');
-            } else {
-                document.getElementById('lead-form').reset(); document.getElementById('f-id').value = ''; hSec.classList.add('hidden');
-            }
-            document.getElementById('leadModal').classList.remove('hidden');
-        }
-
-        document.getElementById('lead-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('f-id').value;
-            const note = document.getElementById('f-note').value;
-            let current = leadsData.find(x => x.id === id) || { history: "[]" };
-            let hArr = JSON.parse(current.history || "[]");
-            if(note.trim()) hArr.push({ date: new Date().toLocaleString(), note: note });
-            const payload = { id: id || "L" + Date.now(), name: document.getElementById('f-name').value, phone: document.getElementById('f-phone').value, status: document.getElementById('f-status').value, followUpDate: document.getElementById('f-fdate').value, history: JSON.stringify(hArr) };
-            await fetch(id ? `${API_URL}/id/${id}` : API_URL, { method: id ? 'PATCH' : 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: id ? payload : [payload]}) });
-            closeModal(); fetchLeads();
         });
 
-        function closeModal() { document.getElementById('leadModal').classList.add('hidden'); }
-        function switchPage(p) {
-            ['dashboard', 'data', 'checklist'].forEach(pg => document.getElementById('page-'+pg).classList.add('hidden-page'));
-            document.getElementById('page-'+p).classList.remove('hidden-page');
-            ['dashboard', 'data', 'checklist'].forEach(nv => document.getElementById('nav-'+nv).classList.add('opacity-30'));
-            document.getElementById('nav-'+p).classList.remove('opacity-30');
-            document.getElementById('nav-'+p).classList.add('text-emerald-500');
+        todayLeads.forEach(l => {
+            alertHtml += `
+            <div class="alert-card bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl flex justify-between items-center mb-2">
+                <div>
+                    <p class="text-[9px] text-blue-400 font-black uppercase tracking-tighter mb-1">📅 Scheduled Today</p>
+                    <p class="font-bold text-sm">${l.name}</p>
+                </div>
+                <div class="flex gap-2">
+                    <a href="tel:${l.phone}" class="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center text-xs opacity-50"><i class="fas fa-phone"></i></a>
+                    <a href="https://wa.me/91${l.phone}" class="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-lg flex items-center justify-center text-xs"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>`;
+        });
+
+        document.getElementById('alert-zone').innerHTML = alertHtml;
+        filterBy('all'); 
+
+        document.getElementById('table-body').innerHTML = leadsData.map(l => `
+            <div class="data-row" data-name="${l.name.toLowerCase()}">${cardTemplate(l)}</div>
+        `).join('');
+    }
+
+    function renderList(list) {
+        document.getElementById('main-list').innerHTML = list.length > 0 
+            ? list.map(cardTemplate).join('') 
+            : `<p class="text-center opacity-20 text-xs py-10">No leads found</p>`;
+    }
+
+    const cardTemplate = (l) => `
+        <div class="emerald-card p-4 flex justify-between items-center">
+            <div onclick="openModal('edit', '${l.id}')" class="flex-1">
+                <p class="font-bold text-sm">${l.name}</p>
+                <p class="text-[9px] opacity-40 uppercase font-black">${l.status} | ${l.phone}</p>
+            </div>
+            <div class="flex gap-4">
+                <a href="tel:${l.phone}" class="text-white/20"><i class="fas fa-phone"></i></a>
+                <a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>`;
+
+    function handleCSV(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const text = e.target.result;
+            const rows = text.split('\n').slice(1);
+            const imported = rows.map(row => {
+                const cols = row.split(',');
+                if(cols.length < 2) return null;
+                return { id: "L"+Date.now()+Math.floor(Math.random()*999), name: cols[0].trim(), phone: cols[1].trim(), status: 'New', history: "[]" };
+            }).filter(x => x);
+            await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: imported}) });
+            fetchLeads();
+        };
+        reader.readAsText(file);
+    }
+
+    function renderTasks() {
+        document.getElementById('task-list').innerHTML = tasks.map(t => `
+            <li class="emerald-card p-4 flex justify-between items-center ${t.done ? 'task-done' : ''}">
+                <div onclick="toggleTask(${t.id})" class="flex items-center gap-3 cursor-pointer">
+                    <i class="fas ${t.done ? 'fa-check-circle text-emerald-500' : 'fa-circle opacity-20'}"></i>
+                    <span class="text-sm font-bold">${t.text}</span>
+                </div>
+                <button onclick="deleteTask(${t.id})" class="text-red-500/20 text-xs"><i class="fas fa-trash"></i></button>
+            </li>`).join('');
+    }
+    function addTask() {
+        const v = document.getElementById('new-task').value; if(!v) return;
+        tasks.push({id: Date.now(), text: v, done: false}); saveT(); renderTasks();
+        document.getElementById('new-task').value = '';
+    }
+    function toggleTask(id) { const t = tasks.find(x => x.id === id); if(t) t.done = !t.done; saveT(); renderTasks(); }
+    function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); saveT(); renderTasks(); }
+    function saveT() { localStorage.setItem('crm_tasks', JSON.stringify(tasks)); }
+
+    function openModal(mode, id) {
+        const hSec = document.getElementById('history-section');
+        if(mode === 'edit') {
+            const l = leadsData.find(x => x.id === id);
+            document.getElementById('f-id').value = l.id;
+            document.getElementById('f-name').value = l.name;
+            document.getElementById('f-phone').value = l.phone;
+            document.getElementById('f-status').value = l.status;
+            document.getElementById('f-fdate').value = l.followUpDate || '';
+            hSec.classList.remove('hidden');
+            const hArr = l.history ? JSON.parse(l.history) : [];
+            document.getElementById('history-content').innerHTML = hArr.map(h => `
+                <div class="bg-black/40 p-2 rounded-lg"><p class="text-[8px] opacity-30">${h.date}</p><p class="text-[10px]">${h.note}</p></div>
+            `).join('');
+        } else {
+            document.getElementById('lead-form').reset(); document.getElementById('f-id').value = ''; hSec.classList.add('hidden');
         }
-        function filterTable() {
-            const q = document.getElementById('table-search').value.toLowerCase();
-            document.querySelectorAll('.data-row').forEach(r => { r.style.display = r.dataset.name.includes(q) ? 'block' : 'none'; });
-        }
-    </script>
-</body>
-</html>
+        document.getElementById('leadModal').classList.remove('hidden');
+    }
+
+    document.getElementById('lead-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('f-id').value;
+        const note = document.getElementById('f-note').value;
+        let current = leadsData.find(x => x.id === id) || { history: "[]" };
+        let hArr = JSON.parse(current.history || "[]");
+        if(note.trim()) hArr.push({ date: new Date().toLocaleString(), note: note });
+        const payload = { id: id || "L" + Date.now(), name: document.getElementById('f-name').value, phone: document.getElementById('f-phone').value, status: document.getElementById('f-status').value, followUpDate: document.getElementById('f-fdate').value, history: JSON.stringify(hArr) };
+        await fetch(id ? `${API_URL}/id/${id}` : API_URL, { method: id ? 'PATCH' : 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: id ? payload : [payload]}) });
+        closeModal(); fetchLeads();
+    });
+
+    function closeModal() { document.getElementById('leadModal').classList.add('hidden'); }
+    function switchPage(p) {
+        ['dashboard', 'data', 'checklist'].forEach(pg => document.getElementById('page-'+pg).classList.add('hidden-page'));
+        document.getElementById('page-'+p).classList.remove('hidden-page');
+        ['dashboard', 'data', 'checklist'].forEach(nv => document.getElementById('nav-'+nv).classList.add('opacity-30'));
+        document.getElementById('nav-'+p).classList.remove('opacity-30');
+        document.getElementById('nav-'+p).classList.add('text-emerald-500');
+    }
+    function filterTable() {
+        const q = document.getElementById('table-search').value.toLowerCase();
+        document.querySelectorAll('.data-row').forEach(r => { r.style.display = r.dataset.name.includes(q) ? 'block' : 'none'; });
+    }
+</script>
