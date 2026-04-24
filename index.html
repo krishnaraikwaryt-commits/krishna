@@ -1,96 +1,288 @@
-<div id="page-dashboard" class="p-6 max-w-2xl mx-auto">
-            <header class="flex justify-between items-center mb-8 mt-2">
-                <div>
-                    <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest opacity-60">Control Center</p>
-                    <h1 class="text-3xl font-black tracking-tighter">Dashboard</h1>
-                </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeadFlow Pro Mega CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+        :root { --accent: #10b981; --bg: #000; --card: #121212; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #fff; }
+        .emerald-card { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; }
+        .hidden-page { display: none !important; }
+        .task-done { opacity: 0.3; text-decoration: line-through; }
+        .stat-box { padding: 20px; border-radius: 20px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: 0.3s; }
+        .stat-box:active { transform: scale(0.95); background: #222; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        nav { background: rgba(18,18,18,0.8); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); }
+        .active-filter { border: 1px solid var(--accent) !important; background: rgba(16, 185, 129, 0.1); }
+    </style>
+</head>
+<body class="pb-32">
+
+    <div id="login-screen" style="position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <div class="w-16 h-16 bg-emerald-500 rounded-3xl flex items-center justify-center text-black mb-6"><i class="fas fa-lock"></i></div>
+        <input type="password" id="access-pin" maxlength="4" oninput="autoCheck()" placeholder="Enter PIN" class="w-64 p-4 rounded-xl text-center bg-[#111] border border-white/10 outline-none text-white text-2xl font-bold">
+    </div>
+
+    <div id="main-app-content" style="display: none;">
+        
+        <div id="page-dashboard" class="p-6 max-w-2xl mx-auto">
+            <header class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-black">Dashboard</h1>
                 <div class="flex gap-3">
-                    <label class="bg-white/5 text-white/60 p-3 rounded-xl text-xs font-bold cursor-pointer border border-white/5">
-                        <i class="fas fa-file-import"></i><input type="file" id="csvFile" accept=".csv" class="hidden" onchange="handleCSV(event)">
+                    <label class="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                        <i class="fas fa-file-import mr-1"></i> Import
+                        <input type="file" id="csvFile" accept=".csv" class="hidden" onchange="handleCSV(event)">
                     </label>
-                    <button onclick="fetchLeads()" class="bg-emerald-500/10 text-emerald-500 w-10 h-10 rounded-xl"><i class="fas fa-sync-alt"></i></button>
+                    <button onclick="fetchLeads()" class="text-emerald-500"><i class="fas fa-sync-alt"></i></button>
                 </div>
             </header>
 
-            <div id="alert-container" class="space-y-4 mb-8">
-                <div id="overdue-alerts" class="space-y-2"></div>
-                <div id="today-alerts" class="space-y-2"></div>
-            </div>
-
             <div class="grid grid-cols-2 gap-3 mb-8">
-                <div class="stat-box active-filter" id="box-all" onclick="filterBy('all')">
-                    <p class="text-[10px] uppercase opacity-40 font-black mb-1">Total Leads</p>
-                    <h2 id="stat-total" class="text-2xl font-black italic">0</h2>
+                <div class="stat-box" id="box-all" onclick="filterBy('all')">
+                    <p class="text-[10px] uppercase opacity-40 font-bold mb-1">Total Leads</p>
+                    <h2 id="stat-total" class="text-2xl font-black">0</h2>
                 </div>
                 <div class="stat-box" id="box-closed" onclick="filterBy('closed')">
-                    <p class="text-[10px] uppercase text-emerald-500 font-black mb-1">Closed</p>
-                    <h2 id="stat-closed" class="text-2xl font-black text-emerald-500 italic">0</h2>
+                    <p class="text-[10px] uppercase text-emerald-500 font-bold mb-1">Closed</p>
+                    <h2 id="stat-closed" class="text-2xl font-black text-emerald-500">0</h2>
                 </div>
                 <div class="stat-box" id="box-today" onclick="filterBy('today')">
-                    <p class="text-[10px] uppercase text-blue-400 font-black mb-1">Today's</p>
-                    <h2 id="stat-today" class="text-2xl font-black text-blue-400 italic">0</h2>
+                    <p class="text-[10px] uppercase text-blue-400 font-bold mb-1">Today's</p>
+                    <h2 id="stat-today" class="text-2xl font-black text-blue-400">0</h2>
                 </div>
                 <div class="stat-box" id="box-overdue" onclick="filterBy('overdue')">
-                    <p class="text-[10px] uppercase text-red-500 font-black mb-1">Overdue</p>
-                    <h2 id="stat-overdue" class="text-2xl font-black text-red-500 italic">0</h2>
+                    <p class="text-[10px] uppercase text-red-500 font-bold mb-1">Overdue</p>
+                    <h2 id="stat-overdue" class="text-2xl font-black text-red-500">0</h2>
                 </div>
             </div>
 
             <div class="flex justify-between items-center mb-4 px-2">
-                <h3 id="list-title" class="text-[10px] font-black opacity-30 uppercase tracking-[2px]">Recent Leads</h3>
-                <button onclick="filterBy('all')" class="text-[9px] bg-white/5 px-3 py-1 rounded-full text-white/40 uppercase font-black">Reset</button>
+                <h3 id="list-title" class="text-xs font-bold opacity-30 uppercase tracking-widest">Recent Leads</h3>
+                <button onclick="filterBy('all')" class="text-[10px] text-emerald-500 font-bold">Clear Filter</button>
             </div>
             <div id="main-list" class="space-y-3"></div>
         </div>
 
-<script>
-    // ... (Previous logic stays same) ...
-
-    function renderAll() {
-        const total = leadsData.length;
-        const closed = leadsData.filter(l => l.status === 'Converted').length;
-        const todayLeads = leadsData.filter(l => l.followUpDate === todayStr && l.status !== 'Converted');
-        const overdueLeads = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted');
-
-        document.getElementById('stat-total').innerText = total;
-        document.getElementById('stat-closed').innerText = closed;
-        document.getElementById('stat-today').innerText = todayLeads.length;
-        document.getElementById('stat-overdue').innerText = overdueLeads.length;
-
-        // 🚨 OVERDUE ALERTS RENDER
-        document.getElementById('overdue-alerts').innerHTML = overdueLeads.map(l => `
-            <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex justify-between items-center">
-                <div>
-                    <p class="text-[10px] text-red-500 font-black uppercase tracking-tighter">⚠️ Overdue Follow-up</p>
-                    <p class="font-bold text-sm text-white">${l.name}</p>
-                </div>
-                <div class="flex gap-2">
-                    <a href="tel:${l.phone}" class="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center text-xs opacity-50"><i class="fas fa-phone"></i></a>
-                    <a href="https://wa.me/91${l.phone}" class="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-lg flex items-center justify-center text-xs"><i class="fab fa-whatsapp"></i></a>
-                </div>
+        <div id="page-data" class="p-6 max-w-4xl mx-auto hidden-page">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black">Database</h2>
+                <input type="text" id="table-search" oninput="filterTable()" placeholder="Search..." class="bg-[#1a1a1a] p-2 rounded-lg text-xs outline-none w-32 border border-white/5">
             </div>
-        `).join('');
+            <div id="table-body" class="space-y-3"></div>
+        </div>
 
-        // 📅 TODAY ALERTS RENDER
-        document.getElementById('today-alerts').innerHTML = todayLeads.map(l => `
-            <div class="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl flex justify-between items-center">
-                <div>
-                    <p class="text-[10px] text-blue-400 font-black uppercase tracking-tighter">📅 Scheduled for Today</p>
-                    <p class="font-bold text-sm text-white">${l.name}</p>
-                </div>
-                <div class="flex gap-2">
-                    <a href="tel:${l.phone}" class="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center text-xs opacity-50"><i class="fas fa-phone"></i></a>
-                    <a href="https://wa.me/91${l.phone}" class="w-8 h-8 bg-emerald-500/20 text-emerald-500 rounded-lg flex items-center justify-center text-xs"><i class="fab fa-whatsapp"></i></a>
-                </div>
+        <div id="page-checklist" class="p-6 max-w-2xl mx-auto hidden-page">
+            <h2 class="text-2xl font-black mb-6">Daily Tasks</h2>
+            <div class="emerald-card p-3 mb-6 flex gap-2">
+                <input type="text" id="new-task" placeholder="Add mission..." class="flex-1 bg-transparent p-2 outline-none text-sm">
+                <button onclick="addTask()" class="bg-emerald-500 text-black px-4 rounded-xl font-bold text-xl">+</button>
             </div>
-        `).join('');
+            <ul id="task-list" class="space-y-3"></ul>
+        </div>
 
-        filterBy('all');
-        
-        document.getElementById('table-body').innerHTML = leadsData.map(l => `
-            <div class="data-row" data-name="${l.name.toLowerCase()}">${cardTemplate(l)}</div>
-        `).join('');
-    }
+        <nav class="fixed bottom-6 left-6 right-6 h-16 rounded-2xl flex justify-around items-center px-4 z-[500] shadow-2xl">
+            <button onclick="switchPage('dashboard')" id="nav-dashboard" class="text-emerald-500"><i class="fas fa-th-large"></i></button>
+            <button onclick="switchPage('checklist')" id="nav-checklist" class="opacity-30"><i class="fas fa-list-check"></i></button>
+            <button onclick="openModal('add')" class="bg-white text-black w-10 h-10 rounded-xl flex items-center justify-center"><i class="fas fa-plus"></i></button>
+            <button onclick="switchPage('data')" id="nav-data" class="opacity-30"><i class="fas fa-database"></i></button>
+        </nav>
+    </div>
 
-    // ... (Rest of the functions same) ...
-</script>
+    <div id="leadModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-end sm:items-center justify-center z-[1000] p-4">
+        <div class="emerald-card w-full max-w-md p-6 bg-[#111] max-h-[85vh] overflow-y-auto no-scrollbar">
+            <form id="lead-form" class="space-y-4">
+                <input type="hidden" id="f-id">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-black">Lead Details</h3>
+                    <button type="button" onclick="closeModal()" class="opacity-20"><i class="fas fa-times"></i></button>
+                </div>
+                <input type="text" id="f-name" placeholder="Name" class="w-full p-4 rounded-xl bg-[#1a1a1a] outline-none" required>
+                <input type="text" id="f-phone" placeholder="Phone" class="w-full p-4 rounded-xl bg-[#1a1a1a] outline-none" required>
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="f-status" class="w-full p-4 rounded-xl bg-[#1a1a1a] outline-none text-xs">
+                        <option value="New">New</option><option value="Follow-up">Follow-up</option><option value="Converted">Converted</option>
+                    </select>
+                    <input type="date" id="f-fdate" class="w-full p-4 rounded-xl bg-[#1a1a1a] outline-none text-[10px]">
+                </div>
+                <div id="history-section" class="pt-4 border-t border-white/5 hidden">
+                    <p class="text-[10px] text-emerald-500 font-bold mb-2 uppercase">History Log</p>
+                    <div id="history-content" class="space-y-2 mb-4"></div>
+                    <textarea id="f-note" placeholder="What's the update?" class="w-full p-3 rounded-xl bg-[#000] text-xs outline-none" rows="2"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-emerald-500 text-black py-4 rounded-xl font-black uppercase text-xs">Save & Sync</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
+        const SECRET_PIN = "1321";
+        let leadsData = [];
+        let tasks = JSON.parse(localStorage.getItem('crm_tasks')) || [];
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        function autoCheck() { if(document.getElementById('access-pin').value === SECRET_PIN) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app-content').style.display = 'block';
+            fetchLeads(); renderTasks();
+        }}
+
+        async function fetchLeads() {
+            try {
+                const res = await fetch(API_URL);
+                leadsData = await res.json();
+                renderAll();
+            } catch (e) { console.error("Sync Error"); }
+        }
+
+        function filterBy(type) {
+            document.querySelectorAll('.stat-box').forEach(b => b.classList.remove('active-filter'));
+            let filtered = [];
+            let title = "Recent Leads";
+
+            if(type === 'all') {
+                filtered = leadsData.slice().reverse().slice(0, 20);
+                document.getElementById('box-all').classList.add('active-filter');
+            } else if(type === 'closed') {
+                filtered = leadsData.filter(l => l.status === 'Converted');
+                title = "Closed Leads";
+                document.getElementById('box-closed').classList.add('active-filter');
+            } else if(type === 'today') {
+                filtered = leadsData.filter(l => l.followUpDate === todayStr);
+                title = "Today's Followups";
+                document.getElementById('box-today').classList.add('active-filter');
+            } else if(type === 'overdue') {
+                filtered = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted');
+                title = "Overdue Leads";
+                document.getElementById('box-overdue').classList.add('active-filter');
+            }
+
+            document.getElementById('list-title').innerText = title;
+            renderList(filtered);
+        }
+
+        function renderAll() {
+            const total = leadsData.length;
+            const closed = leadsData.filter(l => l.status === 'Converted').length;
+            const todayL = leadsData.filter(l => l.followUpDate === todayStr).length;
+            const overdue = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted').length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-closed').innerText = closed;
+            document.getElementById('stat-today').innerText = todayL;
+            document.getElementById('stat-overdue').innerText = overdue;
+
+            filterBy('all'); // Default view
+            
+            // Database render
+            document.getElementById('table-body').innerHTML = leadsData.map(l => `
+                <div class="data-row" data-name="${l.name.toLowerCase()}">${cardTemplate(l)}</div>
+            `).join('');
+        }
+
+        function renderList(list) {
+            document.getElementById('main-list').innerHTML = list.length > 0 
+                ? list.map(cardTemplate).join('') 
+                : `<p class="text-center opacity-20 text-xs py-10">No leads found</p>`;
+        }
+
+        const cardTemplate = (l) => `
+            <div class="emerald-card p-4 flex justify-between items-center">
+                <div onclick="openModal('edit', '${l.id}')" class="flex-1">
+                    <p class="font-bold text-sm">${l.name}</p>
+                    <p class="text-[9px] opacity-40 uppercase font-black">${l.status} | ${l.phone}</p>
+                </div>
+                <div class="flex gap-4">
+                    <a href="tel:${l.phone}" class="text-white/20"><i class="fas fa-phone"></i></a>
+                    <a href="https://wa.me/91${l.phone}" class="text-emerald-500"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>`;
+
+        // CSV, CHECKLIST & MODAL functions... (Same as previous)
+        function handleCSV(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const text = e.target.result;
+                const rows = text.split('\n').slice(1);
+                const imported = rows.map(row => {
+                    const cols = row.split(',');
+                    if(cols.length < 2) return null;
+                    return { id: "L"+Date.now()+Math.random(), name: cols[0], phone: cols[1], status: 'New', history: "[]" };
+                }).filter(x => x);
+                await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: imported}) });
+                fetchLeads();
+            };
+            reader.readAsText(file);
+        }
+
+        function renderTasks() {
+            document.getElementById('task-list').innerHTML = tasks.map(t => `
+                <li class="emerald-card p-4 flex justify-between items-center ${t.done ? 'task-done' : ''}">
+                    <div onclick="toggleTask(${t.id})" class="flex items-center gap-3 cursor-pointer">
+                        <i class="fas ${t.done ? 'fa-check-circle text-emerald-500' : 'fa-circle opacity-20'}"></i>
+                        <span class="text-sm font-bold">${t.text}</span>
+                    </div>
+                    <button onclick="deleteTask(${t.id})" class="text-red-500/20 text-xs"><i class="fas fa-trash"></i></button>
+                </li>`).join('');
+        }
+        function addTask() {
+            const v = document.getElementById('new-task').value; if(!v) return;
+            tasks.push({id: Date.now(), text: v, done: false}); saveT(); renderTasks();
+            document.getElementById('new-task').value = '';
+        }
+        function toggleTask(id) { const t = tasks.find(x => x.id === id); if(t) t.done = !t.done; saveT(); renderTasks(); }
+        function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); saveT(); renderTasks(); }
+        function saveT() { localStorage.setItem('crm_tasks', JSON.stringify(tasks)); }
+
+        function openModal(mode, id) {
+            const hSec = document.getElementById('history-section');
+            if(mode === 'edit') {
+                const l = leadsData.find(x => x.id === id);
+                document.getElementById('f-id').value = l.id;
+                document.getElementById('f-name').value = l.name;
+                document.getElementById('f-phone').value = l.phone;
+                document.getElementById('f-status').value = l.status;
+                document.getElementById('f-fdate').value = l.followUpDate || '';
+                hSec.classList.remove('hidden');
+                const hArr = l.history ? JSON.parse(l.history) : [];
+                document.getElementById('history-content').innerHTML = hArr.map(h => `
+                    <div class="bg-black/40 p-2 rounded-lg"><p class="text-[8px] opacity-30">${h.date}</p><p class="text-[10px]">${h.note}</p></div>
+                `).join('');
+            } else {
+                document.getElementById('lead-form').reset(); document.getElementById('f-id').value = ''; hSec.classList.add('hidden');
+            }
+            document.getElementById('leadModal').classList.remove('hidden');
+        }
+
+        document.getElementById('lead-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('f-id').value;
+            const note = document.getElementById('f-note').value;
+            let current = leadsData.find(x => x.id === id) || { history: "[]" };
+            let hArr = JSON.parse(current.history || "[]");
+            if(note.trim()) hArr.push({ date: new Date().toLocaleString(), note: note });
+            const payload = { id: id || "L" + Date.now(), name: document.getElementById('f-name').value, phone: document.getElementById('f-phone').value, status: document.getElementById('f-status').value, followUpDate: document.getElementById('f-fdate').value, history: JSON.stringify(hArr) };
+            await fetch(id ? `${API_URL}/id/${id}` : API_URL, { method: id ? 'PATCH' : 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: id ? payload : [payload]}) });
+            closeModal(); fetchLeads();
+        });
+
+        function closeModal() { document.getElementById('leadModal').classList.add('hidden'); }
+        function switchPage(p) {
+            ['dashboard', 'data', 'checklist'].forEach(pg => document.getElementById('page-'+pg).classList.add('hidden-page'));
+            document.getElementById('page-'+p).classList.remove('hidden-page');
+            ['dashboard', 'data', 'checklist'].forEach(nv => document.getElementById('nav-'+nv).classList.add('opacity-30'));
+            document.getElementById('nav-'+p).classList.remove('opacity-30');
+            document.getElementById('nav-'+p).classList.add('text-emerald-500');
+        }
+        function filterTable() {
+            const q = document.getElementById('table-search').value.toLowerCase();
+            document.querySelectorAll('.data-row').forEach(r => { r.style.display = r.dataset.name.includes(q) ? 'block' : 'none'; });
+        }
+    </script>
+</body>
+</html>
