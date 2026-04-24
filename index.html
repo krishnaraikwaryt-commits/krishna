@@ -17,6 +17,8 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
         input, select, textarea { background: #161d17 !important; border: 1px solid rgba(16, 185, 129, 0.2) !important; color: white !important; }
+        .filter-chip { padding: 10px 20px; border-radius: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; border: 1px solid rgba(16, 185, 129, 0.2); cursor: pointer; transition: 0.3s; }
+        .filter-active { background: var(--accent) !important; color: black !important; border-color: var(--accent); box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
         @keyframes pulse-alert { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
         .alert-glow { animation: pulse-alert 2s infinite; border-color: #f97316 !important; }
     </style>
@@ -26,10 +28,10 @@
     <div id="login-screen" style="position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 2rem;">
         <div class="text-center w-full max-w-sm">
             <div class="w-24 h-24 bg-emerald-500 rounded-[2.5rem] mx-auto mb-8 flex items-center justify-center text-black text-4xl shadow-[0_0_40px_rgba(16,185,129,0.4)]"><i class="fas fa-fingerprint"></i></div>
-            <h2 class="text-4xl font-heavy mb-2 tracking-tighter">Welcome Back</h2>
+            <h2 class="text-4xl font-heavy mb-2 tracking-tighter text-white">Secure Access</h2>
             <div class="space-y-4">
                 <input type="password" id="access-pin" oninput="autoCheck()" placeholder="••••" class="w-full p-6 rounded-[2rem] text-center text-3xl tracking-[0.5em] font-heavy outline-none">
-                <button onclick="checkAccess()" class="w-full bg-emerald-500 text-black p-6 rounded-[2rem] font-heavy text-lg uppercase">Enter System</button>
+                <button onclick="checkAccess()" class="w-full bg-emerald-500 text-black p-6 rounded-[2rem] font-heavy text-lg uppercase btn-glow">Unlock System</button>
             </div>
         </div>
     </div>
@@ -44,23 +46,29 @@
                 <button onclick="fetchLeads()" class="w-12 h-12 emerald-card flex items-center justify-center text-emerald-500"><i class="fas fa-redo-alt"></i></button>
             </header>
 
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <div onclick="setFilter('All')" class="emerald-card p-6 border-l-4 border-emerald-500 bg-emerald-500/5 cursor-pointer">
-                    <p class="text-[10px] font-heavy text-emerald-500/60 uppercase">Total Leads</p>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div onclick="setFilter('All', this)" class="emerald-card p-6 border-l-4 border-emerald-500 bg-emerald-500/5 cursor-pointer">
+                    <p class="text-[10px] font-heavy text-emerald-500/60 uppercase">Total System</p>
                     <h2 id="count-all" class="text-4xl font-heavy mt-1">0</h2>
                 </div>
-                <div onclick="setFilter('Today')" class="emerald-card p-6 border-l-4 border-blue-500 cursor-pointer">
-                    <p class="text-[10px] font-heavy text-blue-500/60 uppercase">Today's Leads</p>
+                <div onclick="setFilter('Today', this)" class="emerald-card p-6 border-l-4 border-blue-500 cursor-pointer">
+                    <p class="text-[10px] font-heavy text-blue-500/60 uppercase">Scheduled Today</p>
                     <h2 id="count-today" class="text-4xl font-heavy mt-1 text-blue-400">0</h2>
                 </div>
             </div>
 
-            <div id="alert-section" class="mb-10 hidden">
-                <h3 class="text-[11px] font-black text-orange-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                    <i class="fas fa-bell animate-bounce"></i> Action Required Today
-                </h3>
-                <div id="alert-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-                    </div>
+            <div id="alert-section" class="mb-8 hidden">
+                <h3 class="text-[11px] font-black text-orange-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2"><i class="fas fa-bell animate-bounce"></i> Urgent Follow-ups</h3>
+                <div id="alert-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar"></div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-[11px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mb-4">Browse Categories</h3>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                    <div onclick="setFilter('New', this)" class="filter-chip bg-[#141b15]">New <span id="count-new" class="ml-1 opacity-50 text-[9px]">0</span></div>
+                    <div onclick="setFilter('Follow-up', this)" class="filter-chip bg-[#141b15]">Follow-up <span id="count-follow" class="ml-1 opacity-50 text-[9px]">0</span></div>
+                    <div onclick="setFilter('Converted', this)" class="filter-chip bg-[#141b15]">Closed <span id="count-closed" class="ml-1 opacity-50 text-[9px]">0</span></div>
+                </div>
             </div>
 
             <div class="space-y-4" id="main-list"></div>
@@ -106,8 +114,8 @@
                     </select>
                     <input type="date" id="f-fdate" class="p-4 rounded-2xl font-bold outline-none">
                 </div>
-                <button type="submit" class="w-full bg-emerald-500 text-black p-5 rounded-2xl font-heavy mt-4 uppercase">Update Lead</button>
-                <button type="button" onclick="closeModal()" class="w-full text-white/30 font-heavy text-xs mt-2">CANCEL</button>
+                <button type="submit" class="w-full bg-emerald-500 text-black p-5 rounded-2xl font-heavy mt-4 uppercase">Save to Cloud</button>
+                <button type="button" onclick="closeModal()" class="w-full text-white/30 font-heavy text-xs mt-2">CLOSE</button>
             </form>
         </div>
     </div>
@@ -136,12 +144,16 @@
         }
 
         function updateUI() {
-            let stats = { total: leadsData.length, today: 0 };
+            let stats = { total: leadsData.length, today: 0, new: 0, follow: 0, closed: 0 };
             const alertSection = document.getElementById('alert-section');
             const alertList = document.getElementById('alert-list');
             alertList.innerHTML = '';
             
             leadsData.forEach(l => {
+                if(l.status === 'New') stats.new++;
+                if(l.status === 'Follow-up') stats.follow++;
+                if(l.status === 'Converted') stats.closed++;
+                
                 if(l.followUpDate === today && l.status !== 'Converted') {
                     stats.today++;
                     alertList.innerHTML += `
@@ -158,6 +170,10 @@
             alertSection.classList.toggle('hidden', stats.today === 0);
             document.getElementById('count-all').innerText = stats.total;
             document.getElementById('count-today').innerText = stats.today;
+            document.getElementById('count-new').innerText = stats.new;
+            document.getElementById('count-follow').innerText = stats.follow;
+            document.getElementById('count-closed').innerText = stats.closed;
+            
             setFilter('All');
         }
 
@@ -176,13 +192,21 @@
                 </div>`).join('');
         }
 
-        function setFilter(type) {
+        function setFilter(type, el) {
+            if(el) {
+                document.querySelectorAll('.filter-chip, .emerald-card').forEach(c => c.classList.remove('filter-active'));
+                el.classList.add('filter-active');
+            }
+            
             let f = leadsData;
             if(type==='Today') f = leadsData.filter(x => x.followUpDate === today);
+            else if(type==='New') f = leadsData.filter(x => x.status === 'New');
+            else if(type==='Follow-up') f = leadsData.filter(x => x.status === 'Follow-up');
+            else if(type==='Converted') f = leadsData.filter(x => x.status === 'Converted');
+            
             renderMainList(f);
         }
 
-        // --- TASKS ---
         function addTask() {
             const val = document.getElementById('new-task').value;
             if(!val.trim()) return;
