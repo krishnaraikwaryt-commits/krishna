@@ -152,3 +152,46 @@
     </script>
 </body>
 </html>
+function renderAll() {
+    // 1. Aaj ki date aur Overdue leads filter karein
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayLeads = leadsData.filter(l => l.followUpDate === todayStr && l.status !== 'Converted');
+    const overdueLeads = leadsData.filter(l => l.followUpDate && l.followUpDate < todayStr && l.status !== 'Converted');
+
+    // 2. Stats Update karein
+    document.getElementById('stat-total').innerText = leadsData.length;
+    document.getElementById('stat-closed').innerText = leadsData.filter(l => l.status === 'Converted').length;
+    document.getElementById('stat-today').innerText = todayLeads.length;
+    document.getElementById('stat-overdue').innerText = overdueLeads.length;
+
+    // 3. ALERT ZONE (Missed Follow-ups)
+    let alertHtml = '';
+    if (overdueLeads.length > 0) {
+        overdueLeads.forEach(l => {
+            alertHtml += `
+                <div class="alert-card bg-red-50 border border-red-100 p-4 rounded-[24px] flex justify-between items-center mb-3 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center text-xs animate-pulse">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-red-500 font-bold uppercase tracking-widest">Missed Follow-up</p>
+                            <p class="font-bold text-slate-800">${l.name}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="tel:${l.phone}" class="w-10 h-10 bg-white border border-red-100 rounded-xl flex items-center justify-center text-red-500 shadow-sm active:scale-90">
+                            <i class="fas fa-phone-alt"></i>
+                        </a>
+                        <a href="https://wa.me/91${l.phone}" class="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-90">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>`;
+        });
+    }
+    document.getElementById('alert-zone').innerHTML = alertHtml;
+
+    // 4. Default List View (All Leads)
+    filterBy('all'); 
+}
