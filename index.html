@@ -23,7 +23,7 @@
 </head>
 <body class="light-mode pb-24 transition-all duration-500 font-sans">
 
-    <div id="login-screen" class="fixed inset-0 bg-[#f3f7f4] z-[5000] flex items-center justify-center p-6 transition-all duration-500">
+    <div id="login-screen" style="position: fixed; inset: 0; background: #f3f7f4; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
         <div class="bg-white p-10 rounded-[3rem] shadow-2xl w-full max-w-md text-center border border-black/5">
             <div class="w-20 h-20 bg-[#1e6b3e] rounded-3xl mx-auto mb-6 flex items-center justify-center text-white text-3xl shadow-lg">
                 <i class="fas fa-lock"></i>
@@ -31,76 +31,286 @@
             <h2 class="text-3xl font-black text-[#1e6b3e] mb-2 tracking-tighter">Secure Access</h2>
             <p class="text-[10px] font-black opacity-40 uppercase mb-8 tracking-widest">LeadFlow Omni • Krishna</p>
             <div class="space-y-4">
-                <input type="password" id="access-pin" placeholder="Enter PIN" class="w-full p-5 rounded-2xl bg-gray-100 outline-none font-bold text-center text-xl tracking-widest">
-                <button onclick="checkAccess()" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black shadow-xl hover:scale-95 transition-transform uppercase">Unlock CRM</button>
+                <input type="password" id="access-pin" placeholder="Enter PIN" class="w-full p-5 rounded-2xl bg-gray-100 outline-none font-bold text-center text-xl tracking-widest" autofocus>
+                <button onclick="checkAccess()" id="unlock-btn" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black shadow-xl hover:scale-95 transition-transform uppercase">Unlock CRM</button>
             </div>
+            <p id="error-msg" class="text-red-500 text-[10px] font-bold mt-4 hidden">Galat PIN hai bhai!</p>
         </div>
     </div>
 
-    <div id="page-dashboard" class="p-4 max-w-5xl mx-auto hidden">
-        <header class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="font-black text-2xl tracking-tighter text-[#1e6b3e]">LeadFlow Omni</h1>
-                <p id="header-date" class="text-[10px] font-bold opacity-50 uppercase tracking-widest"></p>
-            </div>
-            <div class="flex gap-2">
-                <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="importCSV(this)">
-                <button onclick="document.getElementById('csv-file').click()" class="bg-blue-600 text-white h-10 px-4 rounded-full text-[10px] font-black shadow-lg flex items-center gap-2">
-                    <i class="fas fa-file-csv"></i> IMPORT
-                </button>
-                <button onclick="fetchLeads()" class="bg-[#1e6b3e] text-white h-10 w-10 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-sync-alt"></i></button>
-                <button onclick="toggleTheme()" class="bg-white dark:bg-white/5 h-10 w-10 rounded-full flex items-center justify-center shadow-sm"><i class="fas fa-moon"></i></button>
-            </div>
-        </header>
-
-        <div id="alert-box" class="mb-8 hidden">
-            <h3 class="text-[11px] font-black text-orange-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                <i class="fas fa-bell animate-bounce"></i> Today's Priority
-            </h3>
-            <div id="alert-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar"></div>
-        </div>
-
-        <div id="stat-cards" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            <div id="btn-all" onclick="setFilter('All', this)" class="glass-card p-4 border-b-4 border-gray-400 filter-active">
-                <p class="text-[9px] font-black opacity-50 uppercase">Total</p>
-                <h2 id="count-all" class="text-2xl font-black">0</h2>
-            </div>
-            <div id="btn-today" onclick="setFilter('Today', this)" class="glass-card p-4 border-b-4 border-blue-500">
-                <p class="text-[9px] font-black text-blue-500 uppercase">Today</p>
-                <h2 id="count-today" class="text-2xl font-black text-blue-500">0</h2>
-            </div>
-            <div id="btn-overdue" onclick="setFilter('Overdue', this)" class="glass-card p-4 border-b-4 border-red-500">
-                <p class="text-[9px] font-black text-red-500 uppercase">Overdue</p>
-                <h2 id="count-over" class="text-2xl font-black text-red-500">0</h2>
-            </div>
-            <div id="btn-won" onclick="setFilter('Converted', this)" class="glass-card p-4 border-b-4 border-green-600">
-                <p class="text-[9px] font-black text-green-600 uppercase">Won</p>
-                <h2 id="count-won" class="text-2xl font-black text-green-600">0</h2>
-            </div>
-        </div>
-
-        <div id="main-list" class="grid gap-3"></div>
-    </div>
-
-    <div id="page-calling" class="p-4 max-w-5xl mx-auto hidden-page">
-        <h2 class="text-xl font-black mb-6">Dialer Mode</h2>
-        <div id="dialer-container" class="glass-card p-10 text-center shadow-2xl min-h-[400px] flex flex-col justify-center">
-            <div id="dialer-active">
-                <h3 id="dialer-name" class="text-4xl font-black mb-2">---</h3>
-                <p id="dialer-sub" class="text-sm opacity-50 mb-8 font-bold">---</p>
-                <div class="flex justify-center gap-6 mb-8">
-                    <a id="dialer-call" href="#" class="h-20 w-20 bg-blue-600 text-white rounded-[2rem] flex items-center justify-center text-3xl shadow-xl"><i class="fas fa-phone"></i></a>
-                    <a id="dialer-wa" href="#" class="h-20 w-20 bg-[#25D366] text-white rounded-[2rem] flex items-center justify-center text-3xl shadow-xl"><i class="fab fa-whatsapp"></i></a>
+    <div id="main-app-content" style="display: none;">
+        <div id="page-dashboard" class="p-4 max-w-5xl mx-auto">
+            <header class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="font-black text-2xl tracking-tighter text-[#1e6b3e]">LeadFlow Omni</h1>
+                    <p id="header-date" class="text-[10px] font-bold opacity-50 uppercase tracking-widest"></p>
                 </div>
-                <button onclick="saveDialerData()" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black">SAVE & NEXT</button>
+                <div class="flex gap-2">
+                    <input type="file" id="csv-file" accept=".csv" class="hidden" onchange="importCSV(this)">
+                    <button onclick="document.getElementById('csv-file').click()" class="bg-blue-600 text-white h-10 px-4 rounded-full text-[10px] font-black shadow-lg flex items-center gap-2">
+                        <i class="fas fa-file-csv"></i> IMPORT
+                    </button>
+                    <button onclick="fetchLeads()" class="bg-[#1e6b3e] text-white h-10 w-10 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-sync-alt"></i></button>
+                    <button onclick="toggleTheme()" class="bg-white dark:bg-white/5 h-10 w-10 rounded-full flex items-center justify-center shadow-sm"><i class="fas fa-moon"></i></button>
+                </div>
+            </header>
+
+            <div id="alert-box" class="mb-8 hidden">
+                <h3 class="text-[11px] font-black text-orange-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <i class="fas fa-bell animate-bounce"></i> Today's Priority
+                </h3>
+                <div id="alert-list" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar"></div>
             </div>
-            <div id="dialer-empty" class="hidden font-bold italic opacity-40 text-xl">No pending calls!</div>
+
+            <div id="stat-cards" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                <div id="btn-all" onclick="setFilter('All', this)" class="glass-card p-4 border-b-4 border-gray-400 filter-active">
+                    <p class="text-[9px] font-black opacity-50 uppercase">Total</p>
+                    <h2 id="count-all" class="text-2xl font-black">0</h2>
+                </div>
+                <div id="btn-today" onclick="setFilter('Today', this)" class="glass-card p-4 border-b-4 border-blue-500">
+                    <p class="text-[9px] font-black text-blue-500 uppercase">Today</p>
+                    <h2 id="count-today" class="text-2xl font-black text-blue-500">0</h2>
+                </div>
+                <div id="btn-overdue" onclick="setFilter('Overdue', this)" class="glass-card p-4 border-b-4 border-red-500">
+                    <p class="text-[9px] font-black text-red-500 uppercase">Overdue</p>
+                    <h2 id="count-over" class="text-2xl font-black text-red-500">0</h2>
+                </div>
+                <div id="btn-won" onclick="setFilter('Converted', this)" class="glass-card p-4 border-b-4 border-green-600">
+                    <p class="text-[9px] font-black text-green-600 uppercase">Won</p>
+                    <h2 id="count-won" class="text-2xl font-black text-green-600">0</h2>
+                </div>
+            </div>
+
+            <div id="main-list" class="grid gap-3"></div>
+        </div>
+
+        <div id="page-calling" class="p-4 max-w-5xl mx-auto hidden-page">
+            <h2 class="text-xl font-black mb-6">Dialer Mode</h2>
+            <div id="dialer-container" class="glass-card p-10 text-center shadow-2xl min-h-[400px] flex flex-col justify-center">
+                <div id="dialer-active">
+                    <h3 id="dialer-name" class="text-4xl font-black mb-2">---</h3>
+                    <p id="dialer-sub" class="text-sm opacity-50 mb-8 font-bold">---</p>
+                    <div class="flex justify-center gap-6 mb-8">
+                        <a id="dialer-call" href="#" class="h-20 w-20 bg-blue-600 text-white rounded-[2rem] flex items-center justify-center text-3xl shadow-xl"><i class="fas fa-phone"></i></a>
+                        <a id="dialer-wa" href="#" class="h-20 w-20 bg-[#25D366] text-white rounded-[2rem] flex items-center justify-center text-3xl shadow-xl"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                    <button onclick="saveDialerData()" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black">SAVE & NEXT</button>
+                </div>
+                <div id="dialer-empty" class="hidden font-bold italic opacity-40 text-xl">No pending calls!</div>
+            </div>
+        </div>
+
+        <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#141d16] border-t border-gray-100 flex justify-around p-4 shadow-2xl z-[500]">
+            <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col items-center gap-1 opacity-50 nav-active">
+                <i class="fas fa-th-large text-xl"></i><span class="text-[9px] font-black uppercase">Board</span>
+            </button>
+            <button onclick="openModal('add')" class="flex flex-col items-center -mt-10 bg-[#1e6b3e] h-14 w-14 rounded-full text-white justify-center shadow-xl border-4 border-white">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button onclick="switchPage('calling')" id="nav-calling" class="flex flex-col items-center gap-1 opacity-50">
+                <i class="fas fa-phone-volume text-xl"></i><span class="text-[9px] font-black uppercase">Calls</span>
+            </button>
+        </nav>
+    </div>
+
+    <div id="leadModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-[1000]">
+        <div class="bg-white dark:bg-[#141d16] w-full max-w-lg p-8 rounded-[2.5rem] shadow-2xl">
+            <h2 id="modal-title" class="text-2xl font-black mb-6 text-[#1e6b3e]">Lead Manager</h2>
+            <form id="lead-form" class="space-y-4">
+                <input type="hidden" id="f-id">
+                <input type="text" id="f-name" placeholder="Name" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black outline-none" required>
+                <input type="text" id="f-phone" placeholder="Phone" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black outline-none" required>
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="f-status" class="p-4 rounded-xl bg-gray-100 dark:bg-black font-bold outline-none">
+                        <option value="New">New</option>
+                        <option value="Interested">Interested</option>
+                        <option value="Follow-up">Follow-up</option>
+                        <option value="Converted">Converted 💰</option>
+                        <option value="Lost">Lost ❄️</option>
+                    </select>
+                    <input type="date" id="f-fdate" class="p-4 rounded-xl bg-gray-100 dark:bg-black font-bold outline-none">
+                </div>
+                <textarea id="f-notes" placeholder="Notes..." class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black h-24 outline-none"></textarea>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 bg-[#1e6b3e] text-white p-5 rounded-2xl font-black">SYNC DATA</button>
+                    <button type="button" onclick="closeModal()" class="p-5 font-bold opacity-50">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#141d16] border-t border-gray-100 flex justify-around p-4 shadow-2xl z-[500]">
-        <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col items-center gap-1 opacity-50 nav-active">
-            <i class="fas fa-th-large text-xl"></i><span class="text-[9px] font-black uppercase">Board</span>
-        </button>
-        <button onclick="openModal('add')" class="flex flex-col items-center -mt-10 bg-[#1e6b3e] h-14 w-14 rounded-full text-white justify-center shadow-xl border-4 border-white">
-            <i class="
+    <script>
+        const API_URL = "https://sheetdb.io/api/v1/7skn6892hya7x";
+        const SECRET_PIN = "1321"; // Krishna's Password
+        let leadsData = [];
+        const today = new Date().toISOString().split('T')[0];
+
+        // --- 🔐 LOGIN LOGIC (Fixed) ---
+        function checkAccess() {
+            const pinInput = document.getElementById('access-pin');
+            const entered = pinInput.value.trim();
+            
+            if(entered === SECRET_PIN) {
+                // Hide Login, Show App
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app-content').style.display = 'block';
+                fetchLeads();
+            } else {
+                document.getElementById('error-msg').classList.remove('hidden');
+                pinInput.value = "";
+                pinInput.focus();
+            }
+        }
+
+        // Enter key support for login
+        document.getElementById('access-pin').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkAccess();
+        });
+
+        // --- 📊 DATA LOGIC ---
+        async function fetchLeads() {
+            try {
+                document.getElementById('header-date').innerText = new Date().toDateString();
+                const res = await fetch(API_URL);
+                leadsData = await res.json();
+                updateUI();
+            } catch (err) { console.error("Data error:", err); }
+        }
+
+        function updateUI() {
+            let stats = { total: leadsData.length, today: 0, over: 0, won: 0 };
+            const alertList = document.getElementById('alert-list');
+            alertList.innerHTML = '';
+
+            leadsData.forEach(l => {
+                const isToday = l.followUpDate === today && l.status !== 'Converted';
+                if(isToday) {
+                    stats.today++;
+                    alertList.innerHTML += `
+                        <div class="min-w-[180px] glass-card p-4 border-t-4 border-orange-500 shadow-lg alert-card">
+                            <h4 class="font-black text-xs truncate">${l.name}</h4>
+                            <p class="text-[9px] opacity-60 mb-2">${l.phone}</p>
+                            <button onclick="quickTalked('${l.id}')" class="w-full bg-[#1e6b3e] text-white text-[9px] font-black py-2 rounded-lg uppercase tracking-widest">Done</button>
+                        </div>`;
+                }
+                if(l.followUpDate < today && l.status !== 'Converted' && l.status !== 'Lost') stats.over++;
+                if(l.status === 'Converted') stats.won++;
+            });
+
+            document.getElementById('alert-box').classList.toggle('hidden', stats.today === 0);
+            document.getElementById('count-all').innerText = stats.total;
+            document.getElementById('count-today').innerText = stats.today;
+            document.getElementById('count-over').innerText = stats.over;
+            document.getElementById('count-won').innerText = stats.won;
+            setFilter('All', document.getElementById('btn-all'));
+            initDialer();
+        }
+
+        function renderMainList(data) {
+            const list = document.getElementById('main-list');
+            list.innerHTML = '';
+            data.slice().reverse().forEach(l => {
+                const isFinished = l.status === 'Converted' || l.status === 'Lost';
+                list.innerHTML += `
+                    <div class="glass-card p-5 flex justify-between items-center ${isFinished ? 'opacity-50' : ''}" onclick="openModal('edit', '${l.id}')">
+                        <div>
+                            <h4 class="font-bold text-sm ${isFinished ? 'strikethrough text-red-500' : ''}">${l.name}</h4>
+                            <p class="text-[9px] font-black opacity-40 uppercase">${l.status} • ${l.followUpDate || 'No Date'}</p>
+                        </div>
+                        <i class="fas ${isFinished ? 'fa-check-double text-green-500' : 'fa-chevron-right opacity-20'}"></i>
+                    </div>`;
+            });
+        }
+
+        // --- 🛠️ HELPER FUNCTIONS ---
+        function setFilter(type, el) {
+            document.querySelectorAll('#stat-cards .glass-card').forEach(c => c.classList.remove('filter-active'));
+            el.classList.add('filter-active');
+            let f = leadsData;
+            if(type==='Today') f = leadsData.filter(x => x.followUpDate === today);
+            else if(type==='Overdue') f = leadsData.filter(x => x.followUpDate < today && x.status !== 'Converted' && x.status !== 'Lost');
+            else if(type==='Converted') f = leadsData.filter(x => x.status === 'Converted');
+            renderMainList(f);
+        }
+
+        function importCSV(input) {
+            Papa.parse(input.files[0], {
+                header: true,
+                complete: async (res) => {
+                    const batch = res.data.map(i => ({
+                        id: "L"+Date.now()+Math.floor(Math.random()*100),
+                        name: i.name, phone: i.phone, status: "New", followUpDate: today, notes: "CSV"
+                    }));
+                    await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data: batch}) });
+                    fetchLeads();
+                }
+            });
+        }
+
+        function openModal(mode, id) {
+            if(mode === 'edit') {
+                const l = leadsData.find(x => x.id === id);
+                document.getElementById('f-id').value = l.id;
+                document.getElementById('f-name').value = l.name;
+                document.getElementById('f-phone').value = l.phone;
+                document.getElementById('f-status').value = l.status;
+                document.getElementById('f-fdate').value = l.followUpDate || "";
+                document.getElementById('f-notes').value = l.notes || "";
+            } else {
+                document.getElementById('lead-form').reset();
+                document.getElementById('f-id').value = "";
+            }
+            document.getElementById('leadModal').classList.remove('hidden');
+        }
+
+        document.getElementById('lead-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('f-id').value;
+            const data = {
+                id: id || "L" + Date.now(),
+                name: document.getElementById('f-name').value,
+                phone: document.getElementById('f-phone').value,
+                status: document.getElementById('f-status').value,
+                followUpDate: document.getElementById('f-fdate').value,
+                notes: document.getElementById('f-notes').value
+            };
+            const method = id ? 'PATCH' : 'POST';
+            const url = id ? `${API_URL}/id/${id}` : API_URL;
+            await fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify({data: id ? data : [data]}) });
+            closeModal(); fetchLeads();
+        });
+
+        function initDialer() {
+            const pending = leadsData.filter(l => l.status !== 'Converted' && l.status !== 'Lost');
+            if (pending.length > 0) {
+                const cur = pending[0];
+                document.getElementById('dialer-active').classList.remove('hidden');
+                document.getElementById('dialer-empty').classList.add('hidden');
+                document.getElementById('dialer-name').innerText = cur.name;
+                document.getElementById('dialer-sub').innerText = cur.phone;
+                document.getElementById('dialer-call').href = "tel:" + cur.phone;
+                document.getElementById('dialer-wa').href = "https://wa.me/91" + cur.phone;
+            } else {
+                document.getElementById('dialer-active').classList.add('hidden');
+                document.getElementById('dialer-empty').classList.remove('hidden');
+            }
+        }
+
+        function closeModal() { document.getElementById('leadModal').classList.add('hidden'); }
+        function switchPage(p) {
+            document.getElementById('page-dashboard').classList.toggle('hidden-page', p !== 'dashboard');
+            document.getElementById('page-calling').classList.toggle('hidden-page', p !== 'calling');
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
+            document.getElementById('nav-' + p).classList.add('nav-active');
+        }
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); document.body.classList.toggle('light-mode'); }
+        async function quickTalked(id) {
+            const d = prompt("Next Date? (YYYY-MM-DD)", today);
+            if(d) {
+                await fetch(`${API_URL}/id/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({data: {followUpDate: d, status: 'Follow-up'}}) });
+                fetchLeads();
+            }
+        }
+    </script>
+</body>
+</html>
