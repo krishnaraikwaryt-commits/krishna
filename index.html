@@ -3,109 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeadFlow Omni | Krishna Edition</title>
+    <title>LeadFlow Pro | Krishna Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #1e6b3e; }
-        body.light-mode { background-color: #f3f7f4; color: #1a2e21; }
-        body.dark-mode { background-color: #0a0f0b; color: #e8f5e9; }
-        .glass-card { border-radius: 24px; transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); background: white; }
-        .dark-mode .glass-card { background: #141d16; border-color: #1e2e22; }
-        .strikethrough { text-decoration: line-through; opacity: 0.4; filter: grayscale(1); }
-        .filter-active { border: 2px solid var(--primary) !important; transform: scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+        
+        :root { 
+            --accent: #10b981; 
+            --bg-dark: #050705;
+            --card-dark: #0f1410;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: #ecfdf5;
+        }
+
+        /* Unique Glass Effect */
+        .emerald-card {
+            background: var(--card-dark);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            border-radius: 28px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .emerald-card:active { transform: scale(0.97); }
+
+        .btn-glow {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .font-heavy { font-weight: 800; }
         .hidden-page { display: none !important; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .action-btn { height: 40px; width: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .action-btn:active { transform: scale(0.9); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+        input, select, textarea {
+            background: #161d17 !important;
+            border: 1px solid rgba(16, 185, 129, 0.2) !important;
+            color: white !important;
+        }
     </style>
 </head>
-<body class="light-mode pb-24 transition-all duration-500 font-sans">
+<body class="pb-24">
 
-    <div id="login-screen" style="position: fixed; inset: 0; background: #f3f7f4; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-        <div class="bg-white p-10 rounded-[3rem] shadow-2xl w-full max-w-md text-center">
-            <div class="w-20 h-20 bg-[#1e6b3e] rounded-3xl mx-auto mb-6 flex items-center justify-center text-white text-3xl shadow-lg"><i class="fas fa-lock"></i></div>
-            <h2 class="text-3xl font-black text-[#1e6b3e] mb-2 tracking-tighter">Secure Access</h2>
+    <div id="login-screen" style="position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+        <div class="text-center w-full max-w-sm">
+            <div class="w-24 h-24 bg-emerald-500 rounded-[2.5rem] mx-auto mb-8 flex items-center justify-center text-black text-4xl shadow-[0_0_40px_rgba(16,185,129,0.4)]">
+                <i class="fas fa-fingerprint"></i>
+            </div>
+            <h2 class="text-4xl font-heavy mb-2 tracking-tighter">Welcome Back</h2>
+            <p class="text-emerald-500/50 font-bold text-xs uppercase tracking-[0.3em] mb-10">LeadFlow Omni • Krishna</p>
+            
             <div class="space-y-4">
-                <input type="password" id="access-pin" oninput="autoCheck()" placeholder="Enter PIN" class="w-full p-5 rounded-2xl bg-gray-100 outline-none font-bold text-center text-xl tracking-widest" autofocus>
-                <button type="button" onclick="checkAccess()" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black shadow-xl uppercase">Unlock</button>
+                <input type="password" id="access-pin" oninput="autoCheck()" placeholder="••••" class="w-full p-6 rounded-[2rem] text-center text-3xl tracking-[0.5em] font-heavy outline-none">
+                <button onclick="checkAccess()" class="w-full bg-emerald-500 text-black p-6 rounded-[2rem] font-heavy text-lg btn-glow uppercase">Enter System</button>
             </div>
         </div>
     </div>
 
     <div id="main-app-content" style="display: none;">
         
-        <div id="page-dashboard" class="p-4 max-w-5xl mx-auto">
-            <header class="flex justify-between items-center mb-6">
+        <div id="page-dashboard" class="p-6 max-w-2xl mx-auto">
+            <header class="flex justify-between items-center mb-10">
                 <div>
-                    <h1 class="font-black text-2xl tracking-tighter text-[#1e6b3e]">LeadFlow Omni</h1>
-                    <p id="header-date" class="text-[10px] font-bold opacity-50 uppercase tracking-widest"></p>
+                    <p id="header-date" class="text-emerald-500 font-bold text-[10px] uppercase tracking-widest mb-1"></p>
+                    <h1 class="text-3xl font-heavy tracking-tighter">Dashboard</h1>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="fetchLeads()" class="bg-[#1e6b3e] text-white h-10 w-10 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-sync-alt"></i></button>
-                    <button onclick="toggleTheme()" class="bg-white dark:bg-white/5 h-10 w-10 rounded-full flex items-center justify-center shadow-sm"><i class="fas fa-moon"></i></button>
-                </div>
+                <button onclick="fetchLeads()" class="w-12 h-12 emerald-card flex items-center justify-center text-emerald-500">
+                    <i class="fas fa-redo-alt"></i>
+                </button>
             </header>
 
-            <div id="stat-cards" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-                <div id="btn-all" onclick="setFilter('All', this)" class="glass-card p-4 border-b-4 border-gray-400 filter-active">
-                    <p class="text-[9px] font-black opacity-50 uppercase">Total</p>
-                    <h2 id="count-all" class="text-2xl font-black">0</h2>
+            <div class="grid grid-cols-2 gap-4 mb-10">
+                <div onclick="setFilter('All', this)" class="emerald-card p-6 border-l-4 border-emerald-500 bg-emerald-500/5">
+                    <p class="text-[10px] font-heavy text-emerald-500/60 uppercase">Total Leads</p>
+                    <h2 id="count-all" class="text-4xl font-heavy mt-1">0</h2>
                 </div>
-                <div id="btn-today" onclick="setFilter('Today', this)" class="glass-card p-4 border-b-4 border-blue-500">
-                    <p class="text-[9px] font-black text-blue-500 uppercase">Today</p>
-                    <h2 id="count-today" class="text-2xl font-black text-blue-500">0</h2>
-                </div>
-                <div id="btn-overdue" onclick="setFilter('Overdue', this)" class="glass-card p-4 border-b-4 border-red-500">
-                    <p class="text-[9px] font-black text-red-500 uppercase">Overdue</p>
-                    <h2 id="count-over" class="text-2xl font-black text-red-500">0</h2>
-                </div>
-                <div id="btn-won" onclick="setFilter('Converted', this)" class="glass-card p-4 border-b-4 border-green-600">
-                    <p class="text-[9px] font-black text-green-600 uppercase">Won</p>
-                    <h2 id="count-won" class="text-2xl font-black text-green-600">0</h2>
+                <div onclick="setFilter('Today', this)" class="emerald-card p-6 border-l-4 border-blue-500">
+                    <p class="text-[10px] font-heavy text-blue-500/60 uppercase">Today</p>
+                    <h2 id="count-today" class="text-4xl font-heavy mt-1 text-blue-400">0</h2>
                 </div>
             </div>
 
-            <div id="main-list" class="grid gap-3"></div>
+            <div class="space-y-4" id="main-list"></div>
         </div>
 
-        <div id="page-checklist" class="p-4 max-w-5xl mx-auto hidden-page">
-            <h2 class="text-2xl font-black mb-6 text-[#1e6b3e]">Daily Checklist</h2>
-            <div class="bg-white dark:bg-[#141d16] p-6 rounded-[2rem] shadow-sm border border-black/5">
-                <div class="flex gap-2 mb-6">
-                    <input type="text" id="new-task" placeholder="Write new task..." class="flex-1 p-4 rounded-xl bg-gray-100 dark:bg-black outline-none font-bold">
-                    <button onclick="addTask()" class="bg-[#1e6b3e] text-white px-6 rounded-xl font-black text-xl">+</button>
+        <div id="page-checklist" class="p-6 max-w-2xl mx-auto hidden-page">
+            <h2 class="text-4xl font-heavy mb-8 tracking-tighter text-emerald-500">Tasks</h2>
+            <div class="emerald-card p-6 mb-6">
+                <div class="flex gap-3">
+                    <input type="text" id="new-task" placeholder="What's next?" class="flex-1 p-5 rounded-2xl outline-none font-bold">
+                    <button onclick="addTask()" class="bg-emerald-500 text-black w-16 rounded-2xl font-heavy text-2xl">+</button>
                 </div>
-                <ul id="task-list" class="space-y-3"></ul>
             </div>
+            <ul id="task-list" class="space-y-3"></ul>
         </div>
 
-        <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#141d16] border-t border-gray-100 flex justify-around p-4 shadow-2xl z-[500]">
-            <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col items-center gap-1 opacity-100 text-[#1e6b3e]">
-                <i class="fas fa-address-book text-xl"></i><span class="text-[9px] font-black uppercase">Leads</span>
+        <nav class="fixed bottom-6 left-6 right-6 h-20 bg-[#0f1410]/90 backdrop-blur-xl border border-white/5 rounded-[2.5rem] flex justify-around items-center px-4 shadow-2xl z-[500]">
+            <button onclick="switchPage('dashboard')" id="nav-dashboard" class="flex flex-col items-center text-emerald-500">
+                <i class="fas fa-grid-2 text-2xl mb-1"></i>
+                <span class="text-[9px] font-heavy uppercase">Board</span>
             </button>
-            <button onclick="openModal('add')" class="flex flex-col items-center -mt-10 bg-[#1e6b3e] h-14 w-14 rounded-full text-white justify-center shadow-xl border-4 border-white"><i class="fas fa-plus"></i></button>
-            <button onclick="switchPage('checklist')" id="nav-checklist" class="flex flex-col items-center gap-1 opacity-50">
-                <i class="fas fa-check-double text-xl"></i><span class="text-[9px] font-black uppercase">Tasks</span>
+            <button onclick="openModal('add')" class="bg-emerald-500 text-black w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-[0_10px_30px_rgba(16,185,129,0.4)] -mt-12 border-4 border-[#050705]">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button onclick="switchPage('checklist')" id="nav-checklist" class="flex flex-col items-center opacity-40">
+                <i class="fas fa-list-check text-2xl mb-1"></i>
+                <span class="text-[9px] font-heavy uppercase">Tasks</span>
             </button>
         </nav>
     </div>
 
-    <div id="leadModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-[1000]">
-        <div class="bg-white dark:bg-[#141d16] w-full max-w-lg p-8 rounded-[2.5rem]">
+    <div id="leadModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center p-6 z-[1000]">
+        <div class="emerald-card w-full max-w-md p-8 bg-[#0f1410]">
+            <h2 class="text-2xl font-heavy mb-6">Lead Details</h2>
             <form id="lead-form" class="space-y-4">
                 <input type="hidden" id="f-id">
-                <input type="text" id="f-name" placeholder="Name" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black font-bold" required>
-                <input type="text" id="f-phone" placeholder="Phone" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black font-bold" required>
-                <select id="f-status" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black font-bold">
-                    <option value="New">New</option>
-                    <option value="Follow-up">Follow-up</option>
-                    <option value="Converted">Converted</option>
-                </select>
-                <input type="date" id="f-fdate" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-black font-bold">
-                <button type="submit" class="w-full bg-[#1e6b3e] text-white p-5 rounded-2xl font-black">SAVE LEAD</button>
-                <button type="button" onclick="closeModal()" class="w-full text-xs font-bold opacity-30 mt-2 tracking-widest uppercase">Close</button>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-heavy text-emerald-500 uppercase ml-2">Client Name</label>
+                    <input type="text" id="f-name" class="w-full p-4 rounded-2xl outline-none font-bold" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-heavy text-emerald-500 uppercase ml-2">Phone Number</label>
+                    <input type="text" id="f-phone" class="w-full p-4 rounded-2xl outline-none font-bold" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <select id="f-status" class="p-4 rounded-2xl font-heavy outline-none">
+                        <option value="New">New</option>
+                        <option value="Follow-up">Follow-up</option>
+                        <option value="Converted">Closed</option>
+                    </select>
+                    <input type="date" id="f-fdate" class="p-4 rounded-2xl font-bold outline-none">
+                </div>
+                <button type="submit" class="w-full bg-emerald-500 text-black p-5 rounded-2xl font-heavy mt-4 uppercase tracking-widest">Update Cloud</button>
+                <button type="button" onclick="closeModal()" class="w-full text-white/30 font-heavy text-xs mt-2">CANCEL</button>
             </form>
         </div>
     </div>
@@ -118,7 +155,6 @@
         const today = new Date().toISOString().split('T')[0];
 
         function autoCheck() { if(document.getElementById('access-pin').value === SECRET_PIN) checkAccess(); }
-
         function checkAccess() {
             if(document.getElementById('access-pin').value.trim() === SECRET_PIN) {
                 document.getElementById('login-screen').style.display = 'none';
@@ -128,52 +164,41 @@
         }
 
         async function fetchLeads() {
-            document.getElementById('header-date').innerText = new Date().toDateString();
+            document.getElementById('header-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
             const res = await fetch(API_URL);
             leadsData = await res.json();
             updateUI();
         }
 
         function updateUI() {
-            let stats = { total: leadsData.length, today: 0, over: 0, won: 0 };
-            leadsData.forEach(l => {
-                if(l.followUpDate === today && l.status !== 'Converted') stats.today++;
-                if(l.followUpDate < today && l.status !== 'Converted') stats.over++;
-                if(l.status === 'Converted') stats.won++;
-            });
+            let stats = { total: leadsData.length, today: 0 };
+            leadsData.forEach(l => { if(l.followUpDate === today) stats.today++; });
             document.getElementById('count-all').innerText = stats.total;
             document.getElementById('count-today').innerText = stats.today;
-            document.getElementById('count-over').innerText = stats.over;
-            document.getElementById('count-won').innerText = stats.won;
-            setFilter('All', document.getElementById('btn-all'));
+            setFilter('All');
         }
 
         function renderMainList(data) {
             const list = document.getElementById('main-list');
             list.innerHTML = data.slice().reverse().map(l => `
-                <div class="glass-card p-4 flex justify-between items-center shadow-sm">
+                <div class="emerald-card p-6 flex justify-between items-center bg-[#141b15]">
                     <div onclick="openModal('edit', '${l.id}')" class="flex-1">
-                        <h4 class="font-bold text-sm ${l.status==='Converted' ? 'strikethrough opacity-40' : ''}">${l.name}</h4>
-                        <p class="text-[9px] font-black opacity-40 uppercase tracking-tighter">${l.status} • ${l.followUpDate || 'No Date'}</p>
+                        <h4 class="font-heavy text-lg ${l.status==='Converted' ? 'opacity-30 line-through' : ''}">${l.name}</h4>
+                        <p class="text-[10px] font-heavy text-emerald-500/50 uppercase mt-1 tracking-widest">${l.status} • ${l.followUpDate || 'No Date'}</p>
                     </div>
-                    <div class="flex gap-2">
-                        <a href="https://wa.me/91${l.phone}" class="action-btn bg-green-100 text-green-600"><i class="fab fa-whatsapp"></i></a>
-                        <a href="tel:${l.phone}" class="action-btn bg-blue-100 text-blue-600"><i class="fas fa-phone-alt"></i></a>
+                    <div class="flex gap-3">
+                        <a href="https://wa.me/91${l.phone}" class="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center text-xl"><i class="fab fa-whatsapp"></i></a>
+                        <a href="tel:${l.phone}" class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center text-xl"><i class="fas fa-phone-alt"></i></a>
                     </div>
                 </div>`).join('');
         }
 
-        function setFilter(type, el) {
-            document.querySelectorAll('#stat-cards .glass-card').forEach(c => c.classList.remove('filter-active'));
-            el.classList.add('filter-active');
+        function setFilter(type) {
             let f = leadsData;
             if(type==='Today') f = leadsData.filter(x => x.followUpDate === today);
-            else if(type==='Overdue') f = leadsData.filter(x => x.followUpDate < today && x.status !== 'Converted');
-            else if(type==='Converted') f = leadsData.filter(x => x.status === 'Converted');
             renderMainList(f);
         }
 
-        // --- ✅ TASKS ---
         function addTask() {
             const val = document.getElementById('new-task').value;
             if(!val.trim()) return;
@@ -191,9 +216,9 @@
         }
         function renderTasks() {
             document.getElementById('task-list').innerHTML = tasks.map(t => `
-                <li class="flex justify-between items-center p-4 bg-gray-50 dark:bg-black/20 rounded-2xl">
-                    <span onclick="toggleTask(${t.id})" class="text-sm font-bold ${t.done ? 'strikethrough opacity-30' : ''}">${t.done ? '✅' : '⭕'} ${t.text}</span>
-                    <button onclick="deleteTask(${t.id})" class="text-red-400 px-2"><i class="fas fa-trash"></i></button>
+                <li class="emerald-card p-5 flex justify-between items-center">
+                    <span onclick="toggleTask(${t.id})" class="text-md font-heavy cursor-pointer ${t.done ? 'opacity-20 line-through' : ''}">${t.done ? '✓' : '○'} ${t.text}</span>
+                    <button onclick="deleteTask(${t.id})" class="text-red-500/50 px-2"><i class="fas fa-times"></i></button>
                 </li>`).join('');
         }
 
@@ -221,10 +246,9 @@
         function switchPage(p) {
             document.getElementById('page-dashboard').classList.toggle('hidden-page', p !== 'dashboard');
             document.getElementById('page-checklist').classList.toggle('hidden-page', p !== 'checklist');
-            document.getElementById('nav-dashboard').classList.toggle('opacity-50', p !== 'dashboard');
-            document.getElementById('nav-checklist').classList.toggle('opacity-50', p !== 'checklist');
+            document.getElementById('nav-dashboard').classList.toggle('opacity-40', p !== 'dashboard');
+            document.getElementById('nav-checklist').classList.toggle('opacity-40', p !== 'checklist');
         }
-        function toggleTheme() { document.body.classList.toggle('dark-mode'); document.body.classList.toggle('light-mode'); }
     </script>
 </body>
 </html>
