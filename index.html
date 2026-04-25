@@ -1,481 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="tab-title">Nexus CRM | Pro Intelligence</title>
-    
-    <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
-        :root { 
-            --brand-primary: #6366f1; 
-            --brand-dark: #0f172a; 
-            --surface-100: #f8fafc; 
-            --card-bg: rgba(255, 255, 255, 0.9);
+<script>
+    // 1. ADDED: Enhanced Brand Config with Dynamic Greeting
+    const BrandConfig = {
+        name: "Nexus", 
+        accent: "CRM",
+        logo: "https://lh3.googleusercontent.com/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss",
+        getGreeting: () => {
+            const hr = new Date().getHours();
+            if (hr < 12) return "Good Morning";
+            if (hr < 17) return "Good Afternoon";
+            return "Good Evening";
         }
+    };
+</script>
 
-        body.theme-midnight { --brand-primary: #818cf8; --brand-dark: #f8fafc; --surface-100: #020617; --card-bg: rgba(30, 41, 59, 0.8); }
-        body.theme-emerald { --brand-primary: #10b981; --brand-dark: #064e3b; --surface-100: #ecfdf5; --card-bg: rgba(255, 255, 255, 0.9); }
-        body.theme-rose { --brand-primary: #f43f5e; --brand-dark: #4c0519; --surface-100: #fff1f2; --card-bg: rgba(255, 255, 255, 0.9); }
-
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--surface-100); 
-            color: var(--brand-dark); 
-            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* Glassmorphism iPhone Style */
-        .glass-panel { 
-            background: var(--card-bg); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07); 
-        }
-
-        /* Prevent Input Zoom */
-        input, select, textarea { font-size: 16px !important; }
-
-        /* Premium Icon Quality */
-        .fas, .fab {
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
-        }
-
-        .active-link { 
-            color: var(--brand-primary) !important; 
-            background: rgba(99, 102, 241, 0.08); 
-            border-radius: 18px;
-        }
-
-        .lead-card { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0,0,0,0.03);
-        }
-
-        .stat-card { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 24px;
-        }
-
-        /* Mobile Bottom Nav Fix */
-        @media (max-width: 768px) {
-            .mobile-nav {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: rgba(255,255,255,0.8);
-                backdrop-filter: blur(20px);
-                border-top: 1px solid rgba(0,0,0,0.05);
-                z-index: 100;
-                padding: 10px 20px 25px 20px;
-                display: flex;
-                justify-content: space-around;
-            }
-            .main-content { padding-bottom: 100px; }
-            .sidebar-desktop { display: none; }
-        }
-        
-        .theme-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    </style>
-</head>
-<body class="overflow-x-hidden">
-
-    <script>
-        const BrandConfig = {
-            name: "Nexus", 
-            accent: "CRM",
-            logo: "https://lh3.googleusercontent.com/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss" 
-        };
-    </script>
-
-    <div id="auth-gateway" class="fixed inset-0 z-[1000] bg-slate-950 flex items-center justify-center p-6">
-        <div class="max-w-md w-full glass-panel rounded-[3rem] p-10 text-center">
-            <img id="login-logo" src="" class="w-24 h-24 mx-auto mb-6 rounded-[2rem] shadow-2xl object-cover border-4 border-white/10">
-            <h1 class="text-3xl font-extrabold text-slate-900">
-                <span id="l-name"></span><span class="text-indigo-600" id="l-accent"></span>
-            </h1>
-            <p class="text-slate-400 mt-2 mb-8 font-medium">Intelligence Systems</p>
-            <input type="password" id="sys-pin" pattern="\d*" inputmode="numeric" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="PIN" class="w-full p-5 rounded-3xl bg-slate-100 border-none outline-none text-center text-3xl font-bold tracking-[0.5em] focus:ring-2 ring-indigo-500/20">
+<header class="flex justify-between items-center mb-8">
+    <div>
+        <h2 id="view-title" class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+            <span class="text-indigo-600" id="dynamic-greet">Hello</span>, Krishna
+        </h2>
+        <div class="flex items-center gap-2 mt-1">
+            <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <p class="text-slate-400 text-sm font-bold" id="live-timer"></p>
         </div>
     </div>
-
-    <div id="app-shell" class="hidden min-h-screen flex flex-col md:flex-row">
-        
-        <aside class="sidebar-desktop w-64 bg-white border-r border-slate-100 p-6 flex-shrink-0 flex flex-col">
-            <div class="flex items-center gap-3 mb-10 px-2">
-                <img id="side-logo" src="" class="w-10 h-10 rounded-xl shadow-sm object-cover">
-                <div class="flex flex-col">
-                    <span class="font-black text-xl leading-tight" id="s-name"></span>
-                    <span class="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Pro Edition</span>
-                </div>
-            </div>
-            
-            <nav class="flex flex-col gap-2 flex-1">
-                <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex items-center gap-3 p-4 rounded-2xl font-bold text-slate-500 active-link"><i class="fas fa-home"></i> Dashboard</button>
-                <button onclick="UI.navigate('leads')" id="btn-leads" class="flex items-center gap-3 p-4 rounded-2xl font-bold text-slate-500"><i class="fas fa-rocket"></i> Pipeline</button>
-                <button onclick="UI.navigate('closed')" id="btn-closed" class="flex items-center gap-3 p-4 rounded-2xl font-bold text-slate-500"><i class="fas fa-crown"></i> Success</button>
-                
-                <div class="mt-8 pt-8 border-t border-slate-50">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 mb-4">Tools</p>
-                    <button onclick="System.exportCSV()" class="w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50"><i class="fas fa-cloud-download-alt text-indigo-500"></i> Export</button>
-                    <label class="w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 cursor-pointer">
-                        <i class="fas fa-cloud-upload-alt text-emerald-500"></i> Import
-                        <input type="file" id="csv-import" accept=".csv" class="hidden" onchange="System.importCSV(this)">
-                    </label>
-                </div>
-            </nav>
-
-            <div class="p-5 bg-slate-50 rounded-[2rem] mt-4">
-                <div class="flex justify-between items-center">
-                    <div onclick="UI.setTheme('default')" class="theme-dot bg-indigo-500"></div>
-                    <div onclick="UI.setTheme('midnight')" class="theme-dot bg-slate-900"></div>
-                    <div onclick="UI.setTheme('emerald')" class="theme-dot bg-emerald-500"></div>
-                    <div onclick="UI.setTheme('rose')" class="theme-dot bg-rose-500"></div>
-                </div>
-            </div>
-        </aside>
-
-        <nav class="mobile-nav md:hidden">
-            <button onclick="UI.navigate('dashboard')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span></button>
-            <button onclick="UI.navigate('leads')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-rocket text-xl"></i><span class="text-[10px] font-bold">Leads</span></button>
-            <button onclick="UI.modal('open')" class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg -mt-8 border-4 border-white"><i class="fas fa-plus"></i></button>
-            <button onclick="UI.navigate('closed')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-crown text-xl"></i><span class="text-[10px] font-bold">Closed</span></button>
-            <button onclick="location.reload()" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-sync text-xl"></i><span class="text-[10px] font-bold">Sync</span></button>
-        </nav>
-
-        <main class="flex-1 p-5 md:p-10 max-w-6xl mx-auto w-full main-content">
-            <header class="flex justify-between items-center mb-8">
-                <div>
-                    <h2 id="view-title" class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Intelligence</h2>
-                    <p class="text-slate-400 text-sm font-bold" id="live-timer"></p>
-                </div>
-                <div class="hidden md:flex gap-3">
-                    <button onclick="System.sync()" class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center hover:bg-slate-50"><i id="sync-icon" class="fas fa-sync-alt"></i></button>
-                    <button onclick="UI.modal('open')" class="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold shadow-xl shadow-indigo-200 active:scale-95 transition-all">+ Add Intel</button>
-                </div>
-            </header>
-
-            <div id="system-alerts" class="mb-6 space-y-3"></div>
-
-            <section id="view-dashboard" class="space-y-8">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div onclick="UI.navigate('closed')" class="stat-card glass-panel p-5 border-b-4 border-indigo-500">
-                        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Revenue</p>
-                        <h3 id="meta-revenue" class="text-xl font-black mt-1">₹0</h3>
-                    </div>
-                    <div onclick="UI.filterDashboard('overdue')" class="stat-card glass-panel p-5 border-b-4 border-red-500">
-                        <p class="text-[10px] font-black text-red-500 uppercase tracking-widest">Overdue</p>
-                        <h3 id="meta-overdue" class="text-xl font-black mt-1">0</h3>
-                    </div>
-                    <div onclick="UI.filterDashboard('today')" class="stat-card glass-panel p-5 border-b-4 border-emerald-500">
-                        <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Today</p>
-                        <h3 id="meta-today" class="text-xl font-black mt-1">0</h3>
-                    </div>
-                    <div onclick="UI.navigate('leads')" class="stat-card glass-panel p-5 bg-indigo-600 text-white border-none shadow-indigo-200">
-                        <p class="text-[10px] font-black opacity-80 uppercase tracking-widest">Total</p>
-                        <h3 id="meta-total" class="text-xl font-black mt-1">0</h3>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="flex items-center justify-between mb-5">
-                        <h4 id="grid-title" class="text-lg font-extrabold text-slate-800 flex items-center gap-2"><i class="fas fa-bolt text-indigo-500"></i> Active Focus</h4>
-                        <button onclick="UI.renderAll()" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full">Refresh</button>
-                    </div>
-                    <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                </div>
-            </section>
-
-            <section id="view-leads" class="hidden space-y-6">
-                <div class="relative">
-                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search intelligence database..." class="w-full p-5 pl-14 rounded-[2rem] glass-panel outline-none border-none focus:ring-2 ring-indigo-500/20">
-                </div>
-                <div id="full-pipeline" class="space-y-4"></div>
-            </section>
-
-            <section id="view-closed" class="hidden space-y-6">
-                <div class="bg-emerald-500 p-8 rounded-[2.5rem] text-white shadow-xl shadow-emerald-100 flex justify-between items-center">
-                    <div>
-                        <h4 class="font-black uppercase text-xs tracking-[0.2em] opacity-80">Success Archive</h4>
-                        <p class="text-2xl font-bold mt-1">Completed Deals</p>
-                    </div>
-                    <i class="fas fa-trophy text-4xl opacity-30"></i>
-                </div>
-                <div id="closed-pipeline" class="space-y-4"></div>
-            </section>
-        </main>
-    </div>
-
-    <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/40 backdrop-blur-md flex items-end md:items-center justify-center">
-        <div class="bg-white w-full max-w-xl rounded-t-[3rem] md:rounded-[3rem] p-8 md:p-10 shadow-2xl transform transition-transform">
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8 md:hidden"></div>
-            <h2 class="text-2xl font-black mb-8 flex items-center gap-3"><i class="fas fa-edit text-indigo-500"></i> Lead Intel</h2>
-            <form id="core-form" class="space-y-5">
-                <input type="hidden" id="entry-id">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-4">Full Name</label>
-                        <input type="text" id="entry-name" placeholder="John Doe" class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:bg-white focus:ring-2 ring-indigo-100 transition-all" required>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-4">Phone Number</label>
-                        <input type="tel" id="entry-phone" placeholder="+91..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:bg-white focus:ring-2 ring-indigo-100 transition-all" required>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-4">Status</label>
-                        <select id="entry-status" class="w-full p-4 rounded-2xl bg-slate-50 outline-none font-bold text-slate-700">
-                            <option value="Prospect">Prospect</option>
-                            <option value="Follow-up">Follow-up</option>
-                            <option value="Closed Won">Closed Won</option>
-                            <option value="Closed Lost">Closed Lost</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-4">Follow Up</label>
-                        <input type="date" id="entry-date" class="w-full p-4 rounded-2xl bg-slate-50 outline-none font-bold text-slate-700">
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-4">Deal Value (₹)</label>
-                    <input type="number" id="entry-value" placeholder="5000" class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:bg-white focus:ring-2 ring-indigo-100 transition-all">
-                </div>
-                <textarea id="entry-note" rows="3" placeholder="Add brief intel note..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:bg-white focus:ring-2 ring-indigo-100 transition-all"></textarea>
-                
-                <div class="flex gap-4 pt-4">
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-5 rounded-[1.5rem] font-black shadow-lg shadow-indigo-100 active:scale-95 transition-all">SAVE INTEL</button>
-                    <button type="button" onclick="UI.modal('close')" class="px-8 py-5 rounded-[1.5rem] bg-slate-100 text-slate-500 font-bold hover:bg-slate-200 transition-all">CANCEL</button>
-                </div>
-            </form>
+    <div class="hidden md:flex gap-3">
+        <div class="glass-panel px-6 py-3 rounded-2xl flex flex-col items-end justify-center">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Database</span>
+            <span id="header-lead-count" class="text-lg font-bold text-indigo-600">0 Leads</span>
         </div>
+        <button onclick="System.sync()" class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center hover:bg-slate-50"><i id="sync-icon" class="fas fa-sync-alt"></i></button>
+        <button onclick="UI.modal('open')" class="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold shadow-xl shadow-indigo-200 active:scale-95 transition-all">+ Add Intel</button>
     </div>
+</header>
 
-    <script>
-        const System = {
-            API: "https://sheetdb.io/api/v1/7skn6892hya7x",
-            PIN: "1321",
-            Data: [],
-            Today: new Date().toISOString().split('T')[0],
-            auth: () => {
-                if(document.getElementById('sys-pin').value === System.PIN) {
-                    localStorage.setItem('userLogin', 'true');
-                    document.getElementById('auth-gateway').style.display = 'none';
-                    document.getElementById('app-shell').classList.remove('hidden');
-                    System.sync();
-                }
-            },
-            sync: async () => {
-                const icon = document.getElementById('sync-icon');
-                if(icon) icon.classList.add('fa-spin');
-                try {
-                    const res = await fetch(System.API);
-                    System.Data = await res.json();
-                    UI.renderAll();
-                } finally { if(icon) icon.classList.remove('fa-spin'); }
-            },
-            delete: async (id) => {
-                if(confirm("Destroy this intel?")) {
-                    await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
-                    System.sync();
-                }
-            },
-            toggleStatus: async (id, current) => {
-                const nextStatus = current === 'Closed Won' ? 'Prospect' : 'Closed Won';
-                await fetch(`${System.API}/id/${id}`, {
-                    method: 'PATCH',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({data: {status: nextStatus}})
-                });
-                System.sync();
-            },
-            exportCSV: () => {
-                if(System.Data.length === 0) return alert("No data to export");
-                const headers = Object.keys(System.Data[0]).join(",");
-                const rows = System.Data.map(l => Object.values(l).join(","));
-                const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows.join("\n");
-                const link = document.createElement("a");
-                link.setAttribute("href", encodeURI(csvContent));
-                link.setAttribute("download", `Nexus_Backup_${System.Today}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            },
-            importCSV: (input) => {
-                const file = input.files[0];
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const lines = e.target.result.split("\n");
-                    const importedData = [];
-                    const headers = lines[0].split(",");
-                    for(let i = 1; i < lines.length; i++) {
-                        if(!lines[i]) continue;
-                        const obj = {};
-                        const currentline = lines[i].split(",");
-                        headers.forEach((h, index) => obj[h.trim()] = currentline[index].trim());
-                        importedData.push(obj);
-                    }
-                    if(confirm(`Inject ${importedData.length} records into Nexus?`)) {
-                        await fetch(System.API, {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({data: importedData})
-                        });
-                        System.sync();
-                    }
-                };
-                reader.readAsText(file);
-            }
-        };
-
-        const UI = {
-            setTheme: (theme) => {
-                document.body.className = theme === 'default' ? 'overflow-x-hidden' : `overflow-x-hidden theme-${theme}`;
-                localStorage.setItem('crmTheme', theme);
-            },
-            navigate: (view) => {
-                ['dashboard', 'leads', 'closed'].forEach(v => {
-                    document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
-                    const btn = document.getElementById(`btn-${v}`);
-                    if(btn) btn.classList.toggle('active-link', v === view);
-                });
-                window.scrollTo(0,0);
-            },
-            filterDashboard: (type) => {
-                let filtered = System.Data.filter(l => {
-                    const isClosed = l.status.includes('Closed');
-                    if(type === 'overdue') return l.followUpDate && l.followUpDate < System.Today && !isClosed;
-                    if(type === 'today') return l.followUpDate === System.Today && !isClosed;
-                    return false;
-                });
-                document.getElementById('grid-title').innerHTML = `<i class="fas fa-filter text-indigo-500"></i> ${type.toUpperCase()} FOCUS`;
-                document.getElementById('today-grid').innerHTML = filtered.map(UI.cardTemplate).join('');
-            },
-            cardTemplate: (l) => {
-                const isClosed = l.status === 'Closed Won';
-                return `
-                <div class="glass-panel p-5 rounded-[2rem] lead-card flex justify-between items-center animate-in fade-in slide-in-from-bottom-2 duration-500">
-                    <div class="flex items-center gap-4">
-                        <button onclick="System.toggleStatus('${l.id}', '${l.status}')" class="w-8 h-8 rounded-2xl border-2 border-indigo-100 flex items-center justify-center transition-all ${isClosed ? 'bg-indigo-600 border-indigo-600' : 'bg-white shadow-sm'}">
-                            ${isClosed ? '<i class="fas fa-check text-xs text-white"></i>' : ''}
-                        </button>
-                        <div onclick="UI.modal('open', '${l.id}')" class="${isClosed ? 'opacity-40' : ''}">
-                            <h5 class="font-bold text-slate-800 text-sm leading-tight">${l.name}</h5>
-                            <p class="text-[10px] font-black ${l.followUpDate < System.Today && !l.status.includes('Closed') ? 'text-red-500' : 'text-slate-400'} uppercase mt-1">
-                                ${l.status} • ${l.followUpDate || 'No Date'}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                         <a href="https://wa.me/${l.phone.replace(/\D/g,'')}" target="_blank" class="w-10 h-10 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition-transform"><i class="fab fa-whatsapp"></i></a>
-                         <a href="tel:${l.phone}" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition-transform"><i class="fas fa-phone-alt"></i></a>
-                    </div>
+<script>
+    // 2. UPDATED: Card Template with Delete Action
+    UI.cardTemplate = (l) => {
+        const isClosed = l.status === 'Closed Won';
+        return `
+        <div class="glass-panel p-5 rounded-[2rem] lead-card flex justify-between items-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div class="flex items-center gap-4">
+                <button onclick="System.toggleStatus('${l.id}', '${l.status}')" class="w-8 h-8 rounded-2xl border-2 border-indigo-100 flex items-center justify-center transition-all ${isClosed ? 'bg-indigo-600 border-indigo-600' : 'bg-white shadow-sm'}">
+                    ${isClosed ? '<i class="fas fa-check text-xs text-white"></i>' : ''}
+                </button>
+                <div onclick="UI.modal('open', '${l.id}')" class="cursor-pointer ${isClosed ? 'opacity-40' : ''}">
+                    <h5 class="font-bold text-slate-800 text-sm leading-tight">${l.name}</h5>
+                    <p class="text-[10px] font-black ${l.followUpDate < System.Today && !l.status.includes('Closed') ? 'text-red-500' : 'text-slate-400'} uppercase mt-1">
+                        ${l.status} • ${l.followUpDate || 'No Date'} • ₹${Number(l.value).toLocaleString()}
+                    </p>
                 </div>
-            `},
-            renderAll: () => {
-                const revenue = System.Data.reduce((s, l) => s + (l.status === 'Closed Won' ? Number(l.value || 0) : 0), 0);
-                const overdue = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && !l.status.includes('Closed'));
-                const todayTasks = System.Data.filter(l => l.followUpDate === System.Today && !l.status.includes('Closed'));
-                const closed = System.Data.filter(l => l.status.includes('Closed'));
+            </div>
+            <div class="flex gap-2">
+                 <button onclick="System.delete('${l.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition-transform"><i class="fas fa-trash-alt text-xs"></i></button>
+                 <a href="https://wa.me/${l.phone.replace(/\D/g,'')}" target="_blank" class="w-10 h-10 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition-transform"><i class="fab fa-whatsapp"></i></a>
+                 <a href="tel:${l.phone}" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition-transform"><i class="fas fa-phone-alt"></i></a>
+            </div>
+        </div>`;
+    };
 
-                const alertBox = document.getElementById('system-alerts');
-                alertBox.innerHTML = '';
-                if(overdue.length > 0) alertBox.innerHTML += `<div class="bg-red-500 text-white p-4 rounded-[1.5rem] text-xs font-black shadow-lg shadow-red-100 flex items-center gap-3"><i class="fas fa-exclamation-circle text-lg"></i> OVERDUE: ${overdue.length} LEADS NEED ACTION</div>`;
-                if(todayTasks.length > 0) alertBox.innerHTML += `<div class="bg-indigo-600 text-white p-4 rounded-[1.5rem] text-xs font-black shadow-lg shadow-indigo-100 flex items-center gap-3"><i class="fas fa-calendar-check text-lg"></i> TODAY: ${todayTasks.length} FOLLOW-UPS SCHEDULED</div>`;
-
-                document.getElementById('meta-revenue').innerText = "₹" + revenue.toLocaleString();
-                document.getElementById('meta-total').innerText = System.Data.length;
-                document.getElementById('meta-overdue').innerText = overdue.length;
-                document.getElementById('meta-today').innerText = todayTasks.length;
-
-                document.getElementById('grid-title').innerHTML = `<i class="fas fa-bolt text-indigo-500"></i> Active Focus`;
-                document.getElementById('today-grid').innerHTML = todayTasks.length ? todayTasks.map(UI.cardTemplate).join('') : '<p class="text-center p-10 text-slate-400 font-bold text-sm">No tasks for today</p>';
-                document.getElementById('full-pipeline').innerHTML = System.Data.slice().reverse().map(UI.cardTemplate).join('');
-                document.getElementById('closed-pipeline').innerHTML = closed.map(UI.cardTemplate).join('');
-                document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
-            },
-            modal: (action, id = null) => {
-                const m = document.getElementById('lead-modal');
-                if(action === 'open') {
-                    m.classList.remove('hidden');
-                    document.getElementById('core-form').reset();
-                    document.getElementById('entry-id').value = '';
-                    if(id) {
-                        const l = System.Data.find(x => x.id === id);
-                        document.getElementById('entry-id').value = l.id;
-                        document.getElementById('entry-name').value = l.name;
-                        document.getElementById('entry-phone').value = l.phone;
-                        document.getElementById('entry-status').value = l.status;
-                        document.getElementById('entry-date').value = l.followUpDate;
-                        document.getElementById('entry-value').value = l.value;
-                        document.getElementById('entry-note').value = l.note || '';
-                    }
-                } else m.classList.add('hidden');
-            },
-            search: (targetId) => {
-                const term = document.getElementById('lead-search').value.toLowerCase();
-                const filtered = System.Data.filter(l => l.name.toLowerCase().includes(term) || l.phone.includes(term));
-                document.getElementById(targetId).innerHTML = filtered.map(UI.cardTemplate).join('');
-            }
-        };
-
-        document.getElementById('core-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerText = "SYNCING...";
-            btn.disabled = true;
-            
-            const id = document.getElementById('entry-id').value;
-            const payload = {
-                id: id || "NX" + Date.now(),
-                name: document.getElementById('entry-name').value,
-                phone: document.getElementById('entry-phone').value,
-                status: document.getElementById('entry-status').value,
-                value: document.getElementById('entry-value').value || 0,
-                followUpDate: document.getElementById('entry-date').value,
-                note: document.getElementById('entry-note').value
-            };
-            
-            try {
-                await fetch(id ? `${System.API}/id/${id}` : System.API, { 
-                    method: id ? 'PATCH' : 'POST', 
-                    headers: {'Content-Type': 'application/json'}, 
-                    body: JSON.stringify({data: id ? payload : [payload]}) 
-                });
-                UI.modal('close'); 
-                System.sync();
-            } finally {
-                btn.innerText = "SAVE INTEL";
-                btn.disabled = false;
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('login-logo').src = BrandConfig.logo;
-            document.getElementById('side-logo').src = BrandConfig.logo;
-            document.getElementById('l-name').innerText = BrandConfig.name;
-            document.getElementById('l-accent').innerText = BrandConfig.accent;
-            document.getElementById('s-name').innerText = BrandConfig.name;
-            document.title = `${BrandConfig.name}${BrandConfig.accent} | Intel`;
-
-            const savedTheme = localStorage.getItem('crmTheme');
-            if(savedTheme) UI.setTheme(savedTheme);
-
-            if(localStorage.getItem('userLogin') === 'true') {
-                document.getElementById('auth-gateway').style.display = 'none';
-                document.getElementById('app-shell').classList.remove('hidden');
-                System.sync();
-            }
-        });
-    </script>
-</body>
-</html>
+    // 3. UPDATED: Render function to include Dynamic elements
+    const originalRender = UI.renderAll;
+    UI.renderAll = () => {
+        originalRender(); // Run original logic
+        
+        // Add new dynamic updates
+        document.getElementById('dynamic-greet').innerText = BrandConfig.getGreeting();
+        document.getElementById('header-lead-count').innerText = `${System.Data.length} Leads`;
+    };
+</script>
