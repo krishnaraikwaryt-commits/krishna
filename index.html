@@ -14,46 +14,42 @@
             --bg-image: none;
         }
 
-        /* Themes */
+        /* Themes - Now applying to Nav as well */
         body.theme-midnight { --brand-primary: #38bdf8; --brand-dark: #f8fafc; --surface-100: #0f172a; --sidebar-bg: #1e293b; }
         body.theme-forest { --brand-primary: #10b981; --brand-dark: #064e3b; --surface-100: #f0fdf4; --sidebar-bg: #ffffff; }
         body.theme-sunset { --brand-primary: #f43f5e; --brand-dark: #4c0519; --surface-100: #fff1f2; --sidebar-bg: #ffffff; }
         body.theme-electric { --brand-primary: #8b5cf6; --brand-dark: #ffffff; --surface-100: #1e1b4b; --sidebar-bg: #312e81; }
-        body.theme-mono { --brand-primary: #000000; --brand-dark: #000000; --surface-100: #ffffff; --sidebar-bg: #f1f5f9; }
         body.theme-sakura { --brand-primary: #ec4899; --brand-dark: #831843; --surface-100: #fdf2f8; --sidebar-bg: #ffffff; }
 
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: var(--surface-100); 
             background-image: var(--bg-image);
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--brand-dark); 
-            transition: all 0.3s ease; 
-            min-height: 100vh; 
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: var(--brand-dark); transition: all 0.3s ease; min-height: 100vh; 
         }
 
         .glass-panel { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
         body.theme-midnight .glass-panel, body.theme-electric .glass-panel { background: rgba(15, 23, 42, 0.7); border-color: rgba(255,255,255,0.1); color: #f8fafc; }
 
-        /* Bottom Nav Styling */
         #bottom-nav {
             background-color: var(--sidebar-bg);
             border-top: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+            transition: background-color 0.3s ease;
         }
 
         .nav-item.active-link { color: var(--brand-primary); }
         .nav-item.active-link i { transform: translateY(-4px); transition: 0.3s; }
 
-        .dropdown-menu { display: none; position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); width: 200px; z-index: 50; }
+        .dropdown-menu { display: none; position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 220px; z-index: 50; }
         .dropdown-menu.active { display: block; }
 
-        .theme-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: 0.2s; }
+        .theme-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
         .wallpaper-dot { width: 40px; height: 30px; border-radius: 6px; border: 1px solid #ddd; cursor: pointer; background-size: cover; }
         
-        main { padding-bottom: 100px; } /* Space for bottom nav */
+        main { padding-bottom: 100px; }
+        .stat-card { cursor: pointer; transition: transform 0.2s; }
+        .stat-card:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="overflow-x-hidden" onload="System.checkAuth()">
@@ -81,11 +77,26 @@
 
             <section id="view-dashboard" class="space-y-8">
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div onclick="UI.filterBy('revenue')" class="stat-card glass-panel p-6 rounded-3xl border-indigo-100"><p class="text-[10px] font-black text-indigo-500 uppercase">Revenue</p><h3 id="meta-revenue" class="text-2xl font-black mt-1">₹0</h3></div>
-                    <div onclick="UI.filterBy('overdue')" class="stat-card glass-panel p-6 rounded-3xl border-red-100"><p class="text-[10px] font-black text-red-500 uppercase">Overdue</p><h3 id="meta-overdue" class="text-2xl font-black mt-1">0</h3></div>
-                    <div onclick="UI.filterBy('today')" class="stat-card glass-panel p-6 rounded-3xl border-emerald-100"><p class="text-[10px] font-black text-emerald-500 uppercase">Today</p><h3 id="meta-today" class="text-2xl font-black mt-1">0</h3></div>
-                    <div onclick="UI.navigate('clients')" class="stat-card glass-panel p-6 rounded-3xl border-amber-100"><p class="text-[10px] font-black text-amber-500 uppercase">Closed</p><h3 id="meta-closed" class="text-2xl font-black mt-1">0</h3></div>
-                    <div onclick="UI.filterBy('all')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white shadow-xl"><p class="text-[10px] font-black opacity-70 uppercase">Total</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
+                    <div onclick="UI.filterBy('revenue')" class="stat-card glass-panel p-6 rounded-3xl border-indigo-100">
+                        <p class="text-[10px] font-black text-indigo-500 uppercase">Revenue</p>
+                        <h3 id="meta-revenue" class="text-2xl font-black mt-1">₹0</h3>
+                    </div>
+                    <div onclick="UI.filterBy('overdue')" class="stat-card glass-panel p-6 rounded-3xl border-red-100">
+                        <p class="text-[10px] font-black text-red-500 uppercase">Overdue</p>
+                        <h3 id="meta-overdue" class="text-2xl font-black mt-1">0</h3>
+                    </div>
+                    <div onclick="UI.filterBy('today')" class="stat-card glass-panel p-6 rounded-3xl border-emerald-100">
+                        <p class="text-[10px] font-black text-emerald-500 uppercase">Today</p>
+                        <h3 id="meta-today" class="text-2xl font-black mt-1">0</h3>
+                    </div>
+                    <div onclick="UI.navigate('clients')" class="stat-card glass-panel p-6 rounded-3xl border-amber-100">
+                        <p class="text-[10px] font-black text-amber-500 uppercase">Closed</p>
+                        <h3 id="meta-closed" class="text-2xl font-black mt-1">0</h3>
+                    </div>
+                    <div onclick="UI.filterBy('all')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white shadow-xl">
+                        <p class="text-[10px] font-black opacity-70 uppercase">Total</p>
+                        <h3 id="meta-total" class="text-2xl font-black mt-1">0</h3>
+                    </div>
                 </div>
                 <div id="alert-container" class="space-y-3"></div>
                 <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -109,10 +120,23 @@
             <button onclick="UI.navigate('leads')" id="btn-leads" class="nav-item flex flex-col items-center gap-1">
                 <i class="fas fa-list text-xl"></i><span class="text-[10px] font-bold">Pipeline</span>
             </button>
-            <button onclick="UI.navigate('clients')" id="btn-clients" class="nav-item flex flex-col items-center gap-1">
-                <i class="fas fa-user-tie text-xl"></i><span class="text-[10px] font-bold">Clients</span>
-            </button>
             
+            <div class="relative">
+                <button onclick="UI.toggleMenu('data-menu')" class="nav-item flex flex-col items-center gap-1">
+                    <i class="fas fa-file-csv text-xl"></i><span class="text-[10px] font-bold">Data</span>
+                </button>
+                <div id="data-menu" class="dropdown-menu glass-panel p-4 rounded-2xl">
+                    <p class="text-[10px] font-black uppercase mb-3">Backup & Restore</p>
+                    <div class="space-y-2">
+                        <button onclick="System.exportCSV()" class="w-full text-left p-3 rounded-xl bg-indigo-50 text-indigo-600 font-bold text-sm"><i class="fas fa-download mr-2"></i> Export CSV</button>
+                        <label class="w-full block p-3 rounded-xl bg-emerald-50 text-emerald-600 font-bold text-sm cursor-pointer">
+                            <i class="fas fa-upload mr-2"></i> Import CSV
+                            <input type="file" accept=".csv" onchange="System.importCSV(event)" class="hidden">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class="relative">
                 <button onclick="UI.toggleMenu('theme-menu')" class="nav-item flex flex-col items-center gap-1">
                     <i class="fas fa-palette text-xl"></i><span class="text-[10px] font-bold">Themes</span>
@@ -132,25 +156,20 @@
                 <button onclick="UI.toggleMenu('wp-menu')" class="nav-item flex flex-col items-center gap-1">
                     <i class="fas fa-image text-xl"></i><span class="text-[10px] font-bold">Walls</span>
                 </button>
-                <div id="wp-menu" class="dropdown-menu glass-panel p-4 rounded-2xl w-48">
+                <div id="wp-menu" class="dropdown-menu glass-panel p-4 rounded-2xl">
                     <p class="text-[10px] font-black uppercase mb-3">Select Background</p>
                     <div class="grid grid-cols-3 gap-2">
                         <div onclick="System.setWP('none')" class="wallpaper-dot bg-slate-200"></div>
                         <div onclick="System.setWP('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=100')"></div>
                         <div onclick="System.setWP('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=400')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=100')"></div>
-                        <div onclick="System.setWP('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=400')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=100')"></div>
                     </div>
                 </div>
             </div>
-
-            <button onclick="System.logout()" class="nav-item flex flex-col items-center gap-1 text-red-400">
-                <i class="fas fa-sign-out-alt text-xl"></i><span class="text-[10px] font-bold">Exit</span>
-            </button>
         </nav>
     </div>
 
     <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-xl rounded-[3rem] p-10 shadow-2xl">
+        <div class="bg-white w-full max-w-xl rounded-[3rem] p-8 shadow-2xl">
             <h2 class="text-2xl font-black mb-6 text-slate-800">Lead Intel</h2>
             <form id="core-form" class="space-y-4">
                 <input type="hidden" id="entry-id">
@@ -188,7 +207,7 @@
                 document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sunset', 'theme-electric', 'theme-mono', 'theme-sakura');
                 if(theme !== 'default') document.body.classList.add(`theme-${theme}`);
                 localStorage.setItem('nexus_theme', theme);
-                UI.toggleMenu('theme-menu'); // Close after selection
+                UI.toggleMenu('theme-menu');
             },
 
             setWP: (url) => {
@@ -199,7 +218,7 @@
                     document.body.style.setProperty('--bg-image', `url('${url}')`);
                     localStorage.setItem('nexus_wp', url);
                 }
-                UI.toggleMenu('wp-menu'); // Close after selection
+                UI.toggleMenu('wp-menu');
             },
 
             checkAuth: () => {
@@ -221,8 +240,6 @@
                 }
             },
 
-            logout: () => { localStorage.removeItem('nexus_auth'); location.reload(); },
-
             sync: async () => {
                 const icon = document.getElementById('sync-icon');
                 if(icon) icon.classList.add('fa-spin');
@@ -230,13 +247,53 @@
                     const res = await fetch(System.API);
                     System.Data = await res.json();
                     UI.renderAll();
-                } finally { if(icon) icon.classList.remove('fa-spin'); }
+                } catch(e) { console.error("Sync Failed", e); }
+                finally { if(icon) icon.classList.remove('fa-spin'); }
+            },
+
+            exportCSV: () => {
+                if(!System.Data.length) return alert("No data to export");
+                const headers = Object.keys(System.Data[0]).join(",");
+                const rows = System.Data.map(row => Object.values(row).join(","));
+                const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+                const link = document.createElement("a");
+                link.setAttribute("href", encodeURI(csvContent));
+                link.setAttribute("download", `Nexus_CRM_Backup_${System.Today}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                UI.toggleMenu('data-menu');
+            },
+
+            importCSV: (event) => {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const text = e.target.result;
+                    const [headers, ...rows] = text.split("\n");
+                    const importedData = rows.filter(r => r.trim()).map(row => {
+                        const values = row.split(",");
+                        const obj = {};
+                        headers.split(",").forEach((header, i) => obj[header.trim()] = values[i]?.trim());
+                        return obj;
+                    });
+                    
+                    if(confirm(`Import ${importedData.length} entries? This will send data to SheetDB.`)) {
+                        await fetch(System.API, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({data: importedData})
+                        });
+                        System.sync();
+                    }
+                };
+                reader.readAsText(file);
+                UI.toggleMenu('data-menu');
             }
         };
 
         const UI = {
             toggleMenu: (id) => {
-                const menus = ['theme-menu', 'wp-menu'];
+                const menus = ['theme-menu', 'wp-menu', 'data-menu'];
                 menus.forEach(m => {
                     if(m === id) document.getElementById(m).classList.toggle('active');
                     else document.getElementById(m).classList.remove('active');
@@ -271,14 +328,14 @@
             },
 
             card: (l) => `
-                <div class="glass-panel p-6 rounded-3xl lead-card flex justify-between items-center mb-1">
+                <div class="glass-panel p-6 rounded-3xl mb-3 flex justify-between items-center">
                     <div onclick="UI.modal('open', '${l.id}')">
                         <h5 class="font-bold">${l.name}</h5>
                         <p class="text-[10px] font-bold ${l.status === 'Closed Won' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${l.status} • ₹${l.value}</p>
                     </div>
                     <div class="flex gap-2">
-                         <a href="tel:${l.phone}" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone"></i></a>
-                         <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
+                         <a href="tel:${l.phone}" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-phone"></i></a>
+                         <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
             `,
