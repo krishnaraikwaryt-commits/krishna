@@ -34,16 +34,7 @@
             min-height: 100vh; 
         }
 
-        /* Dashboard & Sidebar Wallpaper Fix */
-        aside { 
-            background-color: var(--sidebar-bg); 
-            border-color: rgba(0,0,0,0.05); 
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.4);
-        }
-        
-        body.theme-midnight aside, body.theme-electric aside { background: rgba(15, 23, 42, 0.5); }
-
+        aside { background-color: var(--sidebar-bg) !important; border-color: rgba(0,0,0,0.05); }
         .glass-panel { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
         
         body.theme-midnight .glass-panel, body.theme-electric .glass-panel { background: rgba(15, 23, 42, 0.7); border-color: rgba(255,255,255,0.1); color: #f8fafc; }
@@ -60,13 +51,6 @@
         .theme-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: 0.2s; }
         .theme-dot:hover { transform: scale(1.2); }
         .wallpaper-dot { width: 30px; height: 20px; border-radius: 4px; border: 1px solid #ddd; cursor: pointer; background-size: cover; }
-
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            .active-link { border-right: none; border-top: 3px solid var(--brand-primary); }
-            aside { display: none !important; } /* Hide sidebar on mobile */
-            main { padding-bottom: 80px !important; } /* Space for bottom nav */
-        }
     </style>
 </head>
 <body class="overflow-x-hidden" onload="System.checkAuth()">
@@ -80,12 +64,12 @@
     </div>
 
     <div id="app-shell" class="hidden flex flex-col md:flex-row">
-        <aside class="hidden md:flex w-64 border-r p-6 flex-shrink-0 flex flex-col min-h-screen relative z-10">
+        <aside class="w-full md:w-64 border-r p-6 flex-shrink-0 flex flex-col min-h-screen relative z-10">
             <div class="flex items-center gap-3 mb-10 px-2 font-black text-xl"><i class="fas fa-cube text-indigo-600"></i> Nexus</div>
-            <nav class="flex flex-col gap-2">
-                <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex items-center gap-3 p-4 rounded-xl font-bold active-link"><i class="fas fa-th-large"></i> Dashboard</button>
-                <button onclick="UI.navigate('leads')" id="btn-leads" class="flex items-center gap-3 p-4 rounded-xl font-bold"><i class="fas fa-list"></i> Pipeline</button>
-                <button onclick="UI.navigate('clients')" id="btn-clients" class="flex items-center gap-3 p-4 rounded-xl font-bold"><i class="fas fa-user-tie"></i> Clients</button>
+            <nav class="flex md:flex-col gap-2">
+                <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold active-link"><i class="fas fa-th-large"></i> Dashboard</button>
+                <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold"><i class="fas fa-list"></i> Pipeline</button>
+                <button onclick="UI.navigate('clients')" id="btn-clients" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold"><i class="fas fa-user-tie"></i> Clients</button>
             </nav>
 
             <div class="mt-8 px-2">
@@ -101,7 +85,19 @@
                     <div onclick="System.setWP('none')" class="wallpaper-dot bg-slate-200" title="None"></div>
                     <div onclick="System.setWP('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=100')"></div>
                     <div onclick="System.setWP('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=100')"></div>
+                    <div onclick="System.setWP('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&w=100')"></div>
+                    <div onclick="System.setWP('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=100')"></div>
+                    <div onclick="System.setWP('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=100')"></div>
                 </div>
+            </div>
+
+            <div class="mt-8 px-2">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Actions</p>
+                <button onclick="UI.exportCSV()" class="w-full text-left p-2 text-sm font-bold text-slate-500 hover:text-indigo-600"><i class="fas fa-download mr-2"></i> Export Data</button>
+                <label class="w-full block p-2 text-sm font-bold text-slate-500 hover:text-indigo-600 cursor-pointer">
+                    <i class="fas fa-upload mr-2"></i> Import CSV
+                    <input type="file" id="csv-import" class="hidden" accept=".csv" onchange="UI.importCSV(event)">
+                </label>
             </div>
 
             <button onclick="System.logout()" class="mt-auto flex items-center gap-3 p-4 rounded-xl font-bold text-red-400"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -115,7 +111,7 @@
                 </div>
                 <div class="flex gap-3">
                     <button onclick="System.sync()" class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center"><i id="sync-icon" class="fas fa-sync-alt"></i></button>
-                    <button onclick="UI.modal('open')" class="hidden md:block bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg">+ Add Lead</button>
+                    <button onclick="UI.modal('open')" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg">+ Add Lead</button>
                 </div>
             </header>
 
@@ -137,34 +133,23 @@
             <section id="view-leads" class="hidden space-y-6">
                 <div class="flex gap-2">
                     <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search pipeline..." class="flex-1 p-5 rounded-3xl glass-panel outline-none">
+                    <button onclick="UI.renderAll()" class="px-6 rounded-3xl bg-slate-100 text-slate-500 font-bold">Reset</button>
                 </div>
                 <div id="full-pipeline" class="space-y-3"></div>
             </section>
 
             <section id="view-clients" class="hidden space-y-6">
+                <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-black text-indigo-900">Active Clients</h3>
+                        <p class="text-indigo-600 text-sm font-medium">Successful Conversions</p>
+                    </div>
+                    <i class="fas fa-crown text-3xl text-indigo-200"></i>
+                </div>
                 <input type="text" id="client-search" oninput="UI.search('client-list')" placeholder="Search clients..." class="w-full p-5 rounded-3xl glass-panel outline-none">
                 <div id="client-list" class="space-y-3"></div>
             </section>
         </main>
-
-        <nav class="md:hidden fixed bottom-0 left-0 right-0 glass-panel border-t border-slate-200 flex justify-around p-4 z-[100]">
-            <button onclick="UI.navigate('dashboard')" class="flex flex-col items-center gap-1 text-slate-400 font-bold" id="m-btn-dashboard">
-                <i class="fas fa-th-large text-xl"></i><span class="text-[10px]">Home</span>
-            </button>
-            <button onclick="UI.navigate('leads')" class="flex flex-col items-center gap-1 text-slate-400 font-bold" id="m-btn-leads">
-                <i class="fas fa-list text-xl"></i><span class="text-[10px]">Pipeline</span>
-            </button>
-            <button onclick="UI.navigate('clients')" class="flex flex-col items-center gap-1 text-slate-400 font-bold" id="m-btn-clients">
-                <i class="fas fa-user-tie text-xl"></i><span class="text-[10px]">Clients</span>
-            </button>
-            <button onclick="System.logout()" class="flex flex-col items-center gap-1 text-red-400 font-bold">
-                <i class="fas fa-power-off text-xl"></i><span class="text-[10px]">Exit</span>
-            </button>
-        </nav>
-
-        <button onclick="UI.modal('open')" class="md:hidden fixed bottom-24 right-6 w-16 h-16 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center z-[100] active:scale-95 transition-transform">
-            <i class="fas fa-plus text-2xl"></i>
-        </button>
     </div>
 
     <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -253,21 +238,6 @@
                 if(!confirm('Delete this entry?')) return;
                 await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
                 System.sync();
-            },
-
-            autoCallLog: async (id, phone) => {
-                window.location.href = `tel:${phone}`;
-                const timestamp = new Date().toLocaleString();
-                const lead = System.Data.find(l => l.id === id);
-                if(lead) {
-                    const updatedNote = `${lead.note || ''}\n[AUTO-LOG]: Call on ${timestamp}`.trim();
-                    await fetch(`${System.API}/id/${id}`, {
-                        method: 'PATCH',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({data: { note: updatedNote }})
-                    });
-                    System.sync();
-                }
             }
         };
 
@@ -276,17 +246,9 @@
                 ['dashboard', 'leads', 'clients'].forEach(v => {
                     document.getElementById(`view-${v}`).classList.add('hidden');
                     document.getElementById(`btn-${v}`).classList.remove('active-link');
-                    // Mobile Bottom Nav Highlights
-                    const mBtn = document.getElementById(`m-btn-${v}`);
-                    if(mBtn) mBtn.classList.replace('text-indigo-600', 'text-slate-400');
                 });
-                
                 document.getElementById(`view-${view}`).classList.remove('hidden');
                 document.getElementById(`btn-${view}`).classList.add('active-link');
-                
-                const activeMBtn = document.getElementById(`m-btn-${view}`);
-                if(activeMBtn) activeMBtn.classList.replace('text-slate-400', 'text-indigo-600');
-                
                 if(view === 'dashboard') UI.renderAll();
             },
 
@@ -314,15 +276,15 @@
                         <p class="text-[10px] font-bold ${l.status === 'Closed Won' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${l.status} • ₹${l.value}</p>
                     </div>
                     <div class="flex gap-2">
-                         <button onclick="System.autoCallLog('${l.id}', '${l.phone}')" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-phone"></i></button>
-                         <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
+                         <a href="tel:${l.phone}" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone"></i></a>
+                         <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
+                         <button onclick="System.deleteLead('${l.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `,
 
             renderList: (targetId, data) => {
-                const container = document.getElementById(targetId);
-                if(container) container.innerHTML = data.length ? data.slice().reverse().map(UI.card).join('') : `<p class="text-slate-400 text-center py-10">No data found.</p>`;
+                document.getElementById(targetId).innerHTML = data.length ? data.slice().reverse().map(UI.card).join('') : `<p class="text-slate-400 text-center py-10">No data found.</p>`;
             },
 
             renderAll: () => {
@@ -345,7 +307,7 @@
                     <div class="p-5 bg-red-50/80 backdrop-blur-md border-l-4 border-red-500 rounded-2xl flex justify-between items-center alert-pulse">
                         <div><p class="text-[10px] font-black text-red-500 uppercase">OVERDUE</p><h5 class="font-bold text-slate-900">${l.name}</h5></div>
                         <div class="flex gap-2">
-                            <button onclick="System.autoCallLog('${l.id}', '${l.phone}')" class="w-10 h-10 bg-white text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></button>
+                            <a href="tel:${l.phone}" class="w-10 h-10 bg-white text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></a>
                             <button onclick="UI.modal('open', '${l.id}')" class="w-10 h-10 bg-white text-slate-400 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-edit"></i></button>
                         </div>
                     </div>
@@ -369,6 +331,35 @@
                 const source = targetId === 'client-list' ? System.Data.filter(l => l.status === 'Closed Won') : System.Data;
                 const filtered = source.filter(l => l.name.toLowerCase().includes(q) || l.phone.includes(q));
                 UI.renderList(targetId, filtered);
+            },
+
+            exportCSV: () => {
+                const headers = ['id', 'name', 'phone', 'status', 'value', 'followUpDate', 'note'];
+                const rows = System.Data.map(l => headers.map(h => `"${l[h] || ''}"`).join(','));
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `Nexus_Backup_${System.Today}.csv`; a.click();
+            },
+
+            importCSV: (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const text = e.target.result;
+                    const lines = text.split('\n').slice(1);
+                    const newData = lines.filter(line => line.trim()).map(line => {
+                        const values = line.split(',').map(v => v.replace(/"/g, ''));
+                        return { id: values[0] || "NX"+Date.now(), name: values[1], phone: values[2], status: values[3], value: values[4], followUpDate: values[5], note: values[6] };
+                    });
+                    if(confirm(`Import ${newData.length} records?`)) {
+                        await fetch(System.API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: newData}) });
+                        System.sync();
+                    }
+                };
+                reader.readAsText(file);
             }
         };
 
