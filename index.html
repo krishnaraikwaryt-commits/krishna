@@ -3,142 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus CRM | Pro Intelligence</title>
+    <title>Nexus CRM v2.0 | Enterprise Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
         :root { 
-            --brand-primary: #6366f1; --brand-dark: #0f172a; --surface-100: #f8fafc; --sidebar-bg: #ffffff;
-            --bg-image: none;
+            --brand-primary: #6366f1; 
+            --brand-dark: #0f172a; 
+            --surface-100: #f8fafc; 
+            --sidebar-bg: #ffffff;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
         }
 
         /* Full UI Theme Engine */
-        body.theme-midnight { --brand-primary: #38bdf8; --brand-dark: #f8fafc; --surface-100: #0f172a; --sidebar-bg: #1e293b; }
+        body.theme-midnight { --brand-primary: #38bdf8; --brand-dark: #f8fafc; --surface-100: #0f172a; --sidebar-bg: #1e293b; --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); }
         body.theme-forest { --brand-primary: #10b981; --brand-dark: #064e3b; --surface-100: #f0fdf4; --sidebar-bg: #ffffff; }
         body.theme-sunset { --brand-primary: #f43f5e; --brand-dark: #4c0519; --surface-100: #fff1f2; --sidebar-bg: #ffffff; }
         body.theme-electric { --brand-primary: #8b5cf6; --brand-dark: #ffffff; --surface-100: #1e1b4b; --sidebar-bg: #312e81; }
-        body.theme-sakura { --brand-primary: #ec4899; --brand-dark: #831843; --surface-100: #fdf2f8; --sidebar-bg: #ffffff; }
 
         body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--surface-100); 
-            background-image: var(--bg-image);
-            background-size: cover; background-position: center; background-attachment: fixed;
-            color: var(--brand-dark); transition: all 0.3s ease; min-height: 100vh; 
+            color: var(--brand-dark); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .glass-panel { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
-        body.theme-midnight .glass-panel, body.theme-electric .glass-panel { background: rgba(15, 23, 42, 0.7); border-color: rgba(255,255,255,0.1); color: #f8fafc; }
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(255, 255, 255, 0.4); 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); 
+        }
 
-        #bottom-nav { background-color: var(--sidebar-bg); border-top: 1px solid rgba(0,0,0,0.05); transition: background-color 0.3s ease; }
+        body.theme-midnight .glass-panel, body.theme-electric .glass-panel { 
+            background: rgba(15, 23, 42, 0.7); 
+            border-color: rgba(255,255,255,0.08); 
+            color: #f8fafc; 
+        }
+
+        /* Navigation Animations */
+        #bottom-nav { 
+            background-color: var(--sidebar-bg); 
+            border-top: 1px solid rgba(0,0,0,0.05); 
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
+        }
+        
+        .nav-item { transition: all 0.2s ease; position: relative; }
         .nav-item.active-link { color: var(--brand-primary); }
-        .nav-item.active-link i { transform: translateY(-4px); transition: 0.3s; }
+        .nav-item.active-link::after {
+            content: ''; position: absolute; top: -10px; width: 4px; height: 4px; 
+            background: var(--brand-primary); border-radius: 50%;
+        }
 
-        .dropdown-menu { display: none; position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 220px; z-index: 50; }
-        .dropdown-menu.active { display: block; animation: slideUp 0.2s ease-out; }
+        /* Back Button Controller */
+        #back-btn { 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            opacity: 0; transform: scale(0.5) rotate(-45deg); visibility: hidden; 
+        }
+        #back-btn.visible { 
+            opacity: 1; transform: scale(1) rotate(0deg); visibility: visible; 
+        }
 
-        @keyframes slideUp { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        /* Pulse for Live Data */
+        .live-dot {
+            width: 8px; height: 8px; background: #10b981; border-radius: 50%;
+            display: inline-block; margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
 
-        .theme-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: 0.2s; }
-        .theme-dot:hover { transform: scale(1.2); }
-        .wallpaper-dot { width: 45px; height: 35px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; background-size: cover; }
-        
-        main { padding-bottom: 110px; }
-        .stat-card { cursor: pointer; transition: all 0.2s; }
-        .stat-card:hover { transform: translateY(-3px); }
-        .stat-card:active { transform: scale(0.95); }
-        
-        /* Back Button Styling */
-        #back-btn { transition: all 0.3s ease; opacity: 0; transform: translateX(-10px); pointer-events: none; }
-        #back-btn.visible { opacity: 1; transform: translateX(0); pointer-events: auto; }
+        .dropdown-menu { display: none; position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: 260px; z-index: 100; border-radius: 24px; padding: 12px; }
+        .dropdown-menu.active { display: block; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="overflow-x-hidden" onload="System.checkAuth()">
+<body class="overflow-x-hidden" onload="System.init()">
 
-    <div id="auth-gateway" class="fixed inset-0 z-[1000] bg-slate-900 flex items-center justify-center p-6">
-        <div class="max-w-md w-full glass-panel rounded-[2.5rem] p-10 text-center">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-indigo-600 text-white text-3xl mb-6"><i class="fas fa-shield-halved"></i></div>
-            <h1 class="text-3xl font-black text-slate-900">Nexus<span class="text-indigo-600">CRM</span></h1>
-            <input type="password" id="sys-pin" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="PIN" class="w-full mt-8 p-5 rounded-2xl bg-slate-100 border-none text-center text-2xl font-bold tracking-[0.5em] outline-none focus:ring-2 ring-indigo-500">
+    <div id="auth-gateway" class="fixed inset-0 z-[1000] bg-slate-900 flex items-center justify-center p-6 transition-all duration-700">
+        <div class="max-w-md w-full glass-panel rounded-[3rem] p-12 text-center shadow-2xl">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-indigo-600 text-white text-4xl mb-8 shadow-xl shadow-indigo-500/20">
+                <i class="fas fa-fingerprint"></i>
+            </div>
+            <h1 class="text-4xl font-black text-slate-900 mb-2">Nexus<span class="text-indigo-600">PRO</span></h1>
+            <p class="text-slate-500 font-medium mb-10 text-sm">Enterprise Intelligence Gateway</p>
+            <div class="space-y-4">
+                <input type="password" id="sys-pin" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="ENTER SECURITY PIN" class="w-full p-6 rounded-3xl bg-slate-100 border-none text-center text-3xl font-black tracking-[0.6em] outline-none focus:ring-4 ring-indigo-500/20 transition-all">
+                <p id="auth-error" class="text-red-500 text-xs font-bold opacity-0 transition-opacity">INVALID ACCESS CODE</p>
+            </div>
         </div>
     </div>
 
-    <div id="app-shell" class="hidden min-h-screen">
-        <main class="p-6 md:p-10 max-w-6xl mx-auto w-full">
-            <header class="flex justify-between items-end mb-8">
-                <div class="flex items-center gap-4">
-                    <button id="back-btn" onclick="UI.navigate('dashboard')" class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center text-indigo-600">
-                        <i class="fas fa-chevron-left"></i>
+    <div id="app-shell" class="hidden opacity-0 transition-opacity duration-500">
+        
+        <header class="sticky top-0 z-40 px-6 pt-8 pb-4 bg-transparent backdrop-blur-md">
+            <div class="max-w-6xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-5">
+                    <button id="back-btn" onclick="UI.navigate('dashboard')" class="w-14 h-14 glass-panel rounded-2xl flex items-center justify-center text-indigo-600 shadow-lg">
+                        <i class="fas fa-arrow-left text-xl"></i>
                     </button>
                     <div>
-                        <h2 id="view-title" class="text-4xl font-black tracking-tight">Intelligence</h2>
-                        <p class="text-slate-500 font-medium mt-1" id="live-timer"></p>
+                        <div class="flex items-center">
+                            <span class="live-dot"></span>
+                            <h2 id="view-title" class="text-4xl font-extrabold tracking-tight">Intelligence</h2>
+                        </div>
+                        <p class="text-slate-500 font-bold text-xs mt-1 uppercase tracking-widest" id="live-timer"></p>
                     </div>
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="System.sync()" class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center"><i id="sync-icon" class="fas fa-sync-alt"></i></button>
-                    <button onclick="UI.modal('open')" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-indigo-700">+ Add Lead</button>
+                <div class="flex gap-4">
+                    <button onclick="System.sync()" class="w-14 h-14 glass-panel rounded-2xl flex items-center justify-center hover:rotate-180 transition-all duration-500">
+                        <i id="sync-icon" class="fas fa-rotate text-indigo-600"></i>
+                    </button>
+                    <button onclick="UI.modal('open')" class="bg-indigo-600 text-white h-14 px-8 rounded-2xl font-black shadow-xl shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all">
+                        <i class="fas fa-plus mr-2"></i> NEW LEAD
+                    </button>
                 </div>
-            </header>
+            </div>
+        </header>
 
-            <section id="view-dashboard" class="space-y-8">
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div onclick="UI.filterBy('revenue')" class="stat-card glass-panel p-6 rounded-3xl border-indigo-100">
-                        <p class="text-[10px] font-black text-indigo-500 uppercase">Revenue</p>
+        <main class="p-6 md:p-10 max-w-6xl mx-auto w-full">
+            
+            <section id="view-dashboard" class="space-y-10 animate-fade-in">
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-5">
+                    <div onclick="UI.filterBy('revenue')" class="stat-card glass-panel p-7 rounded-[2.5rem] border-b-4 border-indigo-500 group">
+                        <i class="fas fa-wallet text-indigo-500 mb-4 block opacity-50 group-hover:opacity-100 transition"></i>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Gross Revenue</p>
                         <h3 id="meta-revenue" class="text-2xl font-black mt-1">₹0</h3>
                     </div>
-                    <div onclick="UI.filterBy('overdue')" class="stat-card glass-panel p-6 rounded-3xl border-red-100">
-                        <p class="text-[10px] font-black text-red-500 uppercase">Overdue</p>
+                    <div onclick="UI.filterBy('overdue')" class="stat-card glass-panel p-7 rounded-[2.5rem] border-b-4 border-red-500 group">
+                        <i class="fas fa-clock text-red-500 mb-4 block opacity-50 group-hover:opacity-100 transition"></i>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Pending Action</p>
                         <h3 id="meta-overdue" class="text-2xl font-black mt-1">0</h3>
                     </div>
-                    <div onclick="UI.filterBy('today')" class="stat-card glass-panel p-6 rounded-3xl border-emerald-100">
-                        <p class="text-[10px] font-black text-emerald-500 uppercase">Today</p>
+                    <div onclick="UI.filterBy('today')" class="stat-card glass-panel p-7 rounded-[2.5rem] border-b-4 border-emerald-500 group">
+                        <i class="fas fa-calendar-check text-emerald-500 mb-4 block opacity-50 group-hover:opacity-100 transition"></i>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Today's Goal</p>
                         <h3 id="meta-today" class="text-2xl font-black mt-1">0</h3>
                     </div>
-                    <div onclick="UI.navigate('clients')" class="stat-card glass-panel p-6 rounded-3xl border-amber-100">
-                        <p class="text-[10px] font-black text-amber-500 uppercase">Closed</p>
+                    <div onclick="UI.navigate('clients')" class="stat-card glass-panel p-7 rounded-[2.5rem] border-b-4 border-amber-500 group">
+                        <i class="fas fa-users text-amber-500 mb-4 block opacity-50 group-hover:opacity-100 transition"></i>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Loyal Clients</p>
                         <h3 id="meta-closed" class="text-2xl font-black mt-1">0</h3>
                     </div>
-                    <div onclick="UI.filterBy('all')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white shadow-xl">
-                        <p class="text-[10px] font-black opacity-70 uppercase">Total</p>
+                    <div onclick="UI.filterBy('all')" class="stat-card p-7 rounded-[2.5rem] bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20 group">
+                        <i class="fas fa-database mb-4 block opacity-60 group-hover:opacity-100 transition"></i>
+                        <p class="text-[10px] font-black opacity-70 uppercase tracking-tighter">Total Database</p>
                         <h3 id="meta-total" class="text-2xl font-black mt-1">0</h3>
                     </div>
                 </div>
-                <div id="alert-container" class="space-y-3"></div>
-                <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+                <div id="alert-zone" class="space-y-4"></div>
+
+                <div class="space-y-5">
+                    <h4 class="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                        <i class="fas fa-fire text-orange-500"></i> Hot Follow-ups
+                    </h4>
+                    <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+                </div>
             </section>
 
-            <section id="view-leads" class="hidden space-y-6">
-                <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search pipeline..." class="w-full p-5 rounded-3xl glass-panel outline-none border">
-                <div id="full-pipeline" class="space-y-3"></div>
+            <section id="view-leads" class="hidden space-y-8">
+                <div class="relative group">
+                    <i class="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition"></i>
+                    <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search by name, phone or status..." class="w-full p-6 pl-14 rounded-3xl glass-panel outline-none border-none focus:ring-4 ring-indigo-500/10 font-medium transition-all">
+                </div>
+                <div id="full-pipeline" class="space-y-4"></div>
             </section>
 
-            <section id="view-clients" class="hidden space-y-6">
-                <input type="text" id="client-search" oninput="UI.search('client-list')" placeholder="Search clients..." class="w-full p-5 rounded-3xl glass-panel outline-none border">
-                <div id="client-list" class="space-y-3"></div>
+            <section id="view-clients" class="hidden space-y-8">
+                <div class="flex items-center justify-between bg-indigo-600/5 p-6 rounded-[2rem] border border-indigo-600/10">
+                    <p class="text-sm font-bold text-indigo-600"><i class="fas fa-crown mr-2"></i> VIP Client Segment</p>
+                    <button onclick="System.exportCSV()" class="text-xs font-black uppercase bg-indigo-600 text-white px-4 py-2 rounded-xl">Download List</button>
+                </div>
+                <div id="client-list" class="space-y-4"></div>
             </section>
         </main>
 
-        <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-20 flex items-center justify-around px-2 z-50">
-            <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="nav-item active-link flex flex-col items-center gap-1">
-                <i class="fas fa-th-large text-xl"></i><span class="text-[10px] font-bold">Home</span>
+        <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-24 flex items-center justify-around px-6 z-50 rounded-t-[3rem]">
+            <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="nav-item active-link flex flex-col items-center gap-2">
+                <i class="fas fa-grid-2 text-2xl"></i><span class="text-[10px] font-black uppercase">Dashboard</span>
             </button>
-            <button onclick="UI.navigate('leads')" id="btn-leads" class="nav-item flex flex-col items-center gap-1">
-                <i class="fas fa-list text-xl"></i><span class="text-[10px] font-bold">Pipeline</span>
+            <button onclick="UI.navigate('leads')" id="btn-leads" class="nav-item flex flex-col items-center gap-2">
+                <i class="fas fa-diagram-project text-2xl"></i><span class="text-[10px] font-black uppercase">Pipeline</span>
             </button>
             
-            <div class="relative">
-                <button onclick="UI.toggleMenu('data-menu')" class="nav-item flex flex-col items-center gap-1">
-                    <i class="fas fa-cloud-arrow-down text-xl"></i><span class="text-[10px] font-bold">Data</span>
+            <div class="relative -top-8">
+                <button onclick="UI.modal('open')" class="w-16 h-16 bg-indigo-600 text-white rounded-3xl shadow-2xl shadow-indigo-600/40 border-4 border-white flex items-center justify-center active:scale-90 transition">
+                    <i class="fas fa-plus text-xl"></i>
                 </button>
-                <div id="data-menu" class="dropdown-menu glass-panel p-4 rounded-2xl">
-                    <p class="text-[10px] font-black uppercase mb-3">Sheet Management</p>
-                    <div class="space-y-2">
-                        <button onclick="System.exportCSV()" class="w-full text-left p-3 rounded-xl bg-indigo-50 text-indigo-600 font-bold text-sm hover:bg-indigo-100 transition"><i class="fas fa-file-export mr-2"></i> Export CSV</button>
-                        <label class="w-full block p-3 rounded-xl bg-emerald-50 text-emerald-600 font-bold text-sm cursor-pointer hover:bg-emerald-100 transition">
-                            <i class="fas fa-file-import mr-2"></i> Import CSV
+            </div>
+
+            <div class="relative">
+                <button onclick="UI.toggleMenu('data-menu')" class="nav-item flex flex-col items-center gap-2">
+                    <i class="fas fa-folder-tree text-2xl"></i><span class="text-[10px] font-black uppercase">Data</span>
+                </button>
+                <div id="data-menu" class="dropdown-menu glass-panel shadow-2xl border-indigo-100">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-4 px-4">Cloud Operations</p>
+                    <div class="space-y-2 px-2">
+                        <button onclick="System.exportCSV()" class="w-full flex items-center justify-between p-4 rounded-2xl bg-indigo-50 text-indigo-600 font-bold text-sm hover:bg-indigo-100 transition">
+                            <span>Export Data</span><i class="fas fa-download opacity-50"></i>
+                        </button>
+                        <label class="w-full flex items-center justify-between p-4 rounded-2xl bg-emerald-50 text-emerald-600 font-bold text-sm cursor-pointer hover:bg-emerald-100 transition">
+                            <span>Import CSV</span><i class="fas fa-upload opacity-50"></i>
                             <input type="file" accept=".csv" onchange="System.importCSV(event)" class="hidden">
                         </label>
                     </div>
@@ -146,62 +222,82 @@
             </div>
 
             <div class="relative">
-                <button onclick="UI.toggleMenu('theme-menu')" class="nav-item flex flex-col items-center gap-1">
-                    <i class="fas fa-palette text-xl"></i><span class="text-[10px] font-bold">Themes</span>
+                <button onclick="UI.toggleMenu('theme-menu')" class="nav-item flex flex-col items-center gap-2">
+                    <i class="fas fa-wand-magic-sparkles text-2xl"></i><span class="text-[10px] font-black uppercase">Style</span>
                 </button>
-                <div id="theme-menu" class="dropdown-menu glass-panel p-4 rounded-2xl">
-                    <p class="text-[10px] font-black uppercase mb-3">Accent Colors</p>
-                    <div class="grid grid-cols-4 gap-3">
-                        <div onclick="System.setTheme('default')" class="theme-dot bg-indigo-600" title="Default"></div>
-                        <div onclick="System.setTheme('midnight')" class="theme-dot bg-slate-900" title="Midnight"></div>
-                        <div onclick="System.setTheme('forest')" class="theme-dot bg-emerald-600" title="Forest"></div>
-                        <div onclick="System.setTheme('sunset')" class="theme-dot bg-rose-500" title="Sunset"></div>
-                        <div onclick="System.setTheme('sakura')" class="theme-dot bg-pink-500" title="Sakura"></div>
-                        <div onclick="System.setTheme('electric')" class="theme-dot bg-violet-600" title="Electric"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="relative">
-                <button onclick="UI.toggleMenu('wp-menu')" class="nav-item flex flex-col items-center gap-1">
-                    <i class="fas fa-image text-xl"></i><span class="text-[10px] font-bold">Walls</span>
-                </button>
-                <div id="wp-menu" class="dropdown-menu glass-panel p-4 rounded-2xl">
-                    <p class="text-[10px] font-black uppercase mb-3">Backgrounds</p>
-                    <div class="grid grid-cols-3 gap-2">
-                        <div onclick="System.setWP('none')" class="wallpaper-dot bg-slate-200" title="Clean"></div>
-                        <div onclick="System.setWP('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=100')"></div>
-                        <div onclick="System.setWP('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=400')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=100')"></div>
-                        <div onclick="System.setWP('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=400')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=100')"></div>
+                <div id="theme-menu" class="dropdown-menu glass-panel shadow-2xl">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-4 px-4">Interface Skins</p>
+                    <div class="grid grid-cols-2 gap-3 px-2">
+                        <div onclick="System.setTheme('default')" class="flex items-center gap-3 p-3 rounded-2xl bg-slate-100 cursor-pointer">
+                            <div class="w-6 h-6 rounded-full bg-indigo-600"></div><span class="text-xs font-bold">Classic</span>
+                        </div>
+                        <div onclick="System.setTheme('midnight')" class="flex items-center gap-3 p-3 rounded-2xl bg-slate-800 text-white cursor-pointer">
+                            <div class="w-6 h-6 rounded-full bg-sky-400"></div><span class="text-xs font-bold">Dark</span>
+                        </div>
+                        <div onclick="System.setTheme('forest')" class="flex items-center gap-3 p-3 rounded-2xl bg-emerald-50 text-emerald-700 cursor-pointer">
+                            <div class="w-6 h-6 rounded-full bg-emerald-600"></div><span class="text-xs font-bold">Mint</span>
+                        </div>
+                        <div onclick="System.setTheme('sunset')" class="flex items-center gap-3 p-3 rounded-2xl bg-rose-50 text-rose-700 cursor-pointer">
+                            <div class="w-6 h-6 rounded-full bg-rose-500"></div><span class="text-xs font-bold">Warm</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </nav>
     </div>
 
-    <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-xl rounded-[2.5rem] p-8 shadow-2xl overflow-hidden">
-            <h2 class="text-2xl font-black mb-6 text-slate-800">Lead Intelligence</h2>
-            <form id="core-form" class="space-y-4">
+    <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[3rem] p-10 shadow-3xl overflow-hidden animate-zoom-in">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900">Lead Intelligence</h2>
+                    <p class="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Secure Entry Protocol</p>
+                </div>
+                <button onclick="UI.modal('close')" class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 hover:bg-red-50 hover:text-red-500 transition"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <form id="core-form" class="space-y-6">
                 <input type="hidden" id="entry-id">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="entry-name" placeholder="Name" class="p-4 rounded-2xl bg-slate-50 outline-none focus:ring-2 ring-indigo-500" required>
-                    <input type="tel" id="entry-phone" placeholder="Phone" class="p-4 rounded-2xl bg-slate-50 outline-none focus:ring-2 ring-indigo-500" required>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-4">Full Name</label>
+                        <input type="text" id="entry-name" placeholder="John Doe" class="w-full p-5 rounded-[1.5rem] bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-bold transition" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-4">Phone Number</label>
+                        <input type="tel" id="entry-phone" placeholder="98XXXXXXXX" class="w-full p-5 rounded-[1.5rem] bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-bold transition" required>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <select id="entry-status" class="p-4 rounded-2xl bg-slate-50 outline-none font-bold">
-                        <option value="Prospect">Prospect</option>
-                        <option value="Follow-up">Follow-up</option>
-                        <option value="Closed Won">Closed Won</option>
-                        <option value="Closed Lost">Closed Lost</option>
-                    </select>
-                    <input type="date" id="entry-date" class="p-4 rounded-2xl bg-slate-50 outline-none font-bold">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-4">Current Status</label>
+                        <select id="entry-status" class="w-full p-5 rounded-[1.5rem] bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-black text-indigo-600 appearance-none">
+                            <option value="Prospect">NEW PROSPECT</option>
+                            <option value="Follow-up">FOLLOW-UP</option>
+                            <option value="Hot-Lead">HOT LEAD</option>
+                            <option value="Closed Won">CLOSED WON</option>
+                            <option value="Closed Lost">CLOSED LOST</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-4">Deal Value (₹)</label>
+                        <input type="number" id="entry-value" placeholder="0.00" class="w-full p-5 rounded-[1.5rem] bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-bold transition">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-4">Follow-up Date</label>
+                        <input type="date" id="entry-date" class="w-full p-5 rounded-[1.5rem] bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-bold transition">
+                    </div>
                 </div>
-                <input type="number" id="entry-value" placeholder="Value ₹" class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:ring-2 ring-indigo-500">
-                <textarea id="entry-note" placeholder="Note..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:ring-2 ring-indigo-500 h-24"></textarea>
-                <div class="flex gap-3 pt-4">
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-black hover:bg-indigo-700 shadow-lg">SAVE DATA</button>
-                    <button type="button" onclick="UI.modal('close')" class="px-6 py-4 rounded-2xl bg-slate-100 text-slate-500 font-bold hover:bg-slate-200">CLOSE</button>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-slate-400 ml-4">Strategic Notes</label>
+                    <textarea id="entry-note" placeholder="Enter key conversation points..." class="w-full p-5 rounded-[1.5rem] bg-slate-50 border-2 border-transparent focus:border-indigo-500 outline-none font-medium h-32 transition"></textarea>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button type="submit" class="flex-[2] bg-indigo-600 text-white py-6 rounded-[1.5rem] font-black text-lg shadow-2xl shadow-indigo-600/30 hover:bg-indigo-700 active:scale-95 transition-all">SYNCHRONIZE TO CLOUD</button>
+                    <button type="button" id="delete-btn" class="hidden flex-1 bg-red-50 text-red-500 py-6 rounded-[1.5rem] font-black hover:bg-red-500 hover:text-white transition-all">DELETE</button>
                 </div>
             </form>
         </div>
@@ -214,65 +310,72 @@
             Data: [],
             Today: new Date().toISOString().split('T')[0],
 
+            init: () => {
+                const savedTheme = localStorage.getItem('nexus_theme') || 'default';
+                System.setTheme(savedTheme);
+                
+                if(localStorage.getItem('nexus_auth') === 'true') {
+                    System.launchApp();
+                }
+            },
+
+            auth: () => {
+                const pin = document.getElementById('sys-pin').value;
+                if(pin === System.PIN) {
+                    localStorage.setItem('nexus_auth', 'true');
+                    System.launchApp();
+                } else {
+                    const err = document.getElementById('auth-error');
+                    err.style.opacity = '1';
+                    setTimeout(() => err.style.opacity = '0', 2000);
+                    document.getElementById('sys-pin').value = '';
+                }
+            },
+
+            launchApp: () => {
+                document.getElementById('auth-gateway').classList.add('translate-y-[-100%]');
+                setTimeout(() => {
+                    document.getElementById('auth-gateway').classList.add('hidden');
+                    const shell = document.getElementById('app-shell');
+                    shell.classList.remove('hidden');
+                    setTimeout(() => shell.classList.add('opacity-100'), 50);
+                    System.sync();
+                }, 600);
+            },
+
+            sync: async () => {
+                const icon = document.getElementById('sync-icon');
+                icon.classList.add('fa-spin');
+                try {
+                    const response = await fetch(System.API);
+                    System.Data = await response.json();
+                    UI.renderAll();
+                } catch (error) {
+                    console.error("Cloud Sync Failed", error);
+                    alert("Cloud Sync Offline. Check Internet Connection.");
+                } finally {
+                    setTimeout(() => icon.classList.remove('fa-spin'), 1000);
+                }
+            },
+
             setTheme: (theme) => {
-                document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sunset', 'theme-electric', 'theme-sakura');
+                document.body.className = 'overflow-x-hidden';
                 if(theme !== 'default') document.body.classList.add(`theme-${theme}`);
                 localStorage.setItem('nexus_theme', theme);
                 UI.toggleMenu();
             },
 
-            setWP: (url) => {
-                if(url === 'none') {
-                    document.body.style.setProperty('--bg-image', 'none');
-                    localStorage.removeItem('nexus_wp');
-                } else {
-                    document.body.style.setProperty('--bg-image', `url('${url}')`);
-                    localStorage.setItem('nexus_wp', url);
-                }
-                UI.toggleMenu();
-            },
-
-            checkAuth: () => {
-                System.setTheme(localStorage.getItem('nexus_theme') || 'default');
-                System.setWP(localStorage.getItem('nexus_wp') || 'none');
-                if(localStorage.getItem('nexus_auth') === 'true') {
-                    document.getElementById('auth-gateway').classList.add('hidden');
-                    document.getElementById('app-shell').classList.remove('hidden');
-                    System.sync();
-                }
-            },
-
-            auth: () => {
-                if(document.getElementById('sys-pin').value === System.PIN) {
-                    localStorage.setItem('nexus_auth', 'true');
-                    document.getElementById('auth-gateway').classList.add('hidden');
-                    document.getElementById('app-shell').classList.remove('hidden');
-                    System.sync();
-                }
-            },
-
-            sync: async () => {
-                const icon = document.getElementById('sync-icon');
-                if(icon) icon.classList.add('fa-spin');
-                try {
-                    const res = await fetch(System.API);
-                    System.Data = await res.json();
-                    UI.renderAll();
-                } catch(e) { console.error("Sync Error", e); }
-                finally { if(icon) icon.classList.remove('fa-spin'); }
-            },
-
             exportCSV: () => {
-                if(!System.Data.length) return alert("No data available");
+                if(System.Data.length === 0) return;
                 const headers = Object.keys(System.Data[0]).join(",");
-                const rows = System.Data.map(r => Object.values(r).map(v => `"${v}"`).join(","));
-                const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
-                const encodedUri = encodeURI(csvContent);
-                const link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", `Nexus_Backup_${System.Today}.csv`);
-                document.body.appendChild(link);
-                link.click();
+                const rows = System.Data.map(obj => Object.values(obj).map(v => `"${v}"`).join(","));
+                const content = [headers, ...rows].join("\n");
+                const blob = new Blob([content], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Nexus_Export_${System.Today}.csv`;
+                a.click();
                 UI.toggleMenu();
             },
 
@@ -282,14 +385,14 @@
                 reader.onload = async (e) => {
                     const text = e.target.result;
                     const [headers, ...rows] = text.split("\n");
-                    const data = rows.filter(r => r.trim()).map(row => {
-                        const values = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+                    const imported = rows.filter(r => r.trim()).map(row => {
+                        const values = row.split(",");
                         const obj = {};
-                        headers.split(",").forEach((h, i) => obj[h.trim()] = values[i]?.replace(/"/g, '').trim());
+                        headers.split(",").forEach((h, i) => obj[h.trim()] = values[i]?.replace(/"/g, ''));
                         return obj;
                     });
-                    if(confirm(`Import ${data.length} entries to cloud?`)) {
-                        await fetch(System.API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data}) });
+                    if(confirm(`Ready to push ${imported.length} leads to Cloud?`)) {
+                        await fetch(System.API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: imported}) });
                         System.sync();
                     }
                 };
@@ -300,7 +403,7 @@
 
         const UI = {
             toggleMenu: (id = null) => {
-                ['theme-menu', 'wp-menu', 'data-menu'].forEach(m => {
+                ['theme-menu', 'data-menu'].forEach(m => {
                     const el = document.getElementById(m);
                     if(m === id) el.classList.toggle('active');
                     else el.classList.remove('active');
@@ -308,123 +411,193 @@
             },
 
             navigate: (view) => {
-                ['dashboard', 'leads', 'clients'].forEach(v => {
+                const views = ['dashboard', 'leads', 'clients'];
+                views.forEach(v => {
                     document.getElementById(`view-${v}`).classList.add('hidden');
                     document.getElementById(`btn-${v}`).classList.remove('active-link');
                 });
                 
                 document.getElementById(`view-${view}`).classList.remove('hidden');
                 document.getElementById(`btn-${view}`).classList.add('active-link');
-                document.getElementById('view-title').innerText = view.charAt(0).toUpperCase() + view.slice(1);
                 
-                // Back Button Logic: Hide on dashboard, Show on others
+                const titles = { 'dashboard': 'Intelligence', 'leads': 'Pipeline', 'clients': 'Closed Won' };
+                document.getElementById('view-title').innerText = titles[view];
+
+                // Back Button Logic
                 const backBtn = document.getElementById('back-btn');
-                if(view === 'dashboard') {
-                    backBtn.classList.remove('visible');
-                } else {
-                    backBtn.classList.add('visible');
-                }
+                view === 'dashboard' ? backBtn.classList.remove('visible') : backBtn.classList.add('visible');
                 
+                window.scrollTo({top: 0, behavior: 'smooth'});
                 UI.toggleMenu();
             },
 
             modal: (action, id = null) => {
                 const m = document.getElementById('lead-modal');
+                const delBtn = document.getElementById('delete-btn');
+                
                 if(action === 'open') {
                     m.classList.remove('hidden');
                     if(id) {
-                        const l = System.Data.find(x => x.id === id);
-                        document.getElementById('entry-id').value = l.id;
-                        document.getElementById('entry-name').value = l.name;
-                        document.getElementById('entry-phone').value = l.phone;
-                        document.getElementById('entry-status').value = l.status;
-                        document.getElementById('entry-value').value = l.value;
-                        document.getElementById('entry-date').value = l.followUpDate || '';
-                        document.getElementById('entry-note').value = l.note || '';
-                    } else { document.getElementById('core-form').reset(); document.getElementById('entry-id').value = ''; }
-                } else { m.classList.add('hidden'); }
+                        const lead = System.Data.find(x => x.id === id);
+                        document.getElementById('entry-id').value = lead.id;
+                        document.getElementById('entry-name').value = lead.name || '';
+                        document.getElementById('entry-phone').value = lead.phone || '';
+                        document.getElementById('entry-status').value = lead.status || 'Prospect';
+                        document.getElementById('entry-value').value = lead.value || 0;
+                        document.getElementById('entry-date').value = lead.followUpDate || '';
+                        document.getElementById('entry-note').value = lead.note || '';
+                        delBtn.classList.remove('hidden');
+                        delBtn.onclick = () => UI.deleteLead(id);
+                    } else {
+                        document.getElementById('core-form').reset();
+                        document.getElementById('entry-id').value = '';
+                        delBtn.classList.add('hidden');
+                    }
+                } else {
+                    m.classList.add('hidden');
+                }
             },
 
             card: (l) => `
-                <div class="glass-panel p-6 rounded-3xl mb-3 flex justify-between items-center hover:border-indigo-300 transition-colors">
-                    <div onclick="UI.modal('open', '${l.id}')" class="cursor-pointer">
-                        <h5 class="font-bold text-lg">${l.name}</h5>
-                        <p class="text-[10px] font-bold ${l.status === 'Closed Won' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${l.status} • ₹${Number(l.value).toLocaleString()}</p>
+                <div class="glass-panel p-6 rounded-[2rem] flex justify-between items-center group hover:border-indigo-400 transition-all duration-300">
+                    <div onclick="UI.modal('open', '${l.id}')" class="cursor-pointer flex-1">
+                        <div class="flex items-center gap-3 mb-1">
+                            <h5 class="font-bold text-lg">${l.name || 'Undefined Entity'}</h5>
+                            <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 text-[8px] font-black uppercase tracking-tighter">${l.id}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <p class="text-[10px] font-black ${l.status === 'Closed Won' ? 'text-emerald-500' : 'text-slate-400'} uppercase">
+                                <i class="fas fa-circle text-[6px] mr-1"></i> ${l.status}
+                            </p>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                                <i class="fas fa-indian-rupee-sign mr-1"></i> ${Number(l.value || 0).toLocaleString()}
+                            </p>
+                        </div>
                     </div>
-                    <div class="flex gap-2">
-                        <a href="tel:${l.phone}" class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center hover:bg-blue-100 transition"><i class="fas fa-phone"></i></a>
-                        <a href="https://wa.me/91${l.phone}" target="_blank" class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center hover:bg-emerald-100 transition"><i class="fab fa-whatsapp"></i></a>
+                    <div class="flex gap-3">
+                        <a href="tel:${l.phone}" class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                            <i class="fas fa-phone"></i>
+                        </a>
+                        <a href="https://wa.me/91${l.phone}" target="_blank" class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
                     </div>
                 </div>
             `,
 
             renderList: (targetId, data) => {
-                document.getElementById(targetId).innerHTML = data.length ? data.slice().reverse().map(UI.card).join('') : `<div class="text-center py-20 opacity-40"><i class="fas fa-folder-open text-4xl mb-2"></i><p>No Data Points</p></div>`;
+                const container = document.getElementById(targetId);
+                if(data.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-20 opacity-20">
+                            <i class="fas fa-inbox text-6xl mb-4"></i>
+                            <p class="font-black uppercase tracking-widest text-xs">No Data Intelligence Available</p>
+                        </div>
+                    `;
+                    return;
+                }
+                container.innerHTML = data.slice().reverse().map(UI.card).join('');
             },
 
             renderAll: () => {
-                const revenue = System.Data.reduce((s, l) => s + (l.status === 'Closed Won' ? Number(l.value || 0) : 0), 0);
-                const overdue = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && l.status !== 'Closed Won' && l.status !== 'Closed Lost');
-                const todayTasks = System.Data.filter(l => l.followUpDate === System.Today && l.status !== 'Closed Won');
-                const clients = System.Data.filter(l => l.status === 'Closed Won');
+                const totalRevenue = System.Data.reduce((acc, curr) => acc + (curr.status === 'Closed Won' ? Number(curr.value || 0) : 0), 0);
+                const overdueLeads = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && l.status !== 'Closed Won' && l.status !== 'Closed Lost');
+                const todayLeads = System.Data.filter(l => l.followUpDate === System.Today);
+                const closedClients = System.Data.filter(l => l.status === 'Closed Won');
 
-                document.getElementById('meta-revenue').innerText = "₹" + revenue.toLocaleString();
+                document.getElementById('meta-revenue').innerText = "₹" + totalRevenue.toLocaleString();
                 document.getElementById('meta-total').innerText = System.Data.length;
-                document.getElementById('meta-overdue').innerText = overdue.length;
-                document.getElementById('meta-today').innerText = todayTasks.length;
-                document.getElementById('meta-closed').innerText = clients.length;
+                document.getElementById('meta-overdue').innerText = overdueLeads.length;
+                document.getElementById('meta-today').innerText = todayLeads.length;
+                document.getElementById('meta-closed').innerText = closedClients.length;
 
                 UI.renderList('full-pipeline', System.Data);
-                UI.renderList('client-list', clients);
-                UI.renderList('today-grid', todayTasks);
+                UI.renderList('client-list', closedClients);
+                UI.renderList('today-grid', todayLeads);
 
-                document.getElementById('alert-container').innerHTML = overdue.map(l => `
-                    <div class="p-5 bg-red-50/80 backdrop-blur-md border-l-4 border-red-500 rounded-2xl flex justify-between items-center">
-                        <div><p class="text-[10px] font-black text-red-500 uppercase">Action Required</p><h5 class="font-bold text-slate-900">${l.name}</h5></div>
-                        <div class="flex gap-2">
-                            <a href="tel:${l.phone}" class="w-10 h-10 bg-white text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></a>
-                            <button onclick="UI.modal('open', '${l.id}')" class="w-10 h-10 bg-white text-slate-400 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-pen-to-square"></i></button>
+                // Notifications for Overdue
+                document.getElementById('alert-zone').innerHTML = overdueLeads.slice(0, 3).map(l => `
+                    <div class="p-6 bg-red-50 border-l-4 border-red-500 rounded-[1.5rem] flex justify-between items-center animate-pulse">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg"><i class="fas fa-exclamation"></i></div>
+                            <div>
+                                <p class="text-[10px] font-black text-red-500 uppercase tracking-widest">Overdue Follow-up</p>
+                                <h5 class="font-bold text-slate-900">${l.name}</h5>
+                            </div>
                         </div>
+                        <button onclick="UI.modal('open', '${l.id}')" class="text-xs font-black uppercase text-red-500 px-4 py-2 bg-white rounded-xl shadow-sm">Action</button>
                     </div>
                 `).join('');
 
-                document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+                document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             },
 
             filterBy: (type) => {
                 UI.navigate('leads');
                 let filtered = [];
-                if(type === 'revenue') filtered = System.Data.filter(l => l.status === 'Closed Won');
-                else if(type === 'overdue') filtered = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && l.status !== 'Closed Won' && l.status !== 'Closed Lost');
-                else if(type === 'today') filtered = System.Data.filter(l => l.followUpDate === System.Today);
-                else filtered = System.Data;
+                switch(type) {
+                    case 'revenue': filtered = System.Data.filter(l => l.status === 'Closed Won'); break;
+                    case 'overdue': filtered = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && l.status !== 'Closed Won'); break;
+                    case 'today': filtered = System.Data.filter(l => l.followUpDate === System.Today); break;
+                    default: filtered = System.Data;
+                }
                 UI.renderList('full-pipeline', filtered);
             },
 
             search: (targetId) => {
-                const q = document.getElementById(targetId === 'full-pipeline' ? 'lead-search' : 'client-search').value.toLowerCase();
-                const source = targetId === 'client-list' ? System.Data.filter(l => l.status === 'Closed Won') : System.Data;
-                const filtered = source.filter(l => l.name.toLowerCase().includes(q) || l.phone.includes(q));
+                const query = document.getElementById('lead-search').value.toLowerCase();
+                const filtered = System.Data.filter(l => 
+                    (l.name && l.name.toLowerCase().includes(query)) || 
+                    (l.phone && l.phone.includes(query)) ||
+                    (l.status && l.status.toLowerCase().includes(query))
+                );
                 UI.renderList(targetId, filtered);
+            },
+
+            deleteLead: async (id) => {
+                if(confirm("Permanently erase this data from Cloud?")) {
+                    UI.modal('close');
+                    await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
+                    System.sync();
+                }
             }
         };
 
+        // Form Submission System
         document.getElementById('core-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('entry-id').value;
             const payload = {
-                id: id || "NX" + Date.now(),
+                id: id || "NX" + Date.now().toString().slice(-6),
                 name: document.getElementById('entry-name').value,
                 phone: document.getElementById('entry-phone').value,
                 status: document.getElementById('entry-status').value,
                 value: document.getElementById('entry-value').value || 0,
                 followUpDate: document.getElementById('entry-date').value,
-                note: document.getElementById('entry-note').value
+                note: document.getElementById('entry-note').value,
+                lastUpdated: new Date().toLocaleString()
             };
+
             UI.modal('close');
-            const method = id ? 'PATCH' : 'POST';
-            await fetch(id ? `${System.API}/id/${id}` : System.API, { method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: id ? payload : [payload]}) });
-            System.sync();
+            
+            try {
+                if(id) {
+                    await fetch(`${System.API}/id/${id}`, {
+                        method: 'PATCH',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ data: payload })
+                    });
+                } else {
+                    await fetch(System.API, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ data: [payload] })
+                    });
+                }
+                System.sync();
+            } catch (err) {
+                alert("Transaction Failed. Check Cloud API Status.");
+            }
         });
     </script>
 </body>
