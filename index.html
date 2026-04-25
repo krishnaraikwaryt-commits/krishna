@@ -11,10 +11,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        :root { --brand-primary: #6366f1; --brand-dark: #0f172a; --surface-100: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--surface-100); color: var(--brand-dark); }
-        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.5); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
-        .active-link { color: var(--brand-primary) !important; background: #eef2ff; border-right: 4px solid var(--brand-primary); }
+        
+        :root { 
+            --brand-primary: #6366f1; 
+            --brand-dark: #0f172a; 
+            --surface-100: #f8fafc; 
+            --card-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Theme Engine Styles */
+        body.theme-midnight { --brand-primary: #818cf8; --brand-dark: #f8fafc; --surface-100: #020617; --card-bg: rgba(30, 41, 59, 0.8); }
+        body.theme-emerald { --brand-primary: #10b981; --brand-dark: #064e3b; --surface-100: #ecfdf5; --card-bg: rgba(255, 255, 255, 0.9); }
+        body.theme-rose { --brand-primary: #f43f5e; --brand-dark: #4c0519; --surface-100: #fff1f2; --card-bg: rgba(255, 255, 255, 0.9); }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--surface-100); color: var(--brand-dark); transition: all 0.3s ease; }
+        .glass-panel { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.5); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+        .active-link { color: var(--brand-primary) !important; background: rgba(99, 102, 241, 0.1); border-right: 4px solid var(--brand-primary); }
         .lead-card { transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; }
         .lead-card:hover { transform: translateY(-2px); border-color: var(--brand-primary); }
         .stat-card { cursor: pointer; transition: transform 0.2s; }
@@ -22,9 +34,10 @@
         .hidden { display: none !important; }
         .alert-pulse { animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-        
-        /* Naya Style: Cross-out effect */
         .strike-text { text-decoration: line-through; opacity: 0.6; }
+        
+        /* Theme Circle Buttons */
+        .theme-dot { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid white; }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -49,7 +62,7 @@
     </div>
 
     <div id="app-shell" class="hidden min-h-screen flex flex-col md:flex-row">
-        <aside class="w-full md:w-64 bg-white border-r border-slate-200 p-6 flex-shrink-0">
+        <aside class="w-full md:w-64 bg-white border-r border-slate-200 p-6 flex-shrink-0 flex flex-col">
             <div class="hidden md:flex items-center gap-3 mb-10 px-2">
                 <img id="side-logo" src="" class="w-10 h-10 rounded-xl shadow-sm object-cover">
                 <div class="flex flex-col">
@@ -58,12 +71,33 @@
                 </div>
             </div>
             
-            <nav class="flex md:flex-col gap-2">
+            <nav class="flex md:flex-col gap-2 flex-1">
                 <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500 active-link"><i class="fas fa-th-large"></i> Dashboard</button>
+                
+                <div class="py-4 px-2 space-y-2 border-y border-slate-100 my-2">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">Tools</p>
+                    <button onclick="System.exportCSV()" class="w-full flex items-center gap-3 p-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50"><i class="fas fa-file-export text-indigo-500"></i> Export CSV</button>
+                    <label class="w-full flex items-center gap-3 p-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer">
+                        <i class="fas fa-file-import text-emerald-500"></i> Import CSV
+                        <input type="file" id="csv-import" accept=".csv" class="hidden" onchange="System.importCSV(this)">
+                    </label>
+                </div>
+
                 <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-list"></i> Pipeline</button>
                 <button onclick="UI.navigate('closed')" id="btn-closed" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-check-double"></i> Closed</button>
-                <button onclick="localStorage.removeItem('userLogin'); location.reload();" class="mt-10 text-red-400 text-xs font-bold text-left px-4 opacity-50 hover:opacity-100"><i class="fas fa-power-off"></i> LOGOUT</button>
             </nav>
+
+            <div class="p-4 bg-slate-50 rounded-2xl mt-4">
+                <p class="text-[9px] font-bold text-slate-400 uppercase mb-3 tracking-tighter">System Appearance</p>
+                <div class="flex justify-between items-center">
+                    <div onclick="UI.setTheme('default')" class="theme-dot bg-indigo-500" title="Indigo"></div>
+                    <div onclick="UI.setTheme('midnight')" class="theme-dot bg-slate-900" title="Midnight"></div>
+                    <div onclick="UI.setTheme('emerald')" class="theme-dot bg-emerald-500" title="Emerald"></div>
+                    <div onclick="UI.setTheme('rose')" class="theme-dot bg-rose-500" title="Rose"></div>
+                </div>
+            </div>
+
+            <button onclick="localStorage.removeItem('userLogin'); location.reload();" class="mt-6 text-red-400 text-xs font-bold text-left px-4 opacity-50 hover:opacity-100"><i class="fas fa-power-off"></i> LOGOUT</button>
         </aside>
 
         <main class="flex-1 p-6 md:p-10 max-w-6xl mx-auto w-full">
@@ -74,7 +108,7 @@
                 </div>
                 <div class="flex gap-3">
                     <button onclick="System.sync()" class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center"><i id="sync-icon" class="fas fa-sync-alt"></i></button>
-                    <button onclick="UI.modal('open')" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg">+ Add</button>
+                    <button onclick="UI.modal('open')" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg text-sm md:text-base">+ Add Lead</button>
                 </div>
             </header>
 
@@ -176,10 +210,55 @@
                     body: JSON.stringify({data: {status: nextStatus}})
                 });
                 System.sync();
+            },
+            // NEW: Export Functionality
+            exportCSV: () => {
+                if(System.Data.length === 0) return alert("No data to export");
+                const headers = Object.keys(System.Data[0]).join(",");
+                const rows = System.Data.map(l => Object.values(l).join(","));
+                const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows.join("\n");
+                const link = document.createElement("a");
+                link.setAttribute("href", encodeURI(csvContent));
+                link.setAttribute("download", `Nexus_CRM_Backup_${System.Today}.csv`);
+                document.body.appendChild(link);
+                link.click();
+            },
+            // NEW: Import Functionality
+            importCSV: (input) => {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const text = e.target.result;
+                    const lines = text.split("\n");
+                    const importedData = [];
+                    const headers = lines[0].split(",");
+                    
+                    for(let i = 1; i < lines.length; i++) {
+                        if(!lines[i]) continue;
+                        const obj = {};
+                        const currentline = lines[i].split(",");
+                        headers.forEach((h, index) => obj[h.trim()] = currentline[index].trim());
+                        importedData.push(obj);
+                    }
+                    
+                    if(confirm(`Import ${importedData.length} leads?`)) {
+                        await fetch(System.API, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({data: importedData})
+                        });
+                        System.sync();
+                    }
+                };
+                reader.readAsText(file);
             }
         };
 
         const UI = {
+            setTheme: (theme) => {
+                document.body.className = theme === 'default' ? '' : `theme-${theme}`;
+                localStorage.setItem('crmTheme', theme);
+            },
             navigate: (view) => {
                 ['dashboard', 'leads', 'closed'].forEach(v => {
                     document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
@@ -292,6 +371,10 @@
             document.getElementById('l-accent').innerText = BrandConfig.accent;
             document.getElementById('s-name').innerText = BrandConfig.name;
             document.title = `${BrandConfig.name}${BrandConfig.accent} | Intel`;
+
+            // Theme restore
+            const savedTheme = localStorage.getItem('crmTheme');
+            if(savedTheme) UI.setTheme(savedTheme);
 
             if(localStorage.getItem('userLogin') === 'true') {
                 document.getElementById('auth-gateway').classList.add('hidden');
