@@ -290,11 +290,13 @@
                 if(view === 'alerts-today') {
                     document.getElementById('view-alerts').classList.remove('hidden');
                     title.innerText = "Today's Tasks";
+                    // Sirf aaj ki date wali leads filter ho rahi hain
                     const filtered = System.Data.filter(l => l.followup === today);
                     alertList.innerHTML = UI.cards(filtered);
                 } else if(view === 'alerts-overdue') {
                     document.getElementById('view-alerts').classList.remove('hidden');
                     title.innerText = "Overdue Alerts";
+                    // Purani date wali leads jo abhi tak Won nahi hui hain
                     const filtered = System.Data.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won');
                     alertList.innerHTML = UI.cards(filtered);
                 } else {
@@ -345,7 +347,6 @@
             renderAll: () => {
                 const today = new Date().toISOString().split('T')[0];
                 
-                // Update Stats & Alerts Count
                 const totalRev = System.Data.reduce((acc, curr) => acc + (curr.status === 'Closed Won' ? Number(curr.value || 0) : 0), 0);
                 const todayCount = System.Data.filter(l => l.followup === today).length;
                 const overdueCount = System.Data.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won').length;
@@ -355,7 +356,6 @@
                 document.getElementById('meta-today').innerText = todayCount;
                 document.getElementById('meta-overdue').innerText = overdueCount;
 
-                // Render Main Lists
                 document.getElementById('dashboard-grid').innerHTML = UI.cards(System.Data.slice(-4).reverse());
                 document.getElementById('full-pipeline').innerHTML = UI.cards(System.Data.slice().reverse());
                 document.getElementById('client-list').innerHTML = UI.cards(System.Data.filter(x => x.status === 'Closed Won'));
