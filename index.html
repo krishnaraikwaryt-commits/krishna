@@ -3,65 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus CRM | Krishna Raikwar</title>
+    <title>Nexus CRM v2.0 | Enterprise Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        :root { --brand-primary: #6366f1; --brand-dark: #0f172a; --surface-100: #f8fafc; }
-        body.theme-midnight { --brand-primary: #38bdf8; --brand-dark: #f8fafc; --surface-100: #0f172a; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--surface-100); color: var(--brand-dark); transition: all 0.3s ease; }
-        .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); }
+        :root { --brand-primary: #6366f1; --brand-dark: #0f172a; --surface-100: #f8fafc; --sidebar-bg: #ffffff; }
+        body.theme-midnight { --brand-primary: #38bdf8; --brand-dark: #f8fafc; --surface-100: #0f172a; --sidebar-bg: #1e293b; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--surface-100); color: var(--brand-dark); transition: all 0.3s ease; min-height: 100vh; }
+        .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
         body.theme-midnight .glass-panel { background: rgba(15, 23, 42, 0.7); border-color: rgba(255,255,255,0.08); color: #f8fafc; }
+        .dropdown-menu { display: none; position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: 200px; z-index: 100; border-radius: 20px; padding: 10px; }
+        .dropdown-menu.active { display: block; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
     </style>
 </head>
 <body class="overflow-x-hidden" onload="System.init()">
 
-    <div id="auth-gateway" class="fixed inset-0 z-[1000] bg-slate-900 flex items-center justify-center p-6 transition-all">
+    <div id="auth-gateway" class="fixed inset-0 z-[1000] bg-slate-900 flex items-center justify-center p-6">
         <div class="max-w-md w-full glass-panel rounded-[3rem] p-12 text-center shadow-2xl">
-            <h1 class="text-3xl font-black text-slate-100 mb-4">Nexus<span class="text-indigo-600">PRO</span></h1>
-            <input type="password" id="sys-pin" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="PIN" class="w-full p-5 rounded-2xl bg-slate-800 text-white text-center text-2xl font-black outline-none">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-indigo-600 text-white text-3xl mb-6"><i class="fas fa-fingerprint"></i></div>
+            <h1 class="text-3xl font-black text-slate-900 mb-4">Nexus<span class="text-indigo-600">PRO</span></h1>
+            <input type="password" id="sys-pin" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="PIN" class="w-full p-5 rounded-2xl bg-slate-100 text-center text-2xl font-black tracking-[0.5em] outline-none">
             <p id="auth-error" class="text-red-500 text-xs font-bold opacity-0 mt-4 uppercase">Access Denied</p>
         </div>
     </div>
 
     <div id="app-shell" class="hidden opacity-0 transition-opacity duration-500">
-        <header class="sticky top-0 z-40 px-6 py-6 backdrop-blur-md">
+        <header class="sticky top-0 z-40 px-6 py-6 bg-transparent backdrop-blur-md">
             <div class="max-w-6xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-4">
                     <button onclick="UI.navigate('dashboard')" class="w-12 h-12 glass-panel rounded-xl flex items-center justify-center text-indigo-600"><i class="fas fa-arrow-left"></i></button>
-                    <h2 id="view-title" class="text-2xl font-extrabold">Intelligence</h2>
+                    <h2 id="view-title" class="text-2xl font-extrabold tracking-tight">Intelligence</h2>
                 </div>
                 <button onclick="System.sync()" class="w-12 h-12 glass-panel rounded-xl flex items-center justify-center"><i id="sync-icon" class="fas fa-rotate text-indigo-600"></i></button>
             </div>
         </header>
 
         <main class="p-6 max-w-6xl mx-auto pb-32">
-            <section id="view-dashboard" class="space-y-6">
+            <section id="view-dashboard" class="space-y-8">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="glass-panel p-6 rounded-[2rem] border-b-4 border-indigo-500">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Revenue</p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Revenue</p>
                         <h3 id="meta-revenue" class="text-xl font-black mt-1">₹0</h3>
                     </div>
                     <div class="glass-panel p-6 rounded-[2rem] border-b-4 border-emerald-500" onclick="UI.navigate('leads')">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Leads</p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Total Leads</p>
                         <h3 id="meta-total" class="text-xl font-black mt-1">0</h3>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div onclick="UI.navigate('alerts-today')" class="glass-panel p-5 rounded-[1.5rem] border-l-4 border-orange-500 cursor-pointer">
+                    <div onclick="UI.navigate('alerts-today')" class="glass-panel p-5 rounded-[1.5rem] border-l-4 border-orange-500 cursor-pointer hover:scale-95 transition-transform">
                         <p class="text-[10px] font-black text-slate-400 uppercase">Today Follow-up</p>
                         <h3 id="meta-today" class="text-xl font-black text-orange-600">0</h3>
                     </div>
-                    <div onclick="UI.navigate('alerts-overdue')" class="glass-panel p-5 rounded-[1.5rem] border-l-4 border-red-500 cursor-pointer">
+                    <div onclick="UI.navigate('alerts-overdue')" class="glass-panel p-5 rounded-[1.5rem] border-l-4 border-red-500 cursor-pointer hover:scale-95 transition-transform">
                         <p class="text-[10px] font-black text-slate-400 uppercase">Overdue Alert</p>
                         <h3 id="meta-overdue" class="text-xl font-black text-red-600">0</h3>
                     </div>
                 </div>
 
                 <div class="space-y-4">
-                    <h4 class="text-xs font-black uppercase text-slate-400">Quick View</h4>
+                    <h4 class="text-xs font-black uppercase text-slate-400 tracking-widest">Recent Activity</h4>
                     <div id="dashboard-grid" class="space-y-3"></div>
                 </div>
             </section>
@@ -72,29 +76,34 @@
         </main>
 
         <nav class="fixed bottom-0 left-0 right-0 h-20 flex items-center justify-around px-6 z-50 glass-panel rounded-t-[2.5rem]">
-            <button onclick="UI.navigate('dashboard')" class="flex flex-col items-center gap-1"><i class="fas fa-th-large text-xl text-slate-400"></i><span class="text-[9px] font-bold">HOME</span></button>
-            <button onclick="UI.navigate('leads')" class="flex flex-col items-center gap-1"><i class="fas fa-users text-xl text-slate-400"></i><span class="text-[9px] font-bold">LEADS</span></button>
-            <button onclick="UI.modal('open')" class="w-14 h-14 bg-indigo-600 text-white rounded-2xl -mt-10 shadow-lg"><i class="fas fa-plus"></i></button>
-            <button onclick="UI.navigate('clients')" class="flex flex-col items-center gap-1"><i class="fas fa-crown text-xl text-slate-400"></i><span class="text-[9px] font-bold">WON</span></button>
-            <button onclick="System.setTheme(document.body.classList.contains('theme-midnight') ? 'default' : 'midnight')" class="flex flex-col items-center gap-1"><i class="fas fa-moon text-xl text-slate-400"></i><span class="text-[9px] font-bold">THEME</span></button>
+            <button onclick="UI.navigate('dashboard')" class="flex flex-col items-center gap-1"><i class="fas fa-th-large text-xl"></i><span class="text-[9px] font-bold">HOME</span></button>
+            <button onclick="UI.navigate('leads')" class="flex flex-col items-center gap-1"><i class="fas fa-users text-xl"></i><span class="text-[9px] font-bold">LEADS</span></button>
+            <button onclick="UI.modal('open')" class="w-14 h-14 bg-indigo-600 text-white rounded-2xl -mt-10 shadow-lg border-4 border-white"><i class="fas fa-plus"></i></button>
+            <button onclick="UI.navigate('clients')" class="flex flex-col items-center gap-1"><i class="fas fa-crown text-xl"></i><span class="text-[9px] font-bold">WON</span></button>
+            <button onclick="UI.toggleMenu('theme-menu')" class="flex flex-col items-center gap-1"><i class="fas fa-moon text-xl"></i><span class="text-[9px] font-bold">THEME</span></button>
+
+            <div id="theme-menu" class="dropdown-menu glass-panel shadow-2xl">
+                <button onclick="System.setTheme('default')" class="w-full p-3 mb-2 bg-slate-100 rounded-xl font-bold text-xs">Light</button>
+                <button onclick="System.setTheme('midnight')" class="w-full p-3 bg-slate-800 rounded-xl font-bold text-xs text-white">Dark</button>
+            </div>
         </nav>
     </div>
 
-    <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 flex items-center justify-center p-4">
+    <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8">
-            <h2 class="text-2xl font-black mb-6">Lead Detail</h2>
+            <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black">Lead Profile</h2><button onclick="UI.modal('close')"><i class="fas fa-times-circle text-2xl text-slate-300"></i></button></div>
             <form id="core-form" class="space-y-4" onsubmit="event.preventDefault(); System.saveLead();">
                 <input type="hidden" id="entry-id">
                 <input type="text" id="entry-name" placeholder="Name" class="w-full p-4 rounded-xl bg-slate-50 font-bold outline-none" required>
                 <input type="tel" id="entry-phone" placeholder="Phone" class="w-full p-4 rounded-xl bg-slate-50 font-bold outline-none" required>
                 <div class="grid grid-cols-2 gap-4">
-                    <select id="entry-status" class="p-4 rounded-xl bg-slate-50 font-bold"><option value="Prospect">Prospect</option><option value="Closed Won">Closed Won</option></select>
-                    <input type="number" id="entry-value" placeholder="Value ₹" class="p-4 rounded-xl bg-slate-50 font-bold">
+                    <select id="entry-status" class="p-4 rounded-xl bg-slate-50 font-bold outline-none"><option value="Prospect">Prospect</option><option value="Closed Won">Closed Won</option></select>
+                    <input type="number" id="entry-value" placeholder="Value ₹" class="p-4 rounded-xl bg-slate-50 font-bold outline-none">
                 </div>
-                <input type="date" id="entry-date" class="w-full p-4 rounded-xl bg-slate-50 font-bold">
+                <input type="date" id="entry-date" class="w-full p-4 rounded-xl bg-slate-50 font-bold outline-none">
                 <div class="flex gap-3 pt-4">
                     <button type="submit" class="flex-1 bg-indigo-600 text-white py-4 rounded-xl font-black">SAVE</button>
-                    <button type="button" onclick="UI.modal('close')" class="bg-slate-100 px-6 rounded-xl font-black text-slate-400">CANCEL</button>
+                    <button type="button" id="delete-btn" onclick="System.deleteLead()" class="hidden bg-red-100 text-red-600 px-6 rounded-xl font-black">DEL</button>
                 </div>
             </form>
         </div>
@@ -106,75 +115,97 @@
             PIN: "1321",
             Data: [],
             init: () => { System.setTheme(localStorage.getItem('nexus_theme') || 'default'); if(localStorage.getItem('nexus_auth') === 'true') System.launchApp(); },
-            auth: () => { if(document.getElementById('sys-pin').value === System.PIN) { localStorage.setItem('nexus_auth', 'true'); System.launchApp(); } else { document.getElementById('auth-error').style.opacity = '1'; } },
+            auth: () => { if(document.getElementById('sys-pin').value === System.PIN) { localStorage.setItem('nexus_auth', 'true'); System.launchApp(); } else { document.getElementById('auth-error').style.opacity = '1'; document.getElementById('sys-pin').value = ''; } },
             launchApp: () => { document.getElementById('auth-gateway').classList.add('hidden'); document.getElementById('app-shell').classList.remove('hidden'); setTimeout(() => document.getElementById('app-shell').classList.add('opacity-100'), 50); System.sync(); },
             sync: async () => {
-                document.getElementById('sync-icon').classList.add('fa-spin');
-                const res = await fetch(System.API);
-                System.Data = await res.json();
-                UI.renderAll();
-                document.getElementById('sync-icon').classList.remove('fa-spin');
+                const icon = document.getElementById('sync-icon'); icon.classList.add('fa-spin');
+                try { const response = await fetch(System.API); System.Data = await response.json(); UI.renderAll(); } 
+                catch (e) { console.error("Sync failed"); } finally { icon.classList.remove('fa-spin'); }
             },
             saveLead: async () => {
                 const id = document.getElementById('entry-id').value;
                 const lead = { id: id || Date.now().toString(), name: document.getElementById('entry-name').value, phone: document.getElementById('entry-phone').value, status: document.getElementById('entry-status').value, value: document.getElementById('entry-value').value, followup: document.getElementById('entry-date').value };
                 UI.modal('close');
-                await fetch(id ? `${System.API}/id/${id}` : System.API, { method: id ? 'PATCH' : 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: id ? lead : [lead]})});
+                await fetch(id ? `${System.API}/id/${id}` : System.API, { method: id ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: id ? lead : [lead] }) });
                 System.sync();
             },
+            deleteLead: async () => { const id = document.getElementById('entry-id').value; if(confirm("Delete?")) { UI.modal('close'); await fetch(`${System.API}/id/${id}`, { method: 'DELETE' }); System.sync(); } },
             setTheme: (t) => { document.body.className = t === 'default' ? '' : `theme-${t}`; localStorage.setItem('nexus_theme', t); }
         };
 
         const UI = {
             navigate: (view) => {
-                const views = ['dashboard', 'leads', 'clients', 'alerts'];
-                views.forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
+                const sections = ['dashboard', 'leads', 'clients', 'alerts'];
+                sections.forEach(s => document.getElementById(`view-${s}`).classList.add('hidden'));
+                const title = document.getElementById('view-title');
                 const today = new Date().toISOString().split('T')[0];
 
                 if(view.startsWith('alerts')) {
                     document.getElementById('view-alerts').classList.remove('hidden');
                     let filtered = [];
                     if(view === 'alerts-today') {
-                        document.getElementById('view-title').innerText = "Today's Focus";
+                        title.innerText = "Today's Tasks";
                         filtered = System.Data.filter(l => l.followup === today);
-                    } else {
-                        document.getElementById('view-title').innerText = "Overdue Tasks";
+                    } else if(view === 'alerts-overdue') {
+                        title.innerText = "Overdue Actions";
                         filtered = System.Data.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won');
                     }
-                    document.getElementById('view-alerts').innerHTML = UI.cards(filtered);
+                    // Yeh raha fix: Ab alerts screen par leads show hongi
+                    document.getElementById('view-alerts').innerHTML = `<h4 class="text-xs font-black uppercase text-slate-400 mb-4">Total: ${filtered.length} Leads</h4>` + UI.cards(filtered);
                 } else {
                     document.getElementById(`view-${view}`).classList.remove('hidden');
-                    document.getElementById('view-title').innerText = view.toUpperCase();
+                    title.innerText = view.charAt(0).toUpperCase() + view.slice(1);
                 }
+                window.scrollTo(0,0);
             },
-            modal: (action) => document.getElementById('lead-modal').classList.toggle('hidden', action === 'close'),
+            modal: (action, id = null) => {
+                const m = document.getElementById('lead-modal');
+                const dBtn = document.getElementById('delete-btn');
+                if(action === 'open') {
+                    m.classList.remove('hidden');
+                    if(id) {
+                        const l = System.Data.find(x => x.id == id);
+                        document.getElementById('entry-id').value = l.id;
+                        document.getElementById('entry-name').value = l.name;
+                        document.getElementById('entry-phone').value = l.phone;
+                        document.getElementById('entry-status').value = l.status;
+                        document.getElementById('entry-value').value = l.value;
+                        document.getElementById('entry-date').value = l.followup || '';
+                        dBtn.classList.remove('hidden');
+                    } else { document.getElementById('core-form').reset(); document.getElementById('entry-id').value = ''; dBtn.classList.add('hidden'); }
+                } else m.classList.add('hidden');
+            },
             cards: (data) => {
-                if(!data || data.length === 0) return `<div class="text-center p-10 opacity-30">No data found</div>`;
+                if(!data || data.length === 0) return `<div class="text-center p-10 opacity-40 font-bold">No leads found.</div>`;
                 return data.map(l => `
                     <div class="glass-panel p-5 rounded-2xl flex justify-between items-center mb-3">
-                        <div>
-                            <h5 class="font-bold">${l.name}</h5>
-                            <p class="text-[10px] text-slate-400 font-black uppercase">${l.status} • ₹${l.value || 0}</p>
+                        <div onclick="UI.modal('open', '${l.id}')" class="flex-1 cursor-pointer">
+                            <h5 class="font-bold text-base mb-1">${l.name}</h5>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">${l.status} • ₹${l.value || 0} • ${l.followup || 'No Date'}</p>
                         </div>
                         <div class="flex gap-2">
-                            <a href="tel:${l.phone}" class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center"><i class="fas fa-phone-alt text-xs"></i></a>
-                            <a href="https://wa.me/91${l.phone}" class="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center"><i class="fab fa-whatsapp text-lg"></i></a>
+                            <a href="tel:${l.phone}" class="w-9 h-9 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center"><i class="fas fa-phone-alt text-sm"></i></a>
+                            <a href="https://wa.me/91${l.phone}" class="w-9 h-9 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center"><i class="fab fa-whatsapp text-lg"></i></a>
                         </div>
                     </div>
                 `).join('');
             },
             renderAll: () => {
                 const today = new Date().toISOString().split('T')[0];
-                const rev = System.Data.reduce((a, c) => a + (c.status === 'Closed Won' ? Number(c.value || 0) : 0), 0);
-                document.getElementById('meta-revenue').innerText = "₹" + rev.toLocaleString();
+                const totalRev = System.Data.reduce((acc, curr) => acc + (curr.status === 'Closed Won' ? Number(curr.value || 0) : 0), 0);
+                const todayCount = System.Data.filter(l => l.followup === today).length;
+                const overdueCount = System.Data.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won').length;
+
+                document.getElementById('meta-revenue').innerText = "₹" + totalRev.toLocaleString();
                 document.getElementById('meta-total').innerText = System.Data.length;
-                document.getElementById('meta-today').innerText = System.Data.filter(l => l.followup === today).length;
-                document.getElementById('meta-overdue').innerText = System.Data.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won').length;
-                
+                document.getElementById('meta-today').innerText = todayCount;
+                document.getElementById('meta-overdue').innerText = overdueCount;
+
                 document.getElementById('dashboard-grid').innerHTML = UI.cards(System.Data.slice(-5).reverse());
                 document.getElementById('view-leads').innerHTML = UI.cards(System.Data.slice().reverse());
                 document.getElementById('view-clients').innerHTML = UI.cards(System.Data.filter(x => x.status === 'Closed Won'));
-            }
+            },
+            toggleMenu: (id) => document.getElementById(id).classList.toggle('active')
         };
     </script>
 </body>
