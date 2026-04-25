@@ -21,7 +21,7 @@
         .hidden { display: none !important; }
     </style>
 </head>
-<body class="overflow-x-hidden">
+<body class="overflow-x-hidden" onload="System.checkAuth()">
 
     <div id="auth-gateway" class="fixed inset-0 z-[1000] bg-slate-900 flex items-center justify-center p-6">
         <div class="max-w-md w-full glass-panel rounded-[2.5rem] p-10 text-center">
@@ -38,6 +38,8 @@
             <nav class="flex md:flex-col gap-2">
                 <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500 active-link"><i class="fas fa-th-large"></i> Dashboard</button>
                 <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-list"></i> Pipeline</button>
+                <button onclick="UI.navigate('clients')" id="btn-clients" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-user-tie"></i> Clients</button>
+                <button onclick="System.logout()" class="mt-auto hidden md:flex items-center gap-3 p-4 rounded-xl font-bold text-red-400 hover:bg-red-50"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </nav>
         </aside>
 
@@ -60,27 +62,31 @@
                     <div onclick="UI.filterBy('today')" class="stat-card glass-panel p-6 rounded-3xl border-emerald-100 hover:border-emerald-400"><p class="text-[10px] font-black text-emerald-500 uppercase">Today</p><h3 id="meta-today" class="text-2xl font-black mt-1">0</h3></div>
                     <div onclick="UI.filterBy('all')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white"><p class="text-[10px] font-black opacity-70 uppercase">Total</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
                 </div>
-
                 <div id="alert-container" class="space-y-3"></div>
-
                 <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-lg font-black text-slate-800 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule</h4>
-                        <label class="cursor-pointer text-[11px] font-black text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 border border-indigo-100 flex items-center gap-2">
-                            <i class="fas fa-file-csv"></i> IMPORT CSV
-                            <input type="file" id="bulk-csv" accept=".csv" class="hidden" onchange="System.importCSV(event)">
-                        </label>
-                    </div>
+                    <h4 class="text-lg font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule</h4>
                     <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
             </section>
 
             <section id="view-leads" class="hidden space-y-6">
                 <div class="flex gap-2">
-                    <input type="text" id="lead-search" oninput="UI.search()" placeholder="Search pipeline..." class="flex-1 p-5 rounded-3xl glass-panel outline-none border-none">
+                    <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search pipeline..." class="flex-1 p-5 rounded-3xl glass-panel outline-none border-none">
                     <button onclick="UI.renderAll()" class="px-6 rounded-3xl bg-slate-100 text-slate-500 font-bold hover:bg-slate-200">Reset</button>
                 </div>
                 <div id="full-pipeline" class="space-y-3"></div>
+            </section>
+
+            <section id="view-clients" class="hidden space-y-6">
+                <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-black text-indigo-900">Active Clients</h3>
+                        <p class="text-indigo-600 text-sm font-medium">Successful Conversions</p>
+                    </div>
+                    <i class="fas fa-crown text-3xl text-indigo-200"></i>
+                </div>
+                <input type="text" id="client-search" oninput="UI.search('client-list')" placeholder="Search clients..." class="w-full p-5 rounded-3xl glass-panel outline-none border-none">
+                <div id="client-list" class="space-y-3"></div>
             </section>
         </main>
     </div>
@@ -120,72 +126,59 @@
             Data: [],
             Today: new Date().toISOString().split('T')[0],
 
-            auth: () => {
-                if(document.getElementById('sys-pin').value === System.PIN) {
+            checkAuth: () => {
+                if(localStorage.getItem('nexus_auth') === 'true') {
                     document.getElementById('auth-gateway').classList.add('hidden');
                     document.getElementById('app-shell').classList.remove('hidden');
                     System.sync();
                 }
             },
+            auth: () => {
+                if(document.getElementById('sys-pin').value === System.PIN) {
+                    localStorage.setItem('nexus_auth', 'true');
+                    document.getElementById('auth-gateway').classList.add('hidden');
+                    document.getElementById('app-shell').classList.remove('hidden');
+                    System.sync();
+                }
+            },
+            logout: () => {
+                localStorage.removeItem('nexus_auth');
+                location.reload();
+            },
             sync: async () => {
                 const icon = document.getElementById('sync-icon');
-                icon.classList.add('fa-spin');
+                if(icon) icon.classList.add('fa-spin');
                 try {
                     const res = await fetch(System.API);
                     System.Data = await res.json();
                     UI.renderAll();
-                } finally { icon.classList.remove('fa-spin'); }
+                } finally { if(icon) icon.classList.remove('fa-spin'); }
             },
             deleteLead: async (id) => {
-                if(!confirm('Are you sure you want to delete this lead?')) return;
-                try {
-                    await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
-                    System.sync();
-                } catch (err) { alert('Delete Failed'); }
-            },
-            importCSV: async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = async (ev) => {
-                    const rows = ev.target.result.split('\n').slice(1);
-                    const batch = rows.map(r => {
-                        const c = r.split(',');
-                        if (c.length < 2) return null;
-                        return {
-                            id: "NX" + Date.now() + Math.floor(Math.random()*100),
-                            name: c[0].trim(), phone: c[1].trim(),
-                            status: 'Prospect', value: 0, followUpDate: System.Today
-                        };
-                    }).filter(x => x && x.name);
-
-                    if (batch.length) {
-                        await fetch(System.API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: batch}) });
-                        System.sync();
-                    }
-                };
-                reader.readAsText(file);
+                if(!confirm('Delete this entry?')) return;
+                await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
+                System.sync();
             }
         };
 
         const UI = {
             navigate: (view) => {
-                document.getElementById('view-dashboard').classList.toggle('hidden', view !== 'dashboard');
-                document.getElementById('view-leads').classList.toggle('hidden', view !== 'leads');
-                document.getElementById('btn-dashboard').classList.toggle('active-link', view === 'dashboard');
-                document.getElementById('btn-leads').classList.toggle('active-link', view === 'leads');
+                ['dashboard', 'leads', 'clients'].forEach(v => {
+                    document.getElementById(`view-${v}`).classList.add('hidden');
+                    document.getElementById(`btn-${v}`).classList.remove('active-link');
+                });
+                document.getElementById(`view-${view}`).classList.remove('hidden');
+                document.getElementById(`btn-${view}`).classList.add('active-link');
             },
-            
-            // FILTER SYSTEM (NEW)
+
             filterBy: (type) => {
-                UI.navigate('leads'); // Switch to Pipeline view
+                UI.navigate('leads');
                 let filtered = [];
                 if(type === 'revenue') filtered = System.Data.filter(l => l.status === 'Closed Won');
                 else if(type === 'overdue') filtered = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && l.status !== 'Closed Won' && l.status !== 'Closed Lost');
                 else if(type === 'today') filtered = System.Data.filter(l => l.followUpDate === System.Today);
                 else filtered = System.Data;
-
-                UI.renderList(filtered);
+                UI.renderList('full-pipeline', filtered);
                 document.getElementById('lead-search').value = `Showing: ${type.toUpperCase()}`;
             },
 
@@ -201,6 +194,7 @@
                         document.getElementById('entry-status').value = l.status;
                         document.getElementById('entry-value').value = l.value;
                         document.getElementById('entry-date').value = l.followUpDate || '';
+                        document.getElementById('entry-note').value = l.note || '';
                     } else { document.getElementById('core-form').reset(); document.getElementById('entry-id').value = ''; }
                 } else { m.classList.add('hidden'); }
             },
@@ -209,7 +203,7 @@
                 <div class="glass-panel p-6 rounded-3xl lead-card flex justify-between items-center mb-1">
                     <div onclick="UI.modal('open', '${l.id}')">
                         <h5 class="font-bold text-slate-800">${l.name}</h5>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">${l.status} • ${l.followUpDate || 'No Date'}</p>
+                        <p class="text-[10px] font-bold ${l.status === 'Closed Won' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${l.status} • ₹${l.value}</p>
                     </div>
                     <div class="flex gap-2">
                          <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
@@ -219,19 +213,24 @@
                 </div>
             `,
 
-            renderList: (data) => {
-                document.getElementById('full-pipeline').innerHTML = data.length ? data.slice().reverse().map(UI.card).join('') : `<p class="text-slate-400">No leads found.</p>`;
+            renderList: (targetId, data) => {
+                document.getElementById(targetId).innerHTML = data.length ? data.slice().reverse().map(UI.card).join('') : `<p class="text-slate-400 text-center py-10">No data found.</p>`;
             },
 
             renderAll: () => {
                 const revenue = System.Data.reduce((s, l) => s + (l.status === 'Closed Won' ? Number(l.value || 0) : 0), 0);
                 const overdue = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && l.status !== 'Closed Won' && l.status !== 'Closed Lost');
                 const todayTasks = System.Data.filter(l => l.followUpDate === System.Today && l.status !== 'Closed Won');
+                const clients = System.Data.filter(l => l.status === 'Closed Won');
 
                 document.getElementById('meta-revenue').innerText = "₹" + revenue.toLocaleString();
                 document.getElementById('meta-total').innerText = System.Data.length;
                 document.getElementById('meta-overdue').innerText = overdue.length;
                 document.getElementById('meta-today').innerText = todayTasks.length;
+
+                UI.renderList('full-pipeline', System.Data);
+                UI.renderList('client-list', clients);
+                UI.renderList('today-grid', todayTasks);
 
                 document.getElementById('alert-container').innerHTML = overdue.map(l => `
                     <div class="p-5 bg-red-50 border-l-4 border-red-500 rounded-2xl flex justify-between items-center alert-pulse">
@@ -239,21 +238,18 @@
                         <div class="flex gap-2">
                             <a href="tel:${l.phone}" class="w-10 h-10 bg-white text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></a>
                             <button onclick="UI.modal('open', '${l.id}')" class="w-10 h-10 bg-white text-slate-400 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-edit"></i></button>
-                            <button onclick="System.deleteLead('${l.id}')" class="w-10 h-10 bg-white text-red-400 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `).join('');
 
-                document.getElementById('today-grid').innerHTML = todayTasks.length ? todayTasks.map(UI.card).join('') : `<p class="text-slate-400 text-sm">No tasks for today.</p>`;
-                UI.renderList(System.Data);
                 document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-                document.getElementById('lead-search').value = "";
             },
 
-            search: () => {
-                const q = document.getElementById('lead-search').value.toLowerCase();
-                const filtered = System.Data.filter(l => l.name.toLowerCase().includes(q) || l.phone.includes(q));
-                UI.renderList(filtered);
+            search: (targetId) => {
+                const q = document.getElementById(targetId === 'full-pipeline' ? 'lead-search' : 'client-search').value.toLowerCase();
+                const source = targetId === 'client-list' ? System.Data.filter(l => l.status === 'Closed Won') : System.Data;
+                const filtered = source.filter(l => l.name.toLowerCase().includes(q) || l.phone.includes(q));
+                UI.renderList(targetId, filtered);
             }
         };
 
@@ -266,11 +262,13 @@
                 phone: document.getElementById('entry-phone').value,
                 status: document.getElementById('entry-status').value,
                 value: document.getElementById('entry-value').value || 0,
-                followUpDate: document.getElementById('entry-date').value
+                followUpDate: document.getElementById('entry-date').value,
+                note: document.getElementById('entry-note').value
             };
             const method = id ? 'PATCH' : 'POST';
+            UI.modal('close');
             await fetch(id ? `${System.API}/id/${id}` : System.API, { method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: id ? payload : [payload]}) });
-            UI.modal('close'); System.sync();
+            System.sync();
         });
     </script>
 </body>
