@@ -31,7 +31,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Glassmorphism iPhone Style */
         .glass-panel { 
             background: var(--card-bg); 
             backdrop-filter: blur(20px); 
@@ -40,13 +39,7 @@
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07); 
         }
 
-        /* Prevent Input Zoom */
         input, select, textarea { font-size: 16px !important; }
-
-        /* Premium Icon Quality */
-        .fas, .fab {
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
-        }
 
         .active-link { 
             color: var(--brand-primary) !important; 
@@ -54,33 +47,41 @@
             border-radius: 18px;
         }
 
-        .lead-card { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0,0,0,0.03);
-        }
-
-        .stat-card { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 24px;
-        }
-
-        /* Mobile Bottom Nav Fix */
+        .stat-card { transition: all 0.3s ease; border-radius: 24px; }
+        
+        /* --- Force Mobile Responsive Overrides --- */
         @media (max-width: 768px) {
+            .sidebar-desktop { 
+                display: none !important; 
+                visibility: hidden !important;
+                width: 0 !important;
+                position: absolute !important;
+            }
+            .main-content { 
+                padding: 20px !important; 
+                padding-bottom: 120px !important; 
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
             .mobile-nav {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: rgba(255,255,255,0.8);
-                backdrop-filter: blur(20px);
+                display: flex !important;
+                position: fixed !important; 
+                bottom: 0; left: 0; right: 0;
+                background: rgba(255,255,255,0.85);
+                backdrop-filter: blur(25px);
                 border-top: 1px solid rgba(0,0,0,0.05);
                 z-index: 100;
-                padding: 10px 20px 25px 20px;
-                display: flex;
+                padding: 12px 20px 28px 20px;
                 justify-content: space-around;
             }
-            .main-content { padding-bottom: 100px; }
-            .sidebar-desktop { display: none; }
+            #view-title { font-size: 1.875rem !important; margin-top: 5px; }
+            #app-shell { flex-direction: column !important; }
+        }
+
+        @media (min-width: 769px) {
+            .sidebar-desktop { display: flex !important; }
+            .mobile-nav { display: none !important; }
         }
         
         .theme-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -143,16 +144,16 @@
             </div>
         </aside>
 
-        <nav class="mobile-nav md:hidden">
+        <nav class="mobile-nav">
             <button onclick="UI.navigate('dashboard')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span></button>
             <button onclick="UI.navigate('leads')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-rocket text-xl"></i><span class="text-[10px] font-bold">Leads</span></button>
-            <button onclick="UI.modal('open')" class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg -mt-8 border-4 border-white"><i class="fas fa-plus"></i></button>
+            <button onclick="UI.modal('open')" class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg -mt-10 border-4 border-white"><i class="fas fa-plus"></i></button>
             <button onclick="UI.navigate('closed')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-crown text-xl"></i><span class="text-[10px] font-bold">Closed</span></button>
-            <button onclick="location.reload()" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-sync text-xl"></i><span class="text-[10px] font-bold">Sync</span></button>
+            <button onclick="System.sync()" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-sync text-xl"></i><span class="text-[10px] font-bold">Sync</span></button>
         </nav>
 
-        <main class="flex-1 p-5 md:p-10 max-w-6xl mx-auto w-full main-content">
-            <header class="flex justify-between items-center mb-8">
+        <main class="flex-1 max-w-6xl mx-auto w-full main-content">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 id="view-title" class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Intelligence</h2>
                     <p class="text-slate-400 text-sm font-bold" id="live-timer"></p>
@@ -281,13 +282,9 @@
                     const res = await fetch(System.API);
                     System.Data = await res.json();
                     UI.renderAll();
+                } catch(err) {
+                    console.error("Sync Failed", err);
                 } finally { if(icon) icon.classList.remove('fa-spin'); }
-            },
-            delete: async (id) => {
-                if(confirm("Destroy this intel?")) {
-                    await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
-                    System.sync();
-                }
             },
             toggleStatus: async (id, current) => {
                 const nextStatus = current === 'Closed Won' ? 'Prospect' : 'Closed Won';
@@ -309,31 +306,6 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            },
-            importCSV: (input) => {
-                const file = input.files[0];
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const lines = e.target.result.split("\n");
-                    const importedData = [];
-                    const headers = lines[0].split(",");
-                    for(let i = 1; i < lines.length; i++) {
-                        if(!lines[i]) continue;
-                        const obj = {};
-                        const currentline = lines[i].split(",");
-                        headers.forEach((h, index) => obj[h.trim()] = currentline[index].trim());
-                        importedData.push(obj);
-                    }
-                    if(confirm(`Inject ${importedData.length} records into Nexus?`)) {
-                        await fetch(System.API, {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({data: importedData})
-                        });
-                        System.sync();
-                    }
-                };
-                reader.readAsText(file);
             }
         };
 
@@ -344,7 +316,8 @@
             },
             navigate: (view) => {
                 ['dashboard', 'leads', 'closed'].forEach(v => {
-                    document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
+                    const el = document.getElementById(`view-${v}`);
+                    if(el) el.classList.toggle('hidden', v !== view);
                     const btn = document.getElementById(`btn-${v}`);
                     if(btn) btn.classList.toggle('active-link', v === view);
                 });
@@ -363,7 +336,7 @@
             cardTemplate: (l) => {
                 const isClosed = l.status === 'Closed Won';
                 return `
-                <div class="glass-panel p-5 rounded-[2rem] lead-card flex justify-between items-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <div class="glass-panel p-5 rounded-[2rem] lead-card flex justify-between items-center">
                     <div class="flex items-center gap-4">
                         <button onclick="System.toggleStatus('${l.id}', '${l.status}')" class="w-8 h-8 rounded-2xl border-2 border-indigo-100 flex items-center justify-center transition-all ${isClosed ? 'bg-indigo-600 border-indigo-600' : 'bg-white shadow-sm'}">
                             ${isClosed ? '<i class="fas fa-check text-xs text-white"></i>' : ''}
@@ -376,8 +349,8 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
-                         <a href="https://wa.me/${l.phone.replace(/\D/g,'')}" target="_blank" class="w-10 h-10 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition-transform"><i class="fab fa-whatsapp"></i></a>
-                         <a href="tel:${l.phone}" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition-transform"><i class="fas fa-phone-alt"></i></a>
+                         <a href="https://wa.me/${l.phone.replace(/\D/g,'')}" target="_blank" class="w-10 h-10 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
+                         <a href="tel:${l.phone}" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></a>
                     </div>
                 </div>
             `},
