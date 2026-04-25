@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="tab-title">Nexus CRM | Pro Intelligence</title>
     
-    <link id="favicon" rel="icon" type="image/png" href="https://lh3.googleusercontent.com/u/0/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss">
+    <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -20,6 +20,8 @@
         .stat-card { cursor: pointer; transition: transform 0.2s; }
         .stat-card:active { transform: scale(0.95); }
         .hidden { display: none !important; }
+        .alert-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -28,7 +30,7 @@
         const BrandConfig = {
             name: "Nexus", 
             accent: "CRM",
-            logo: "https://lh3.googleusercontent.com/u/0/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss" 
+            logo: "https://lh3.googleusercontent.com/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss" 
         };
     </script>
 
@@ -53,12 +55,11 @@
                 </div>
             </div>
             
-            <nav class="flex md:flex-col gap-2 h-full">
+            <nav class="flex md:flex-col gap-2">
                 <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500 active-link"><i class="fas fa-th-large"></i> Dashboard</button>
                 <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-list"></i> Pipeline</button>
                 <button onclick="UI.navigate('closed')" id="btn-closed" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-check-double"></i> Closed</button>
-                
-                <button onclick="System.logout()" class="mt-auto hidden md:flex items-center gap-3 p-4 text-red-400 font-bold hover:bg-red-50 rounded-xl transition-all"><i class="fas fa-power-off"></i> Logout</button>
+                <button onclick="localStorage.removeItem('userLogin'); location.reload();" class="mt-10 text-red-400 text-xs font-bold text-left px-4 opacity-50 hover:opacity-100"><i class="fas fa-power-off"></i> LOGOUT</button>
             </nav>
         </aside>
 
@@ -74,6 +75,8 @@
                 </div>
             </header>
 
+            <div id="system-alerts" class="mb-6 space-y-2"></div>
+
             <section id="view-dashboard" class="space-y-8">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div onclick="UI.navigate('closed')" class="stat-card glass-panel p-6 rounded-3xl border-b-4 border-indigo-500"><p class="text-[10px] font-black text-indigo-500 uppercase">Revenue</p><h3 id="meta-revenue" class="text-2xl font-black mt-1">₹0</h3></div>
@@ -81,14 +84,25 @@
                     <div onclick="UI.filterDashboard('today')" class="stat-card glass-panel p-6 rounded-3xl border-b-4 border-emerald-500"><p class="text-[10px] font-black text-emerald-500 uppercase">Today</p><h3 id="meta-today" class="text-2xl font-black mt-1">0</h3></div>
                     <div onclick="UI.navigate('leads')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white"><p class="text-[10px] font-black opacity-70 uppercase">Total Leads</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
                 </div>
-                <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 id="grid-title" class="text-lg font-black text-slate-800 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Active Focus</h4>
+                        <button onclick="UI.renderAll()" class="text-[10px] font-bold text-indigo-600 underline">Reset View</button>
+                    </div>
+                    <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
             </section>
 
             <section id="view-leads" class="hidden space-y-6">
+                <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search pipeline..." class="w-full p-5 rounded-3xl glass-panel outline-none border-none">
                 <div id="full-pipeline" class="space-y-3"></div>
             </section>
 
             <section id="view-closed" class="hidden space-y-6">
+                <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100">
+                    <h4 class="font-black text-emerald-700 uppercase text-xs tracking-widest">Success Archive</h4>
+                </div>
                 <div id="closed-pipeline" class="space-y-3"></div>
             </section>
         </main>
@@ -123,49 +137,34 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('login-logo').src = BrandConfig.logo;
+            document.getElementById('side-logo').src = BrandConfig.logo;
+            document.getElementById('l-name').innerText = BrandConfig.name;
+            document.getElementById('l-accent').innerText = BrandConfig.accent;
+            document.getElementById('s-name').innerText = BrandConfig.name;
+            document.title = `${BrandConfig.name}${BrandConfig.accent} | Intel`;
+
+            if(localStorage.getItem('userLogin') === 'true') {
+                document.getElementById('auth-gateway').classList.add('hidden');
+                document.getElementById('app-shell').classList.remove('hidden');
+                System.sync();
+            }
+        });
+
         const System = {
             API: "https://sheetdb.io/api/v1/7skn6892hya7x",
             PIN: "1321",
             Data: [],
             Today: new Date().toISOString().split('T')[0],
-
-            init: () => {
-                // Branding Initialization
-                document.getElementById('login-logo').src = BrandConfig.logo;
-                document.getElementById('side-logo').src = BrandConfig.logo;
-                document.getElementById('favicon').href = BrandConfig.logo;
-                document.getElementById('l-name').innerText = BrandConfig.name;
-                document.getElementById('l-accent').innerText = BrandConfig.accent;
-                document.getElementById('s-name').innerText = BrandConfig.name;
-                document.title = `${BrandConfig.name}${BrandConfig.accent} | Intel`;
-
-                // FIX 3: Check Session Persistence
-                if(localStorage.getItem('crm_session') === 'active') {
-                    System.launch();
-                }
-            },
-
             auth: () => {
                 if(document.getElementById('sys-pin').value === System.PIN) {
-                    localStorage.setItem('crm_session', 'active'); // Save login
-                    System.launch();
-                } else {
-                    alert("Incorrect PIN");
-                    document.getElementById('sys-pin').value = '';
+                    localStorage.setItem('userLogin', 'true');
+                    document.getElementById('auth-gateway').classList.add('hidden');
+                    document.getElementById('app-shell').classList.remove('hidden');
+                    System.sync();
                 }
             },
-
-            launch: () => {
-                document.getElementById('auth-gateway').classList.add('hidden');
-                document.getElementById('app-shell').classList.remove('hidden');
-                System.sync();
-            },
-
-            logout: () => {
-                localStorage.removeItem('crm_session');
-                location.reload();
-            },
-
             sync: async () => {
                 const icon = document.getElementById('sync-icon');
                 icon.classList.add('fa-spin');
@@ -174,6 +173,21 @@
                     System.Data = await res.json();
                     UI.renderAll();
                 } finally { icon.classList.remove('fa-spin'); }
+            },
+            delete: async (id) => {
+                if(confirm("Confirm Delete?")) {
+                    await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
+                    System.sync();
+                }
+            },
+            toggleStatus: async (id, current) => {
+                const nextStatus = current === 'Closed Won' ? 'Prospect' : 'Closed Won';
+                await fetch(`${System.API}/id/${id}`, {
+                    method: 'PATCH',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({data: {status: nextStatus}})
+                });
+                System.sync();
             }
         };
 
@@ -184,14 +198,32 @@
                     document.getElementById(`btn-${v}`).classList.toggle('active-link', v === view);
                 });
             },
+            filterDashboard: (type) => {
+                let filtered = System.Data.filter(l => {
+                    const isClosed = l.status.includes('Closed');
+                    if(type === 'overdue') return l.followUpDate && l.followUpDate < System.Today && !isClosed;
+                    if(type === 'today') return l.followUpDate === System.Today && !isClosed;
+                    return false;
+                });
+                document.getElementById('grid-title').innerText = type.toUpperCase() + " FOCUS";
+                document.getElementById('today-grid').innerHTML = filtered.map(UI.cardTemplate).join('');
+            },
             cardTemplate: (l) => `
-                <div class="glass-panel p-6 rounded-3xl lead-card flex justify-between items-center mb-1">
-                    <div onclick="UI.modal('open', '${l.id}')">
-                        <h5 class="font-bold text-slate-800">${l.name}</h5>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">${l.status}</p>
+                <div class="glass-panel p-5 rounded-3xl lead-card flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <button onclick="System.toggleStatus('${l.id}', '${l.status}')" class="w-6 h-6 rounded-full border-2 border-indigo-200 flex items-center justify-center">
+                            ${l.status === 'Closed Won' ? '<i class="fas fa-check text-[10px] text-indigo-600"></i>' : ''}
+                        </button>
+                        <div onclick="UI.modal('open', '${l.id}')">
+                            <h5 class="font-bold text-slate-800 text-sm">${l.name}</h5>
+                            <p class="text-[9px] font-black ${l.followUpDate < System.Today && !l.status.includes('Closed') ? 'text-red-500' : 'text-slate-400'} uppercase">
+                                ${l.status} • ${l.followUpDate || 'No Date'}
+                            </p>
+                        </div>
                     </div>
                     <div class="flex gap-2">
-                         <a href="tel:${l.phone}" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
+                         <a href="tel:${l.phone}" class="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xs"><i class="fas fa-phone-alt"></i></a>
+                         <button onclick="System.delete('${l.id}')" class="w-8 h-8 bg-red-50 text-red-400 rounded-xl flex items-center justify-center text-xs"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `,
@@ -201,33 +233,45 @@
                 const todayTasks = System.Data.filter(l => l.followUpDate === System.Today && !l.status.includes('Closed'));
                 const closed = System.Data.filter(l => l.status.includes('Closed'));
 
+                // Alerts Logic
+                const alertBox = document.getElementById('system-alerts');
+                alertBox.innerHTML = '';
+                if(overdue.length > 0) alertBox.innerHTML += `<div class="bg-red-500 text-white p-3 rounded-2xl text-xs font-bold alert-pulse"><i class="fas fa-exclamation-triangle"></i> ATTENTION: ${overdue.length} Overdue leads detected!</div>`;
+                if(todayTasks.length > 0) alertBox.innerHTML += `<div class="bg-indigo-600 text-white p-3 rounded-2xl text-xs font-bold"><i class="fas fa-bell"></i> ACTION: ${todayTasks.length} Follow-ups scheduled for today.</div>`;
+
                 document.getElementById('meta-revenue').innerText = "₹" + revenue.toLocaleString();
                 document.getElementById('meta-total').innerText = System.Data.length;
                 document.getElementById('meta-overdue').innerText = overdue.length;
                 document.getElementById('meta-today').innerText = todayTasks.length;
 
+                document.getElementById('grid-title').innerHTML = `<i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule`;
                 document.getElementById('today-grid').innerHTML = todayTasks.map(UI.cardTemplate).join('');
                 document.getElementById('full-pipeline').innerHTML = System.Data.slice().reverse().map(UI.cardTemplate).join('');
                 document.getElementById('closed-pipeline').innerHTML = closed.map(UI.cardTemplate).join('');
-                document.getElementById('live-timer').innerText = new Date().toLocaleDateString();
+                document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             },
             modal: (action, id = null) => {
                 const m = document.getElementById('lead-modal');
                 if(action === 'open') {
                     m.classList.remove('hidden');
+                    document.getElementById('core-form').reset();
+                    document.getElementById('entry-id').value = '';
                     if(id) {
                         const l = System.Data.find(x => x.id === id);
                         document.getElementById('entry-id').value = l.id;
                         document.getElementById('entry-name').value = l.name;
                         document.getElementById('entry-phone').value = l.phone;
                         document.getElementById('entry-status').value = l.status;
-                        document.getElementById('entry-value').value = l.value;
                         document.getElementById('entry-date').value = l.followUpDate;
-                    } else {
-                        document.getElementById('core-form').reset();
-                        document.getElementById('entry-id').value = '';
+                        document.getElementById('entry-value').value = l.value;
+                        document.getElementById('entry-note').value = l.note || '';
                     }
                 } else m.classList.add('hidden');
+            },
+            search: (targetId) => {
+                const term = document.getElementById('lead-search').value.toLowerCase();
+                const filtered = System.Data.filter(l => l.name.toLowerCase().includes(term) || l.phone.includes(term));
+                document.getElementById(targetId).innerHTML = filtered.map(UI.cardTemplate).join('');
             }
         };
 
@@ -240,7 +284,8 @@
                 phone: document.getElementById('entry-phone').value,
                 status: document.getElementById('entry-status').value,
                 value: document.getElementById('entry-value').value || 0,
-                followUpDate: document.getElementById('entry-date').value
+                followUpDate: document.getElementById('entry-date').value,
+                note: document.getElementById('entry-note').value
             };
             await fetch(id ? `${System.API}/id/${id}` : System.API, { 
                 method: id ? 'PATCH' : 'POST', 
@@ -249,9 +294,6 @@
             });
             UI.modal('close'); System.sync();
         });
-
-        // Initialize Everything
-        System.init();
     </script>
 </body>
 </html>
