@@ -11,9 +11,10 @@
         
         :root { 
             --brand-primary: #6366f1; --brand-dark: #0f172a; --surface-100: #f8fafc; --sidebar-bg: #ffffff;
+            --bg-image: none;
         }
 
-        /* All Themes */
+        /* Themes */
         body.theme-midnight { --brand-primary: #38bdf8; --brand-dark: #f8fafc; --surface-100: #0f172a; --sidebar-bg: #1e293b; }
         body.theme-forest { --brand-primary: #10b981; --brand-dark: #064e3b; --surface-100: #f0fdf4; --sidebar-bg: #ffffff; }
         body.theme-sunset { --brand-primary: #f43f5e; --brand-dark: #4c0519; --surface-100: #fff1f2; --sidebar-bg: #ffffff; }
@@ -21,12 +22,22 @@
         body.theme-mono { --brand-primary: #000000; --brand-dark: #000000; --surface-100: #ffffff; --sidebar-bg: #f1f5f9; }
         body.theme-sakura { --brand-primary: #ec4899; --brand-dark: #831843; --surface-100: #fdf2f8; --sidebar-bg: #ffffff; }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--surface-100); color: var(--brand-dark); transition: all 0.3s ease; min-height: 100vh; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--surface-100); 
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--brand-dark); 
+            transition: all 0.3s ease; 
+            min-height: 100vh; 
+        }
+
         aside { background-color: var(--sidebar-bg) !important; border-color: rgba(0,0,0,0.05); }
-        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.5); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+        .glass-panel { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
         
-        /* Dark adjustments */
-        body.theme-midnight .glass-panel, body.theme-electric .glass-panel { background: rgba(30, 41, 59, 0.7); border-color: rgba(255,255,255,0.1); color: #f8fafc; }
+        body.theme-midnight .glass-panel, body.theme-electric .glass-panel { background: rgba(15, 23, 42, 0.7); border-color: rgba(255,255,255,0.1); color: #f8fafc; }
         body.theme-midnight h2, body.theme-electric h2 { color: #fff; }
 
         .active-link { color: var(--brand-primary) !important; background: rgba(99, 102, 241, 0.1); border-right: 4px solid var(--brand-primary); }
@@ -39,6 +50,7 @@
         .hidden { display: none !important; }
         .theme-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: 0.2s; }
         .theme-dot:hover { transform: scale(1.2); }
+        .wallpaper-dot { width: 30px; height: 20px; border-radius: 4px; border: 1px solid #ddd; cursor: pointer; background-size: cover; }
     </style>
 </head>
 <body class="overflow-x-hidden" onload="System.checkAuth()">
@@ -52,7 +64,7 @@
     </div>
 
     <div id="app-shell" class="hidden flex flex-col md:flex-row">
-        <aside class="w-full md:w-64 border-r p-6 flex-shrink-0 flex flex-col min-h-screen">
+        <aside class="w-full md:w-64 border-r p-6 flex-shrink-0 flex flex-col min-h-screen relative z-10">
             <div class="flex items-center gap-3 mb-10 px-2 font-black text-xl"><i class="fas fa-cube text-indigo-600"></i> Nexus</div>
             <nav class="flex md:flex-col gap-2">
                 <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold active-link"><i class="fas fa-th-large"></i> Dashboard</button>
@@ -62,14 +74,20 @@
 
             <div class="mt-8 px-2">
                 <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Themes</p>
-                <div class="grid grid-cols-4 gap-2">
+                <div class="grid grid-cols-4 gap-2 mb-4">
                     <div onclick="System.setTheme('default')" class="theme-dot bg-indigo-600" title="Default"></div>
                     <div onclick="System.setTheme('midnight')" class="theme-dot bg-slate-900" title="Midnight"></div>
                     <div onclick="System.setTheme('forest')" class="theme-dot bg-emerald-600" title="Forest"></div>
                     <div onclick="System.setTheme('sunset')" class="theme-dot bg-rose-500" title="Sunset"></div>
-                    <div onclick="System.setTheme('electric')" class="theme-dot bg-violet-600" title="Electric"></div>
-                    <div onclick="System.setTheme('mono')" class="theme-dot bg-black" title="Mono"></div>
-                    <div onclick="System.setTheme('sakura')" class="theme-dot bg-pink-400" title="Sakura"></div>
+                </div>
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Wallpapers</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <div onclick="System.setWP('none')" class="wallpaper-dot bg-slate-200" title="None"></div>
+                    <div onclick="System.setWP('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=100')"></div>
+                    <div onclick="System.setWP('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=100')"></div>
+                    <div onclick="System.setWP('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&w=100')"></div>
+                    <div onclick="System.setWP('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=100')"></div>
+                    <div onclick="System.setWP('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=100')"></div>
                 </div>
             </div>
 
@@ -85,7 +103,7 @@
             <button onclick="System.logout()" class="mt-auto flex items-center gap-3 p-4 rounded-xl font-bold text-red-400"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </aside>
 
-        <main class="flex-1 p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <main class="flex-1 p-6 md:p-10 max-w-6xl mx-auto w-full relative z-10">
             <header class="flex justify-between items-end mb-8">
                 <div>
                     <h2 id="view-title" class="text-4xl font-black tracking-tight">Intelligence</h2>
@@ -103,7 +121,7 @@
                     <div onclick="UI.filterBy('overdue')" class="stat-card glass-panel p-6 rounded-3xl border-red-100"><p class="text-[10px] font-black text-red-500 uppercase">Overdue</p><h3 id="meta-overdue" class="text-2xl font-black mt-1">0</h3></div>
                     <div onclick="UI.filterBy('today')" class="stat-card glass-panel p-6 rounded-3xl border-emerald-100"><p class="text-[10px] font-black text-emerald-500 uppercase">Today</p><h3 id="meta-today" class="text-2xl font-black mt-1">0</h3></div>
                     <div onclick="UI.navigate('clients')" class="stat-card glass-panel p-6 rounded-3xl border-amber-100"><p class="text-[10px] font-black text-amber-500 uppercase">Closed</p><h3 id="meta-closed" class="text-2xl font-black mt-1">0</h3></div>
-                    <div onclick="UI.filterBy('all')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white"><p class="text-[10px] font-black opacity-70 uppercase">Total</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
+                    <div onclick="UI.filterBy('all')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white shadow-xl"><p class="text-[10px] font-black opacity-70 uppercase">Total</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
                 </div>
                 <div id="alert-container" class="space-y-3"></div>
                 <div>
@@ -175,8 +193,19 @@
                 localStorage.setItem('nexus_theme', theme);
             },
 
+            setWP: (url) => {
+                if(url === 'none') {
+                    document.body.style.setProperty('--bg-image', 'none');
+                    localStorage.removeItem('nexus_wp');
+                } else {
+                    document.body.style.setProperty('--bg-image', `url('${url}')`);
+                    localStorage.setItem('nexus_wp', url);
+                }
+            },
+
             checkAuth: () => {
                 System.setTheme(localStorage.getItem('nexus_theme') || 'default');
+                System.setWP(localStorage.getItem('nexus_wp') || 'none');
                 if(localStorage.getItem('nexus_auth') === 'true') {
                     document.getElementById('auth-gateway').classList.add('hidden');
                     document.getElementById('app-shell').classList.remove('hidden');
@@ -247,6 +276,7 @@
                         <p class="text-[10px] font-bold ${l.status === 'Closed Won' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${l.status} • ₹${l.value}</p>
                     </div>
                     <div class="flex gap-2">
+                         <a href="tel:${l.phone}" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone"></i></a>
                          <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
                          <button onclick="System.deleteLead('${l.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-trash"></i></button>
                     </div>
@@ -274,7 +304,7 @@
                 UI.renderList('today-grid', todayTasks);
 
                 document.getElementById('alert-container').innerHTML = overdue.map(l => `
-                    <div class="p-5 bg-red-50 border-l-4 border-red-500 rounded-2xl flex justify-between items-center alert-pulse">
+                    <div class="p-5 bg-red-50/80 backdrop-blur-md border-l-4 border-red-500 rounded-2xl flex justify-between items-center alert-pulse">
                         <div><p class="text-[10px] font-black text-red-500 uppercase">OVERDUE</p><h5 class="font-bold text-slate-900">${l.name}</h5></div>
                         <div class="flex gap-2">
                             <a href="tel:${l.phone}" class="w-10 h-10 bg-white text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></a>
@@ -303,7 +333,6 @@
                 UI.renderList(targetId, filtered);
             },
 
-            // --- CSV FEATURES ---
             exportCSV: () => {
                 const headers = ['id', 'name', 'phone', 'status', 'value', 'followUpDate', 'note'];
                 const rows = System.Data.map(l => headers.map(h => `"${l[h] || ''}"`).join(','));
@@ -311,9 +340,7 @@
                 const blob = new Blob([csvContent], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = `Nexus_Backup_${System.Today}.csv`;
-                a.click();
+                a.href = url; a.download = `Nexus_Backup_${System.Today}.csv`; a.click();
             },
 
             importCSV: (event) => {
@@ -327,7 +354,6 @@
                         const values = line.split(',').map(v => v.replace(/"/g, ''));
                         return { id: values[0] || "NX"+Date.now(), name: values[1], phone: values[2], status: values[3], value: values[4], followUpDate: values[5], note: values[6] };
                     });
-                    
                     if(confirm(`Import ${newData.length} records?`)) {
                         await fetch(System.API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: newData}) });
                         System.sync();
