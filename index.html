@@ -34,7 +34,16 @@
             min-height: 100vh; 
         }
 
-        aside { background-color: var(--sidebar-bg) !important; border-color: rgba(0,0,0,0.05); }
+        /* Dashboard & Sidebar Wallpaper Fix */
+        aside { 
+            background-color: var(--sidebar-bg); 
+            border-color: rgba(0,0,0,0.05); 
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.4); /* Transparency for wallpaper */
+        }
+        
+        body.theme-midnight aside, body.theme-electric aside { background: rgba(15, 23, 42, 0.5); }
+
         .glass-panel { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
         
         body.theme-midnight .glass-panel, body.theme-electric .glass-panel { background: rgba(15, 23, 42, 0.7); border-color: rgba(255,255,255,0.1); color: #f8fafc; }
@@ -238,6 +247,25 @@
                 if(!confirm('Delete this entry?')) return;
                 await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
                 System.sync();
+            },
+
+            // AUTO CALL LOGGER
+            autoCallLog: async (id, phone) => {
+                window.location.href = `tel:${phone}`;
+                const timestamp = new Date().toLocaleString();
+                const lead = System.Data.find(l => l.id === id);
+                if(lead) {
+                    const updatedNote = `${lead.note || ''}\n[AUTO-LOG]: Call initiated on ${timestamp}`.trim();
+                    await fetch(`${System.API}/id/${id}`, {
+                        method: 'PATCH',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({data: { note: updatedNote }})
+                    });
+                    // Refresh data in background
+                    const res = await fetch(System.API);
+                    System.Data = await res.json();
+                    UI.renderAll();
+                }
             }
         };
 
@@ -276,7 +304,7 @@
                         <p class="text-[10px] font-bold ${l.status === 'Closed Won' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${l.status} • ₹${l.value}</p>
                     </div>
                     <div class="flex gap-2">
-                         <a href="tel:${l.phone}" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone"></i></a>
+                         <button onclick="System.autoCallLog('${l.id}', '${l.phone}')" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone"></i></button>
                          <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
                          <button onclick="System.deleteLead('${l.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-trash"></i></button>
                     </div>
@@ -307,7 +335,7 @@
                     <div class="p-5 bg-red-50/80 backdrop-blur-md border-l-4 border-red-500 rounded-2xl flex justify-between items-center alert-pulse">
                         <div><p class="text-[10px] font-black text-red-500 uppercase">OVERDUE</p><h5 class="font-bold text-slate-900">${l.name}</h5></div>
                         <div class="flex gap-2">
-                            <a href="tel:${l.phone}" class="w-10 h-10 bg-white text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></a>
+                            <button onclick="System.autoCallLog('${l.id}', '${l.phone}')" class="w-10 h-10 bg-white text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></button>
                             <button onclick="UI.modal('open', '${l.id}')" class="w-10 h-10 bg-white text-slate-400 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-edit"></i></button>
                         </div>
                     </div>
