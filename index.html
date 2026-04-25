@@ -13,7 +13,7 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--surface-100); color: var(--brand-dark); transition: all 0.3s ease; min-height: 100vh; }
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
         body.theme-midnight .glass-panel { background: rgba(15, 23, 42, 0.7); border-color: rgba(255,255,255,0.08); color: #f8fafc; }
-        .dropdown-menu { display: none; position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: 200px; z-index: 100; border-radius: 20px; padding: 10px; }
+        .dropdown-menu { display: none; position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: 220px; z-index: 100; border-radius: 20px; padding: 15px; }
         .dropdown-menu.active { display: block; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
     </style>
@@ -80,17 +80,27 @@
             <button onclick="UI.navigate('leads')" class="flex flex-col items-center gap-1"><i class="fas fa-users text-xl"></i><span class="text-[9px] font-bold">LEADS</span></button>
             <button onclick="UI.modal('open')" class="w-14 h-14 bg-indigo-600 text-white rounded-2xl -mt-10 shadow-lg border-4 border-white"><i class="fas fa-plus"></i></button>
             <button onclick="UI.navigate('clients')" class="flex flex-col items-center gap-1"><i class="fas fa-crown text-xl"></i><span class="text-[9px] font-bold">WON</span></button>
-            <button onclick="UI.toggleMenu('theme-menu')" class="flex flex-col items-center gap-1"><i class="fas fa-moon text-xl"></i><span class="text-[9px] font-bold">THEME</span></button>
+            <button onclick="UI.toggleMenu('theme-menu')" class="flex flex-col items-center gap-1"><i class="fas fa-cog text-xl"></i><span class="text-[9px] font-bold">TOOLS</span></button>
 
-            <div id="theme-menu" class="dropdown-menu glass-panel shadow-2xl">
-                <button onclick="System.setTheme('default')" class="w-full p-3 mb-2 bg-slate-100 rounded-xl font-bold text-xs">Light</button>
-                <button onclick="System.setTheme('midnight')" class="w-full p-3 bg-slate-800 rounded-xl font-bold text-xs text-white">Dark</button>
+            <div id="theme-menu" class="dropdown-menu glass-panel shadow-2xl flex flex-col gap-2">
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <button onclick="System.setTheme('default')" class="p-2 bg-slate-100 rounded-xl font-bold text-[10px]">LIGHT</button>
+                    <button onclick="System.setTheme('midnight')" class="p-2 bg-slate-800 text-white rounded-xl font-bold text-[10px]">DARK</button>
+                </div>
+                <hr class="opacity-10">
+                <button onclick="System.exportCSV()" class="w-full p-3 bg-emerald-50 text-emerald-600 rounded-xl font-black text-xs flex items-center justify-center gap-2">
+                    <i class="fas fa-file-export"></i> EXPORT CSV
+                </button>
+                <label class="w-full p-3 bg-indigo-50 text-indigo-600 rounded-xl font-black text-xs flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fas fa-file-import"></i> IMPORT CSV
+                    <input type="file" id="csv-import" accept=".csv" class="hidden" onchange="System.importCSV(this)">
+                </label>
             </div>
         </nav>
     </div>
 
     <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 text-slate-900">
             <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black">Lead Profile</h2><button onclick="UI.modal('close')"><i class="fas fa-times-circle text-2xl text-slate-300"></i></button></div>
             <form id="core-form" class="space-y-4" onsubmit="event.preventDefault(); System.saveLead();">
                 <input type="hidden" id="entry-id">
@@ -130,7 +140,41 @@
                 System.sync();
             },
             deleteLead: async () => { const id = document.getElementById('entry-id').value; if(confirm("Delete?")) { UI.modal('close'); await fetch(`${System.API}/id/${id}`, { method: 'DELETE' }); System.sync(); } },
-            setTheme: (t) => { document.body.className = t === 'default' ? '' : `theme-${t}`; localStorage.setItem('nexus_theme', t); }
+            setTheme: (t) => { document.body.className = t === 'default' ? '' : `theme-${t}`; localStorage.setItem('nexus_theme', t); },
+            
+            // CSV Export Logic
+            exportCSV: () => {
+                if(System.Data.length === 0) return alert("No data to export");
+                const headers = Object.keys(System.Data[0]).join(",");
+                const rows = System.Data.map(obj => Object.values(obj).join(",")).join("\n");
+                const blob = new Blob([headers + "\n" + rows], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `Nexus_CRM_Data_${new Date().toLocaleDateString()}.csv`;
+                a.click();
+            },
+
+            // CSV Import Logic
+            importCSV: (input) => {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const text = e.target.result;
+                    const [header, ...rows] = text.split("\n");
+                    const keys = header.trim().split(",");
+                    const importedData = rows.filter(r => r.trim()).map(row => {
+                        const values = row.split(",");
+                        return keys.reduce((obj, key, i) => { obj[key.trim()] = values[i].trim(); return obj; }, {});
+                    });
+                    
+                    if(confirm(`Import ${importedData.length} leads?`)) {
+                        alert("Uploading... Please wait.");
+                        await fetch(System.API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: importedData}) });
+                        System.sync();
+                    }
+                };
+                reader.readAsText(file);
+            }
         };
 
         const UI = {
@@ -150,12 +194,12 @@
                         title.innerText = "Overdue Actions";
                         filtered = System.Data.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won');
                     }
-                    // Yeh raha fix: Ab alerts screen par leads show hongi
-                    document.getElementById('view-alerts').innerHTML = `<h4 class="text-xs font-black uppercase text-slate-400 mb-4">Total: ${filtered.length} Leads</h4>` + UI.cards(filtered);
+                    document.getElementById('view-alerts').innerHTML = `<h4 class="text-xs font-black uppercase text-slate-400 mb-4">Focus List: ${filtered.length} Leads</h4>` + UI.cards(filtered);
                 } else {
                     document.getElementById(`view-${view}`).classList.remove('hidden');
                     title.innerText = view.charAt(0).toUpperCase() + view.slice(1);
                 }
+                document.getElementById('theme-menu').classList.remove('active');
                 window.scrollTo(0,0);
             },
             modal: (action, id = null) => {
@@ -176,7 +220,7 @@
                 } else m.classList.add('hidden');
             },
             cards: (data) => {
-                if(!data || data.length === 0) return `<div class="text-center p-10 opacity-40 font-bold">No leads found.</div>`;
+                if(!data || data.length === 0) return `<div class="text-center p-10 opacity-40 font-bold">Clean Desk! No leads.</div>`;
                 return data.map(l => `
                     <div class="glass-panel p-5 rounded-2xl flex justify-between items-center mb-3">
                         <div onclick="UI.modal('open', '${l.id}')" class="flex-1 cursor-pointer">
