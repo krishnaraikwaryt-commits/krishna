@@ -8,9 +8,36 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        :root { --brand-primary: #6366f1; --brand-dark: #0f172a; --surface-100: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--surface-100); color: var(--brand-dark); }
+        
+        /* Default Variables */
+        :root { 
+            --brand-primary: #6366f1; 
+            --brand-dark: #0f172a; 
+            --surface-100: #f8fafc; 
+            --sidebar-bg: #ffffff;
+        }
+
+        /* Theme Variations */
+        body.theme-midnight { 
+            --brand-primary: #38bdf8; --brand-dark: #f8fafc; --surface-100: #0f172a; --sidebar-bg: #1e293b; 
+        }
+        body.theme-forest { 
+            --brand-primary: #10b981; --brand-dark: #064e3b; --surface-100: #f0fdf4; --sidebar-bg: #ffffff; 
+        }
+        body.theme-sunset { 
+            --brand-primary: #f43f5e; --brand-dark: #4c0519; --surface-100: #fff1f2; --sidebar-bg: #ffffff; 
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--surface-100); color: var(--brand-dark); transition: all 0.3s ease; }
+        aside { background-color: var(--sidebar-bg) !important; border-color: rgba(0,0,0,0.05); }
+        
         .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.5); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+        
+        /* Midnight Mode Specific Adjustments */
+        body.theme-midnight .glass-panel { background: rgba(30, 41, 59, 0.7); border-color: rgba(255,255,255,0.1); color: #f8fafc; }
+        body.theme-midnight #view-title, body.theme-midnight h4, body.theme-midnight h5 { color: #ffffff; }
+        body.theme-midnight .active-link { background: rgba(56, 189, 248, 0.1); }
+
         .active-link { color: var(--brand-primary) !important; background: #eef2ff; border-right: 4px solid var(--brand-primary); }
         .lead-card { transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; }
         .lead-card:hover { transform: translateY(-2px); border-color: var(--brand-primary); }
@@ -19,6 +46,9 @@
         .alert-pulse { animation: pulse-red 2s infinite; }
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
         .hidden { display: none !important; }
+        
+        .theme-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .theme-dot:hover { transform: scale(1.2); }
     </style>
 </head>
 <body class="overflow-x-hidden" onload="System.checkAuth()">
@@ -33,20 +63,31 @@
     </div>
 
     <div id="app-shell" class="hidden min-h-screen flex flex-col md:flex-row">
-        <aside class="w-full md:w-64 bg-white border-r border-slate-200 p-6 flex-shrink-0">
-            <div class="hidden md:flex items-center gap-3 mb-10 px-2 font-black text-xl"><i class="fas fa-cube text-indigo-600"></i> Nexus</div>
+        <aside class="w-full md:w-64 border-r p-6 flex-shrink-0 flex flex-col">
+            <div class="hidden md:flex items-center gap-3 mb-10 px-2 font-black text-xl text-slate-800"><i class="fas fa-cube text-indigo-600"></i> Nexus</div>
             <nav class="flex md:flex-col gap-2">
                 <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500 active-link"><i class="fas fa-th-large"></i> Dashboard</button>
                 <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-list"></i> Pipeline</button>
                 <button onclick="UI.navigate('clients')" id="btn-clients" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-user-tie"></i> Clients</button>
-                <button onclick="System.logout()" class="mt-auto hidden md:flex items-center gap-3 p-4 rounded-xl font-bold text-red-400 hover:bg-red-50"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </nav>
+
+            <div class="mt-10 px-2">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Appearance</p>
+                <div class="flex gap-2">
+                    <div onclick="System.setTheme('default')" class="theme-dot bg-indigo-600" title="Default"></div>
+                    <div onclick="System.setTheme('midnight')" class="theme-dot bg-slate-900" title="Midnight"></div>
+                    <div onclick="System.setTheme('forest')" class="theme-dot bg-emerald-600" title="Forest"></div>
+                    <div onclick="System.setTheme('sunset')" class="theme-dot bg-rose-500" title="Sunset"></div>
+                </div>
+            </div>
+
+            <button onclick="System.logout()" class="mt-auto hidden md:flex items-center gap-3 p-4 rounded-xl font-bold text-red-400 hover:bg-red-50"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </aside>
 
         <main class="flex-1 p-6 md:p-10 max-w-6xl mx-auto w-full">
             <header class="flex justify-between items-end mb-8">
                 <div>
-                    <h2 id="view-title" class="text-4xl font-black text-slate-900 tracking-tight">Intelligence</h2>
+                    <h2 id="view-title" class="text-4xl font-black tracking-tight">Intelligence</h2>
                     <p class="text-slate-500 font-medium mt-1" id="live-timer"></p>
                 </div>
                 <div class="flex gap-3">
@@ -67,7 +108,7 @@
                 <div id="alert-container" class="space-y-3"></div>
                 
                 <div>
-                    <h4 class="text-lg font-black text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule</h4>
+                    <h4 class="text-lg font-black mb-4 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule</h4>
                     <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
             </section>
@@ -96,24 +137,24 @@
 
     <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-xl rounded-[3rem] p-10 shadow-2xl">
-            <h2 class="text-2xl font-black mb-6">Lead Intel</h2>
+            <h2 class="text-2xl font-black mb-6 text-slate-800">Lead Intel</h2>
             <form id="core-form" class="space-y-4">
                 <input type="hidden" id="entry-id">
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="entry-name" placeholder="Name" class="p-4 rounded-2xl bg-slate-50 outline-none" required>
-                    <input type="tel" id="entry-phone" placeholder="Phone" class="p-4 rounded-2xl bg-slate-50 outline-none" required>
+                    <input type="text" id="entry-name" placeholder="Name" class="p-4 rounded-2xl bg-slate-50 outline-none text-slate-800" required>
+                    <input type="tel" id="entry-phone" placeholder="Phone" class="p-4 rounded-2xl bg-slate-50 outline-none text-slate-800" required>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <select id="entry-status" class="p-4 rounded-2xl bg-slate-50 outline-none font-bold">
+                    <select id="entry-status" class="p-4 rounded-2xl bg-slate-50 outline-none font-bold text-slate-800">
                         <option value="Prospect">Prospect</option>
                         <option value="Follow-up">Follow-up</option>
                         <option value="Closed Won">Closed Won</option>
                         <option value="Closed Lost">Closed Lost</option>
                     </select>
-                    <input type="date" id="entry-date" class="p-4 rounded-2xl bg-slate-50 outline-none font-bold">
+                    <input type="date" id="entry-date" class="p-4 rounded-2xl bg-slate-50 outline-none font-bold text-slate-800">
                 </div>
-                <input type="number" id="entry-value" placeholder="Value ₹" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
-                <textarea id="entry-note" placeholder="Note..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none"></textarea>
+                <input type="number" id="entry-value" placeholder="Value ₹" class="w-full p-4 rounded-2xl bg-slate-50 outline-none text-slate-800">
+                <textarea id="entry-note" placeholder="Note..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none text-slate-800"></textarea>
                 <div class="flex gap-3">
                     <button type="submit" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-black">SAVE</button>
                     <button type="button" onclick="UI.modal('close')" class="px-6 py-4 rounded-2xl bg-slate-100 text-slate-400 font-bold">X</button>
@@ -129,7 +170,16 @@
             Data: [],
             Today: new Date().toISOString().split('T')[0],
 
+            setTheme: (theme) => {
+                document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sunset');
+                if(theme !== 'default') document.body.classList.add(`theme-${theme}`);
+                localStorage.setItem('nexus_theme', theme);
+            },
+
             checkAuth: () => {
+                const savedTheme = localStorage.getItem('nexus_theme') || 'default';
+                System.setTheme(savedTheme);
+
                 if(localStorage.getItem('nexus_auth') === 'true') {
                     document.getElementById('auth-gateway').classList.add('hidden');
                     document.getElementById('app-shell').classList.remove('hidden');
@@ -206,7 +256,7 @@
             card: (l) => `
                 <div class="glass-panel p-6 rounded-3xl lead-card flex justify-between items-center mb-1">
                     <div onclick="UI.modal('open', '${l.id}')">
-                        <h5 class="font-bold text-slate-800">${l.name}</h5>
+                        <h5 class="font-bold">${l.name}</h5>
                         <p class="text-[10px] font-bold ${l.status === 'Closed Won' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${l.status} • ₹${l.value}</p>
                     </div>
                     <div class="flex gap-2">
@@ -231,7 +281,7 @@
                 document.getElementById('meta-total').innerText = System.Data.length;
                 document.getElementById('meta-overdue').innerText = overdue.length;
                 document.getElementById('meta-today').innerText = todayTasks.length;
-                document.getElementById('meta-closed').innerText = clients.length; // New Counter
+                document.getElementById('meta-closed').innerText = clients.length;
 
                 UI.renderList('full-pipeline', System.Data);
                 UI.renderList('client-list', clients);
