@@ -14,8 +14,8 @@
         .active-link { color: var(--brand-primary) !important; background: #eef2ff; border-right: 4px solid var(--brand-primary); }
         .lead-card { transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; }
         .lead-card:hover { transform: translateY(-2px); border-color: var(--brand-primary); }
-        .alert-pulse { animation: pulse-red 2s infinite; }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .stat-card { cursor: pointer; transition: transform 0.2s; }
+        .stat-card:active { transform: scale(0.95); }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -36,6 +36,7 @@
             <nav class="flex md:flex-col gap-2">
                 <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500 active-link"><i class="fas fa-th-large"></i> Dashboard</button>
                 <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-list"></i> Pipeline</button>
+                <button onclick="UI.navigate('closed')" id="btn-closed" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-check-double"></i> Closed</button>
             </nav>
         </aside>
 
@@ -53,29 +54,34 @@
 
             <section id="view-dashboard" class="space-y-8">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="glass-panel p-6 rounded-3xl"><p class="text-[10px] font-black text-indigo-500 uppercase">Revenue</p><h3 id="meta-revenue" class="text-2xl font-black mt-1">₹0</h3></div>
-                    <div class="glass-panel p-6 rounded-3xl"><p class="text-[10px] font-black text-red-500 uppercase">Overdue</p><h3 id="meta-overdue" class="text-2xl font-black mt-1">0</h3></div>
-                    <div class="glass-panel p-6 rounded-3xl"><p class="text-[10px] font-black text-emerald-500 uppercase">Today</p><h3 id="meta-today" class="text-2xl font-black mt-1">0</h3></div>
-                    <div class="glass-panel p-6 rounded-3xl bg-indigo-600 text-white"><p class="text-[10px] font-black opacity-70 uppercase">Total</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
+                    <div onclick="UI.navigate('closed')" class="stat-card glass-panel p-6 rounded-3xl border-b-4 border-indigo-500"><p class="text-[10px] font-black text-indigo-500 uppercase">Revenue</p><h3 id="meta-revenue" class="text-2xl font-black mt-1">₹0</h3></div>
+                    <div onclick="UI.filterDashboard('overdue')" class="stat-card glass-panel p-6 rounded-3xl border-b-4 border-red-500"><p class="text-[10px] font-black text-red-500 uppercase">Overdue</p><h3 id="meta-overdue" class="text-2xl font-black mt-1">0</h3></div>
+                    <div onclick="UI.filterDashboard('today')" class="stat-card glass-panel p-6 rounded-3xl border-b-4 border-emerald-500"><p class="text-[10px] font-black text-emerald-500 uppercase">Today</p><h3 id="meta-today" class="text-2xl font-black mt-1">0</h3></div>
+                    <div onclick="UI.navigate('leads')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white"><p class="text-[10px] font-black opacity-70 uppercase">Total Leads</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
                 </div>
 
                 <div id="alert-container" class="space-y-3"></div>
 
                 <div>
                     <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-lg font-black text-slate-800 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule</h4>
-                        <label class="cursor-pointer text-[11px] font-black text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 border border-indigo-100 flex items-center gap-2">
-                            <i class="fas fa-file-csv"></i> IMPORT CSV
-                            <input type="file" id="bulk-csv" accept=".csv" class="hidden" onchange="System.importCSV(event)">
-                        </label>
+                        <h4 id="grid-title" class="text-lg font-black text-slate-800 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule</h4>
+                        <button onclick="UI.renderAll()" class="text-[10px] font-bold text-indigo-600 underline">Reset Filter</button>
                     </div>
                     <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
             </section>
 
             <section id="view-leads" class="hidden space-y-6">
-                <input type="text" id="lead-search" oninput="UI.search()" placeholder="Search pipeline..." class="w-full p-5 rounded-3xl glass-panel outline-none border-none">
+                <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search pipeline..." class="w-full p-5 rounded-3xl glass-panel outline-none border-none">
                 <div id="full-pipeline" class="space-y-3"></div>
+            </section>
+
+            <section id="view-closed" class="hidden space-y-6">
+                <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100">
+                    <h4 class="font-black text-emerald-700 uppercase text-xs tracking-widest">Success Archive</h4>
+                    <p class="text-emerald-600 text-sm">List of all converted and closed deals.</p>
+                </div>
+                <div id="closed-pipeline" class="space-y-3"></div>
             </section>
         </main>
     </div>
@@ -130,42 +136,75 @@
                     System.Data = await res.json();
                     UI.renderAll();
                 } finally { icon.classList.remove('fa-spin'); }
-            },
-
-            // 📂 CSV IMPORT (ADDITION)
-            importCSV: async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = async (ev) => {
-                    const rows = ev.target.result.split('\n').slice(1);
-                    const batch = rows.map(r => {
-                        const c = r.split(',');
-                        if (c.length < 2) return null;
-                        return {
-                            id: "NX" + Date.now() + Math.floor(Math.random()*100),
-                            name: c[0].trim(), phone: c[1].trim(),
-                            status: 'Prospect', value: 0, followUpDate: System.Today
-                        };
-                    }).filter(x => x && x.name);
-
-                    if (batch.length) {
-                        alert(`Deploying ${batch.length} leads...`);
-                        await fetch(System.API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: batch}) });
-                        System.sync();
-                    }
-                };
-                reader.readAsText(file);
             }
         };
 
         const UI = {
             navigate: (view) => {
-                document.getElementById('view-dashboard').classList.toggle('hidden', view !== 'dashboard');
-                document.getElementById('view-leads').classList.toggle('hidden', view !== 'leads');
-                document.getElementById('btn-dashboard').classList.toggle('active-link', view === 'dashboard');
-                document.getElementById('btn-leads').classList.toggle('active-link', view === 'leads');
+                const views = ['dashboard', 'leads', 'closed'];
+                views.forEach(v => {
+                    document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
+                    document.getElementById(`btn-${v}`).classList.toggle('active-link', v === view);
+                });
+                document.getElementById('view-title').innerText = view.charAt(0).toUpperCase() + view.slice(1);
             },
+
+            filterDashboard: (type) => {
+                let filtered = [];
+                let title = "";
+                if(type === 'overdue') {
+                    filtered = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && !l.status.includes('Closed'));
+                    title = "Overdue Actions";
+                } else if(type === 'today') {
+                    filtered = System.Data.filter(l => l.followUpDate === System.Today && !l.status.includes('Closed'));
+                    title = "Today's Schedule";
+                }
+                document.getElementById('grid-title').innerText = title;
+                document.getElementById('today-grid').innerHTML = filtered.length ? filtered.map(UI.cardTemplate).join('') : `<p class="p-4 text-slate-400">No matching leads.</p>`;
+            },
+
+            cardTemplate: (l) => `
+                <div class="glass-panel p-6 rounded-3xl lead-card flex justify-between items-center mb-1">
+                    <div onclick="UI.modal('open', '${l.id}')">
+                        <h5 class="font-bold text-slate-800">${l.name}</h5>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">${l.status} • ${l.followUpDate || 'No Date'}</p>
+                    </div>
+                    <div class="flex gap-2">
+                         <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
+                         <a href="tel:${l.phone}" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
+                    </div>
+                </div>
+            `,
+
+            renderAll: () => {
+                const revenue = System.Data.reduce((s, l) => s + (l.status === 'Closed Won' ? Number(l.value || 0) : 0), 0);
+                const overdue = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && !l.status.includes('Closed'));
+                const todayTasks = System.Data.filter(l => l.followUpDate === System.Today && !l.status.includes('Closed'));
+                const closedLeads = System.Data.filter(l => l.status.includes('Closed'));
+
+                document.getElementById('meta-revenue').innerText = "₹" + revenue.toLocaleString();
+                document.getElementById('meta-total').innerText = System.Data.length;
+                document.getElementById('meta-overdue').innerText = overdue.length;
+                document.getElementById('meta-today').innerText = todayTasks.length;
+
+                // Render Overdue Alerts
+                document.getElementById('alert-container').innerHTML = overdue.slice(0, 3).map(l => `
+                    <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-2xl flex justify-between items-center">
+                        <div><p class="text-[9px] font-black text-red-500 uppercase">ACTION REQUIRED</p><h5 class="font-bold text-sm">${l.name}</h5></div>
+                        <button onclick="UI.modal('open', '${l.id}')" class="text-xs font-bold text-red-600 underline">Update</button>
+                    </div>
+                `).join('');
+
+                document.getElementById('grid-title').innerHTML = `<i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule`;
+                document.getElementById('today-grid').innerHTML = todayTasks.length ? todayTasks.map(UI.cardTemplate).join('') : `<p class="text-slate-400 text-sm">No tasks for today.</p>`;
+                document.getElementById('full-pipeline').innerHTML = System.Data.slice().reverse().map(UI.cardTemplate).join('');
+                
+                // NEW: Render Closed Leads
+                document.getElementById('closed-pipeline').innerHTML = closedLeads.length ? closedLeads.map(UI.cardTemplate).join('') : `<p class="text-slate-400">No closed deals yet.</p>`;
+                
+                document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            },
+
             modal: (action, id = null) => {
                 const m = document.getElementById('lead-modal');
                 if(action === 'open') {
@@ -181,51 +220,11 @@
                     } else { document.getElementById('core-form').reset(); document.getElementById('entry-id').value = ''; }
                 } else { m.classList.add('hidden'); }
             },
-            renderAll: () => {
-                const revenue = System.Data.reduce((s, l) => s + (l.status === 'Closed Won' ? Number(l.value || 0) : 0), 0);
-                const overdue = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && l.status !== 'Closed Won' && l.status !== 'Closed Lost');
-                const todayTasks = System.Data.filter(l => l.followUpDate === System.Today && l.status !== 'Closed Won');
 
-                document.getElementById('meta-revenue').innerText = "₹" + revenue.toLocaleString();
-                document.getElementById('meta-total').innerText = System.Data.length;
-                document.getElementById('meta-overdue').innerText = overdue.length;
-                document.getElementById('meta-today').innerText = todayTasks.length;
-
-                document.getElementById('alert-container').innerHTML = overdue.map(l => `
-                    <div class="p-5 bg-red-50 border-l-4 border-red-500 rounded-2xl flex justify-between items-center alert-pulse">
-                        <div><p class="text-[10px] font-black text-red-500 uppercase">OVERDUE</p><h5 class="font-bold text-slate-900">${l.name}</h5></div>
-                        <div class="flex gap-2">
-                            <a href="tel:${l.phone}" class="w-10 h-10 bg-white text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></a>
-                            <button onclick="UI.modal('open', '${l.id}')" class="w-10 h-10 bg-white text-slate-400 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-edit"></i></button>
-                        </div>
-                    </div>
-                `).join('');
-
-                const card = (l) => `
-                    <div class="glass-panel p-6 rounded-3xl lead-card flex justify-between items-center mb-1">
-                        <div onclick="UI.modal('open', '${l.id}')">
-                            <h5 class="font-bold text-slate-800">${l.name}</h5>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">${l.status} • ${l.followUpDate || 'No Date'}</p>
-                        </div>
-                        <div class="flex gap-2">
-                             <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
-                             <a href="tel:${l.phone}" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('today-grid').innerHTML = todayTasks.length ? todayTasks.map(card).join('') : `<p class="text-slate-400 text-sm">No tasks for today.</p>`;
-                document.getElementById('full-pipeline').innerHTML = System.Data.slice().reverse().map(card).join('');
-                document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-            },
-            search: () => {
+            search: (containerId) => {
                 const q = document.getElementById('lead-search').value.toLowerCase();
                 const filtered = System.Data.filter(l => l.name.toLowerCase().includes(q) || l.phone.includes(q));
-                document.getElementById('full-pipeline').innerHTML = filtered.map(l => `
-                    <div class="glass-panel p-5 rounded-2xl flex justify-between items-center mb-2">
-                        <div onclick="UI.modal('open', '${l.id}')"><h5 class="font-bold">${l.name}</h5><p class="text-xs text-slate-400">${l.status}</p></div>
-                        <span class="text-[10px] font-black bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full">${l.followUpDate || 'N/A'}</span>
-                    </div>
-                `).join('');
+                document.getElementById(containerId).innerHTML = filtered.map(UI.cardTemplate).join('');
             }
         };
 
