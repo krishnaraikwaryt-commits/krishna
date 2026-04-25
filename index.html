@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nexus CRM | Pro Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,8 +19,6 @@
         body.theme-forest { --brand-primary: #10b981; --brand-dark: #064e3b; --surface-100: #f0fdf4; --sidebar-bg: #ffffff; }
         body.theme-sunset { --brand-primary: #f43f5e; --brand-dark: #4c0519; --surface-100: #fff1f2; --sidebar-bg: #ffffff; }
         body.theme-electric { --brand-primary: #8b5cf6; --brand-dark: #ffffff; --surface-100: #1e1b4b; --sidebar-bg: #312e81; }
-        body.theme-mono { --brand-primary: #000000; --brand-dark: #000000; --surface-100: #ffffff; --sidebar-bg: #f1f5f9; }
-        body.theme-sakura { --brand-primary: #ec4899; --brand-dark: #831843; --surface-100: #fdf2f8; --sidebar-bg: #ffffff; }
 
         body { 
             font-family: 'Inter', sans-serif; 
@@ -31,144 +29,136 @@
             background-attachment: fixed;
             color: var(--brand-dark); 
             transition: all 0.3s ease; 
-            min-height: 100vh; 
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Dashboard & Sidebar Wallpaper Fix */
-        aside { 
-            background-color: var(--sidebar-bg); 
-            border-color: rgba(0,0,0,0.05); 
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.4); /* Transparency for wallpaper */
-        }
-        
-        body.theme-midnight aside, body.theme-electric aside { background: rgba(15, 23, 42, 0.5); }
-
+        /* Glassmorphism */
+        aside { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); border-right: 1px solid rgba(0,0,0,0.05); }
         .glass-panel { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
-        
         body.theme-midnight .glass-panel, body.theme-electric .glass-panel { background: rgba(15, 23, 42, 0.7); border-color: rgba(255,255,255,0.1); color: #f8fafc; }
-        body.theme-midnight h2, body.theme-electric h2 { color: #fff; }
-
+        
         .active-link { color: var(--brand-primary) !important; background: rgba(99, 102, 241, 0.1); border-right: 4px solid var(--brand-primary); }
-        .lead-card { transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; }
-        .lead-card:hover { transform: translateY(-2px); border-color: var(--brand-primary); }
-        .stat-card { cursor: pointer; transition: all 0.3s ease; }
-        .stat-card:hover { transform: scale(1.05); }
+        
+        /* Mobile Bottom Nav Active State */
+        .mobile-active { color: var(--brand-primary); transform: translateY(-5px); }
+
+        /* Floating Action Button */
+        .fab { position: fixed; bottom: 85px; right: 20px; z-index: 50; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); }
+
+        .lead-card { transition: all 0.2s ease; border: 1px solid transparent; }
         .alert-pulse { animation: pulse-red 2s infinite; }
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        
         .hidden { display: none !important; }
-        .theme-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: 0.2s; }
-        .theme-dot:hover { transform: scale(1.2); }
-        .wallpaper-dot { width: 30px; height: 20px; border-radius: 4px; border: 1px solid #ddd; cursor: pointer; background-size: cover; }
+        .theme-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
+        .wallpaper-dot { width: 35px; height: 25px; border-radius: 6px; cursor: pointer; background-size: cover; border: 1px solid #ddd; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="overflow-x-hidden" onload="System.checkAuth()">
 
-    <div id="auth-gateway" class="fixed inset-0 z-[1000] bg-slate-900 flex items-center justify-center p-6">
+    <div id="auth-gateway" class="fixed inset-0 z-[1000] bg-slate-900 flex items-center justify-center p-6 text-white">
         <div class="max-w-md w-full glass-panel rounded-[2.5rem] p-10 text-center">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-indigo-600 text-white text-3xl mb-6"><i class="fas fa-shield-halved"></i></div>
-            <h1 class="text-3xl font-black text-slate-900">Nexus<span class="text-indigo-600">CRM</span></h1>
-            <input type="password" id="sys-pin" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="PIN" class="w-full mt-8 p-5 rounded-2xl bg-slate-100 border-none text-center text-2xl font-bold tracking-[0.5em]">
+            <h1 class="text-3xl font-black mb-6">Nexus<span class="text-indigo-600">CRM</span></h1>
+            <input type="password" id="sys-pin" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="ENTER PIN" class="w-full p-5 rounded-2xl bg-slate-100 text-slate-900 text-center text-2xl font-bold tracking-[0.5em] outline-none">
         </div>
     </div>
 
-    <div id="app-shell" class="hidden flex flex-col md:flex-row">
-        <aside class="w-full md:w-64 border-r p-6 flex-shrink-0 flex flex-col min-h-screen relative z-10">
-            <div class="flex items-center gap-3 mb-10 px-2 font-black text-xl"><i class="fas fa-cube text-indigo-600"></i> Nexus</div>
-            <nav class="flex md:flex-col gap-2">
-                <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold active-link"><i class="fas fa-th-large"></i> Dashboard</button>
-                <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold"><i class="fas fa-list"></i> Pipeline</button>
-                <button onclick="UI.navigate('clients')" id="btn-clients" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold"><i class="fas fa-user-tie"></i> Clients</button>
+    <div id="app-shell" class="hidden flex flex-col md:flex-row pb-24 md:pb-0">
+        
+        <aside class="hidden md:flex w-64 p-6 flex-col min-h-screen sticky top-0">
+            <div class="flex items-center gap-3 mb-10 font-black text-xl"><i class="fas fa-cube text-indigo-600"></i> Nexus CRM</div>
+            <nav class="flex flex-col gap-2">
+                <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex items-center gap-3 p-4 rounded-xl font-bold active-link"><i class="fas fa-th-large"></i> Dashboard</button>
+                <button onclick="UI.navigate('leads')" id="btn-leads" class="flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-list"></i> Pipeline</button>
+                <button onclick="UI.navigate('clients')" id="btn-clients" class="flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-user-tie"></i> Clients</button>
             </nav>
 
-            <div class="mt-8 px-2">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Themes</p>
-                <div class="grid grid-cols-4 gap-2 mb-4">
-                    <div onclick="System.setTheme('default')" class="theme-dot bg-indigo-600" title="Default"></div>
-                    <div onclick="System.setTheme('midnight')" class="theme-dot bg-slate-900" title="Midnight"></div>
-                    <div onclick="System.setTheme('forest')" class="theme-dot bg-emerald-600" title="Forest"></div>
-                    <div onclick="System.setTheme('sunset')" class="theme-dot bg-rose-500" title="Sunset"></div>
+            <div class="mt-8 px-2 space-y-6">
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Themes</p>
+                    <div class="flex flex-wrap gap-2">
+                        <div onclick="System.setTheme('default')" class="theme-dot bg-indigo-600"></div>
+                        <div onclick="System.setTheme('midnight')" class="theme-dot bg-slate-900"></div>
+                        <div onclick="System.setTheme('forest')" class="theme-dot bg-emerald-600"></div>
+                        <div onclick="System.setTheme('sunset')" class="theme-dot bg-rose-500"></div>
+                    </div>
                 </div>
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Wallpapers</p>
-                <div class="grid grid-cols-3 gap-2">
-                    <div onclick="System.setWP('none')" class="wallpaper-dot bg-slate-200" title="None"></div>
-                    <div onclick="System.setWP('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=100')"></div>
-                    <div onclick="System.setWP('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=100')"></div>
-                    <div onclick="System.setWP('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&w=100')"></div>
-                    <div onclick="System.setWP('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=100')"></div>
-                    <div onclick="System.setWP('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=100')"></div>
-                </div>
+                <button onclick="System.logout()" class="text-red-400 font-bold flex items-center gap-2"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
-
-            <div class="mt-8 px-2">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Actions</p>
-                <button onclick="UI.exportCSV()" class="w-full text-left p-2 text-sm font-bold text-slate-500 hover:text-indigo-600"><i class="fas fa-download mr-2"></i> Export Data</button>
-                <label class="w-full block p-2 text-sm font-bold text-slate-500 hover:text-indigo-600 cursor-pointer">
-                    <i class="fas fa-upload mr-2"></i> Import CSV
-                    <input type="file" id="csv-import" class="hidden" accept=".csv" onchange="UI.importCSV(event)">
-                </label>
-            </div>
-
-            <button onclick="System.logout()" class="mt-auto flex items-center gap-3 p-4 rounded-xl font-bold text-red-400"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </aside>
 
-        <main class="flex-1 p-6 md:p-10 max-w-6xl mx-auto w-full relative z-10">
-            <header class="flex justify-between items-end mb-8">
+        <main class="flex-1 p-5 md:p-10 max-w-6xl mx-auto w-full relative z-10">
+            <header class="flex justify-between items-center mb-8">
                 <div>
-                    <h2 id="view-title" class="text-4xl font-black tracking-tight">Intelligence</h2>
-                    <p class="text-slate-500 font-medium mt-1" id="live-timer"></p>
+                    <h2 id="view-title" class="text-3xl md:text-4xl font-black tracking-tight">Intelligence</h2>
+                    <p id="live-timer" class="text-slate-500 font-medium"></p>
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="System.sync()" class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center"><i id="sync-icon" class="fas fa-sync-alt"></i></button>
-                    <button onclick="UI.modal('open')" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg">+ Add Lead</button>
-                </div>
+                <button onclick="System.sync()" class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm"><i id="sync-icon" class="fas fa-sync-alt"></i></button>
             </header>
 
-            <section id="view-dashboard" class="space-y-8">
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div onclick="UI.filterBy('revenue')" class="stat-card glass-panel p-6 rounded-3xl border-indigo-100"><p class="text-[10px] font-black text-indigo-500 uppercase">Revenue</p><h3 id="meta-revenue" class="text-2xl font-black mt-1">₹0</h3></div>
-                    <div onclick="UI.filterBy('overdue')" class="stat-card glass-panel p-6 rounded-3xl border-red-100"><p class="text-[10px] font-black text-red-500 uppercase">Overdue</p><h3 id="meta-overdue" class="text-2xl font-black mt-1">0</h3></div>
-                    <div onclick="UI.filterBy('today')" class="stat-card glass-panel p-6 rounded-3xl border-emerald-100"><p class="text-[10px] font-black text-emerald-500 uppercase">Today</p><h3 id="meta-today" class="text-2xl font-black mt-1">0</h3></div>
-                    <div onclick="UI.navigate('clients')" class="stat-card glass-panel p-6 rounded-3xl border-amber-100"><p class="text-[10px] font-black text-amber-500 uppercase">Closed</p><h3 id="meta-closed" class="text-2xl font-black mt-1">0</h3></div>
-                    <div onclick="UI.filterBy('all')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white shadow-xl"><p class="text-[10px] font-black opacity-70 uppercase">Total</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
+            <section id="view-dashboard" class="space-y-6">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div onclick="UI.filterBy('revenue')" class="stat-card glass-panel p-5 rounded-3xl"><p class="text-[10px] font-black text-indigo-500 uppercase">Revenue</p><h3 id="meta-revenue" class="text-xl font-black mt-1">₹0</h3></div>
+                    <div onclick="UI.filterBy('overdue')" class="stat-card glass-panel p-5 rounded-3xl"><p class="text-[10px] font-black text-red-500 uppercase">Overdue</p><h3 id="meta-overdue" class="text-xl font-black mt-1">0</h3></div>
+                    <div onclick="UI.filterBy('today')" class="stat-card glass-panel p-5 rounded-3xl"><p class="text-[10px] font-black text-emerald-500 uppercase">Today</p><h3 id="meta-today" class="text-xl font-black mt-1">0</h3></div>
+                    <div onclick="UI.navigate('clients')" class="stat-card glass-panel p-5 rounded-3xl"><p class="text-[10px] font-black text-amber-500 uppercase">Closed</p><h3 id="meta-closed" class="text-xl font-black mt-1">0</h3></div>
+                    <div onclick="UI.filterBy('all')" class="stat-card glass-panel p-5 rounded-3xl bg-indigo-600 text-white shadow-lg md:col-span-1 col-span-2"><p class="text-[10px] font-black opacity-70 uppercase">Total Leads</p><h3 id="meta-total" class="text-xl font-black mt-1">0</h3></div>
                 </div>
                 <div id="alert-container" class="space-y-3"></div>
                 <div>
-                    <h4 class="text-lg font-black mb-4 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule</h4>
-                    <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    <h4 class="font-black mb-4 flex items-center gap-2"><i class="fas fa-calendar-check text-indigo-500"></i> Task Queue</h4>
+                    <div id="today-grid" class="space-y-3"></div>
                 </div>
             </section>
 
             <section id="view-leads" class="hidden space-y-6">
-                <div class="flex gap-2">
-                    <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search pipeline..." class="flex-1 p-5 rounded-3xl glass-panel outline-none">
-                    <button onclick="UI.renderAll()" class="px-6 rounded-3xl bg-slate-100 text-slate-500 font-bold">Reset</button>
-                </div>
+                <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search in pipeline..." class="w-full p-5 rounded-[2rem] glass-panel outline-none shadow-sm">
                 <div id="full-pipeline" class="space-y-3"></div>
             </section>
 
             <section id="view-clients" class="hidden space-y-6">
-                <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 flex justify-between items-center">
-                    <div>
-                        <h3 class="text-xl font-black text-indigo-900">Active Clients</h3>
-                        <p class="text-indigo-600 text-sm font-medium">Successful Conversions</p>
-                    </div>
-                    <i class="fas fa-crown text-3xl text-indigo-200"></i>
+                <div class="bg-indigo-600 p-6 rounded-[2rem] text-white flex justify-between items-center shadow-xl">
+                    <div><h3 class="text-xl font-black">Success Hub</h3><p class="opacity-80 text-xs">Converted Clients</p></div>
+                    <i class="fas fa-trophy text-3xl opacity-30"></i>
                 </div>
-                <input type="text" id="client-search" oninput="UI.search('client-list')" placeholder="Search clients..." class="w-full p-5 rounded-3xl glass-panel outline-none">
+                <input type="text" id="client-search" oninput="UI.search('client-list')" placeholder="Search clients..." class="w-full p-5 rounded-[2rem] glass-panel outline-none shadow-sm">
                 <div id="client-list" class="space-y-3"></div>
             </section>
         </main>
+
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 glass-panel border-t p-4 flex justify-around items-center z-[100] rounded-t-[2.5rem] shadow-2xl">
+            <button onclick="UI.navigate('dashboard')" id="m-btn-dashboard" class="flex flex-col items-center gap-1 font-bold text-slate-400 mobile-active">
+                <i class="fas fa-home text-xl"></i><span class="text-[10px]">Home</span>
+            </button>
+            <button onclick="UI.navigate('leads')" id="m-btn-leads" class="flex flex-col items-center gap-1 font-bold text-slate-400">
+                <i class="fas fa-chart-line text-xl"></i><span class="text-[10px]">Pipeline</span>
+            </button>
+            <button onclick="UI.navigate('clients')" id="m-btn-clients" class="flex flex-col items-center gap-1 font-bold text-slate-400">
+                <i class="fas fa-users text-xl"></i><span class="text-[10px]">Clients</span>
+            </button>
+            <button onclick="System.logout()" class="flex flex-col items-center gap-1 font-bold text-red-400">
+                <i class="fas fa-power-off text-xl"></i><span class="text-[10px]">Exit</span>
+            </button>
+        </nav>
+
+        <button onclick="UI.modal('open')" class="fab bg-indigo-600 text-white transition-transform active:scale-90">
+            <i class="fas fa-plus text-2xl"></i>
+        </button>
     </div>
 
     <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-xl rounded-[3rem] p-10 shadow-2xl">
-            <h2 class="text-2xl font-black mb-6 text-slate-800">Lead Intel</h2>
+        <div class="bg-white w-full max-w-xl rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h2 class="text-2xl font-black mb-6 flex items-center gap-2"><i class="fas fa-pen-nib text-indigo-500"></i> Entry Details</h2>
             <form id="core-form" class="space-y-4">
                 <input type="hidden" id="entry-id">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="entry-name" placeholder="Name" class="p-4 rounded-2xl bg-slate-50 outline-none" required>
-                    <input type="tel" id="entry-phone" placeholder="Phone" class="p-4 rounded-2xl bg-slate-50 outline-none" required>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="entry-name" placeholder="Full Name" class="p-4 rounded-2xl bg-slate-50 outline-none w-full" required>
+                    <input type="tel" id="entry-phone" placeholder="Phone Number" class="p-4 rounded-2xl bg-slate-50 outline-none w-full" required>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <select id="entry-status" class="p-4 rounded-2xl bg-slate-50 outline-none font-bold">
@@ -179,11 +169,11 @@
                     </select>
                     <input type="date" id="entry-date" class="p-4 rounded-2xl bg-slate-50 outline-none font-bold">
                 </div>
-                <input type="number" id="entry-value" placeholder="Value ₹" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
-                <textarea id="entry-note" placeholder="Note..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none"></textarea>
-                <div class="flex gap-3 pt-4">
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-black">SAVE ENTRY</button>
-                    <button type="button" onclick="UI.modal('close')" class="px-6 py-4 rounded-2xl bg-slate-100 text-slate-400 font-bold">X</button>
+                <input type="number" id="entry-value" placeholder="Deal Value ₹" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                <textarea id="entry-note" placeholder="Quick notes about this lead..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none h-24"></textarea>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-5 rounded-2xl font-black shadow-lg">CONFIRM SAVE</button>
+                    <button type="button" onclick="UI.modal('close')" class="px-6 rounded-2xl bg-slate-100 text-slate-400 font-bold">CANCEL</button>
                 </div>
             </form>
         </div>
@@ -197,7 +187,7 @@
             Today: new Date().toISOString().split('T')[0],
 
             setTheme: (theme) => {
-                document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sunset', 'theme-electric', 'theme-mono', 'theme-sakura');
+                document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sunset', 'theme-electric');
                 if(theme !== 'default') document.body.classList.add(`theme-${theme}`);
                 localStorage.setItem('nexus_theme', theme);
             },
@@ -228,10 +218,13 @@
                     document.getElementById('auth-gateway').classList.add('hidden');
                     document.getElementById('app-shell').classList.remove('hidden');
                     System.sync();
+                } else {
+                    alert("Wrong PIN");
+                    document.getElementById('sys-pin').value = '';
                 }
             },
 
-            logout: () => { localStorage.removeItem('nexus_auth'); location.reload(); },
+            logout: () => { if(confirm("Logout?")) { localStorage.removeItem('nexus_auth'); location.reload(); } },
 
             sync: async () => {
                 const icon = document.getElementById('sync-icon');
@@ -240,44 +233,42 @@
                     const res = await fetch(System.API);
                     System.Data = await res.json();
                     UI.renderAll();
-                } finally { if(icon) icon.classList.remove('fa-spin'); }
+                } catch(e) { console.error("Sync Failed", e); }
+                finally { if(icon) icon.classList.remove('fa-spin'); }
             },
 
-            deleteLead: async (id) => {
-                if(!confirm('Delete this entry?')) return;
-                await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
-                System.sync();
-            },
-
-            // AUTO CALL LOGGER
             autoCallLog: async (id, phone) => {
                 window.location.href = `tel:${phone}`;
                 const timestamp = new Date().toLocaleString();
                 const lead = System.Data.find(l => l.id === id);
                 if(lead) {
-                    const updatedNote = `${lead.note || ''}\n[AUTO-LOG]: Call initiated on ${timestamp}`.trim();
+                    const updatedNote = `${lead.note || ''}\n[AUTO-LOG]: Call on ${timestamp}`.trim();
                     await fetch(`${System.API}/id/${id}`, {
                         method: 'PATCH',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({data: { note: updatedNote }})
                     });
-                    // Refresh data in background
-                    const res = await fetch(System.API);
-                    System.Data = await res.json();
-                    UI.renderAll();
+                    System.sync();
                 }
             }
         };
 
         const UI = {
             navigate: (view) => {
+                // Desktop Nav
                 ['dashboard', 'leads', 'clients'].forEach(v => {
                     document.getElementById(`view-${v}`).classList.add('hidden');
                     document.getElementById(`btn-${v}`).classList.remove('active-link');
+                    document.getElementById(`m-btn-${v}`).classList.remove('mobile-active');
                 });
+                
                 document.getElementById(`view-${view}`).classList.remove('hidden');
                 document.getElementById(`btn-${view}`).classList.add('active-link');
-                if(view === 'dashboard') UI.renderAll();
+                document.getElementById(`m-btn-${view}`).classList.add('mobile-active');
+                
+                const titles = { 'dashboard': 'Intelligence', 'leads': 'Pipeline', 'clients': 'Success Hub' };
+                document.getElementById('view-title').innerText = titles[view];
+                window.scrollTo(0,0);
             },
 
             modal: (action, id = null) => {
@@ -293,27 +284,25 @@
                         document.getElementById('entry-value').value = l.value;
                         document.getElementById('entry-date').value = l.followUpDate || '';
                         document.getElementById('entry-note').value = l.note || '';
-                    } else { document.getElementById('core-form').reset(); document.getElementById('entry-id').value = ''; }
+                    } else { 
+                        document.getElementById('core-form').reset(); 
+                        document.getElementById('entry-id').value = ''; 
+                    }
                 } else { m.classList.add('hidden'); }
             },
 
             card: (l) => `
-                <div class="glass-panel p-6 rounded-3xl lead-card flex justify-between items-center mb-1">
-                    <div onclick="UI.modal('open', '${l.id}')">
-                        <h5 class="font-bold">${l.name}</h5>
-                        <p class="text-[10px] font-bold ${l.status === 'Closed Won' ? 'text-emerald-500' : 'text-slate-400'} uppercase">${l.status} • ₹${l.value}</p>
+                <div class="glass-panel p-5 rounded-3xl flex justify-between items-center animate-fade-in border-l-4 ${l.status === 'Closed Won' ? 'border-emerald-500' : 'border-indigo-100'}">
+                    <div onclick="UI.modal('open', '${l.id}')" class="flex-1">
+                        <h5 class="font-bold text-slate-800">${l.name}</h5>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider">${l.status} • ₹${l.value}</p>
                     </div>
                     <div class="flex gap-2">
-                         <button onclick="System.autoCallLog('${l.id}', '${l.phone}')" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone"></i></button>
-                         <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
-                         <button onclick="System.deleteLead('${l.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-trash"></i></button>
+                         <button onclick="System.autoCallLog('${l.id}', '${l.phone}')" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></button>
+                         <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
             `,
-
-            renderList: (targetId, data) => {
-                document.getElementById(targetId).innerHTML = data.length ? data.slice().reverse().map(UI.card).join('') : `<p class="text-slate-400 text-center py-10">No data found.</p>`;
-            },
 
             renderAll: () => {
                 const revenue = System.Data.reduce((s, l) => s + (l.status === 'Closed Won' ? Number(l.value || 0) : 0), 0);
@@ -327,67 +316,34 @@
                 document.getElementById('meta-today').innerText = todayTasks.length;
                 document.getElementById('meta-closed').innerText = clients.length;
 
-                UI.renderList('full-pipeline', System.Data);
-                UI.renderList('client-list', clients);
-                UI.renderList('today-grid', todayTasks);
+                document.getElementById('full-pipeline').innerHTML = System.Data.length ? System.Data.slice().reverse().map(UI.card).join('') : `<p class="text-center py-10 opacity-50">Empty Pipeline</p>`;
+                document.getElementById('client-list').innerHTML = clients.length ? clients.slice().reverse().map(UI.card).join('') : `<p class="text-center py-10 opacity-50">No clients yet</p>`;
+                document.getElementById('today-grid').innerHTML = todayTasks.length ? todayTasks.map(UI.card).join('') : `<p class="text-center py-10 opacity-50 text-xs">No tasks for today</p>`;
 
                 document.getElementById('alert-container').innerHTML = overdue.map(l => `
-                    <div class="p-5 bg-red-50/80 backdrop-blur-md border-l-4 border-red-500 rounded-2xl flex justify-between items-center alert-pulse">
-                        <div><p class="text-[10px] font-black text-red-500 uppercase">OVERDUE</p><h5 class="font-bold text-slate-900">${l.name}</h5></div>
-                        <div class="flex gap-2">
-                            <button onclick="System.autoCallLog('${l.id}', '${l.phone}')" class="w-10 h-10 bg-white text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></button>
-                            <button onclick="UI.modal('open', '${l.id}')" class="w-10 h-10 bg-white text-slate-400 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-edit"></i></button>
-                        </div>
+                    <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-2xl flex justify-between items-center alert-pulse">
+                        <div><p class="text-[9px] font-black text-red-500 uppercase">DUE DATE MISSED</p><h5 class="font-bold text-sm text-slate-900">${l.name}</h5></div>
+                        <button onclick="System.autoCallLog('${l.id}', '${l.phone}')" class="bg-white text-red-500 p-3 rounded-xl shadow-sm"><i class="fas fa-phone"></i></button>
                     </div>
                 `).join('');
 
-                document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+                document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
             },
 
             filterBy: (type) => {
                 UI.navigate('leads');
-                let filtered = [];
+                let filtered = System.Data;
                 if(type === 'revenue') filtered = System.Data.filter(l => l.status === 'Closed Won');
                 else if(type === 'overdue') filtered = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && l.status !== 'Closed Won' && l.status !== 'Closed Lost');
                 else if(type === 'today') filtered = System.Data.filter(l => l.followUpDate === System.Today);
-                else filtered = System.Data;
-                UI.renderList('full-pipeline', filtered);
+                document.getElementById('full-pipeline').innerHTML = filtered.map(UI.card).join('');
             },
 
             search: (targetId) => {
                 const q = document.getElementById(targetId === 'full-pipeline' ? 'lead-search' : 'client-search').value.toLowerCase();
                 const source = targetId === 'client-list' ? System.Data.filter(l => l.status === 'Closed Won') : System.Data;
                 const filtered = source.filter(l => l.name.toLowerCase().includes(q) || l.phone.includes(q));
-                UI.renderList(targetId, filtered);
-            },
-
-            exportCSV: () => {
-                const headers = ['id', 'name', 'phone', 'status', 'value', 'followUpDate', 'note'];
-                const rows = System.Data.map(l => headers.map(h => `"${l[h] || ''}"`).join(','));
-                const csvContent = [headers.join(','), ...rows].join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = `Nexus_Backup_${System.Today}.csv`; a.click();
-            },
-
-            importCSV: (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const text = e.target.result;
-                    const lines = text.split('\n').slice(1);
-                    const newData = lines.filter(line => line.trim()).map(line => {
-                        const values = line.split(',').map(v => v.replace(/"/g, ''));
-                        return { id: values[0] || "NX"+Date.now(), name: values[1], phone: values[2], status: values[3], value: values[4], followUpDate: values[5], note: values[6] };
-                    });
-                    if(confirm(`Import ${newData.length} records?`)) {
-                        await fetch(System.API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: newData}) });
-                        System.sync();
-                    }
-                };
-                reader.readAsText(file);
+                document.getElementById(targetId).innerHTML = filtered.map(UI.card).join('');
             }
         };
 
