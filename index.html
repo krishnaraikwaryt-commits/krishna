@@ -109,6 +109,18 @@
                         <h3 id="meta-total" class="text-2xl font-black mt-1">0</h3>
                     </div>
                 </div>
+
+                <div class="grid grid-cols-2 gap-5">
+                    <div onclick="UI.navigate('alerts-today')" class="glass-panel p-6 rounded-[2rem] border-l-4 border-orange-500 cursor-pointer">
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Today Follow-up</p>
+                        <h3 id="meta-today" class="text-2xl font-black text-orange-600">0</h3>
+                    </div>
+                    <div onclick="UI.navigate('alerts-overdue')" class="glass-panel p-6 rounded-[2rem] border-l-4 border-red-500 cursor-pointer">
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Overdue Alert</p>
+                        <h3 id="meta-overdue" class="text-2xl font-black text-red-600">0</h3>
+                    </div>
+                </div>
+
                 <div class="space-y-5">
                     <h4 class="text-sm font-black uppercase text-slate-400">Recent Leads</h4>
                     <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
@@ -121,6 +133,10 @@
 
             <section id="view-clients" class="hidden space-y-8">
                 <div id="client-list" class="space-y-4"></div>
+            </section>
+
+            <section id="view-alerts" class="hidden space-y-8">
+                <div id="alert-list" class="space-y-4"></div>
             </section>
         </main>
 
@@ -168,6 +184,12 @@
                         <option value="Closed Won">Closed Won</option>
                     </select>
                     <input type="number" id="entry-value" placeholder="Value ₹" class="w-full p-5 rounded-2xl bg-slate-50 outline-none font-bold">
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Follow-up Date</label>
+                        <input type="date" id="entry-date" class="w-full p-5 rounded-2xl bg-slate-50 outline-none font-bold">
+                    </div>
                 </div>
                 <div class="flex gap-4">
                     <button type="submit" class="flex-1 bg-indigo-600 text-white py-5 rounded-2xl font-black shadow-lg">SAVE TO CLOUD</button>
@@ -224,7 +246,8 @@
                     name: document.getElementById('entry-name').value,
                     phone: document.getElementById('entry-phone').value,
                     status: document.getElementById('entry-status').value,
-                    value: document.getElementById('entry-value').value
+                    value: document.getElementById('entry-value').value,
+                    followup: document.getElementById('entry-date').value
                 };
 
                 const method = id ? 'PATCH' : 'POST';
@@ -257,9 +280,27 @@
 
         const UI = {
             navigate: (view) => {
-                ['dashboard', 'leads', 'clients'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
-                document.getElementById(`view-${view}`).classList.remove('hidden');
-                document.getElementById('view-title').innerText = view.charAt(0).toUpperCase() + view.slice(1);
+                const views = ['dashboard', 'leads', 'clients', 'alerts'];
+                views.forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
+                
+                const title = document.getElementById('view-title');
+                const alertList = document.getElementById('alert-list');
+                const today = new Date().toISOString().split('T')[0];
+
+                if(view === 'alerts-today') {
+                    document.getElementById('view-alerts').classList.remove('hidden');
+                    title.innerText = "Today's Tasks";
+                    const filtered = System.Data.filter(l => l.followup === today);
+                    alertList.innerHTML = UI.cards(filtered);
+                } else if(view === 'alerts-overdue') {
+                    document.getElementById('view-alerts').classList.remove('hidden');
+                    title.innerText = "Overdue Alerts";
+                    const filtered = System.Data.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won');
+                    alertList.innerHTML = UI.cards(filtered);
+                } else {
+                    document.getElementById(`view-${view}`).classList.remove('hidden');
+                    title.innerText = view.charAt(0).toUpperCase() + view.slice(1);
+                }
                 window.scrollTo(0,0);
             },
 
@@ -275,6 +316,7 @@
                         document.getElementById('entry-phone').value = l.phone;
                         document.getElementById('entry-status').value = l.status;
                         document.getElementById('entry-value').value = l.value;
+                        document.getElementById('entry-date').value = l.followup || '';
                         dBtn.classList.remove('hidden');
                     } else {
                         document.getElementById('core-form').reset();
@@ -284,22 +326,13 @@
                 } else m.classList.add('hidden');
             },
 
-            renderAll: () => {
-                const dashboardGrid = document.getElementById('dashboard-grid');
-                const fullPipeline = document.getElementById('full-pipeline');
-                const clientList = document.getElementById('client-list');
-
-                // Update Stats
-                const totalRev = System.Data.reduce((acc, curr) => acc + (curr.status === 'Closed Won' ? Number(curr.value || 0) : 0), 0);
-                document.getElementById('meta-revenue').innerText = "₹" + totalRev.toLocaleString();
-                document.getElementById('meta-total').innerText = System.Data.length;
-
-                // Render Lists
-                const cards = (data) => data.map(l => `
+            cards: (data) => {
+                if(data.length === 0) return `<p class="text-center p-10 font-bold text-slate-400">No leads found.</p>`;
+                return data.map(l => `
                     <div class="glass-panel p-6 rounded-[2rem] flex justify-between items-center">
                         <div onclick="UI.modal('open', '${l.id}')" class="cursor-pointer">
                             <h5 class="font-bold text-lg">${l.name}</h5>
-                            <p class="text-[10px] font-black text-slate-400 uppercase">${l.status} • ₹${l.value}</p>
+                            <p class="text-[10px] font-black text-slate-400 uppercase">${l.status} • ₹${l.value} ${l.followup ? '• '+l.followup : ''}</p>
                         </div>
                         <div class="flex gap-2">
                             <a href="tel:${l.phone}" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center"><i class="fas fa-phone"></i></a>
@@ -307,10 +340,25 @@
                         </div>
                     </div>
                 `).join('');
+            },
 
-                dashboardGrid.innerHTML = cards(System.Data.slice(-4).reverse());
-                fullPipeline.innerHTML = cards(System.Data.slice().reverse());
-                clientList.innerHTML = cards(System.Data.filter(x => x.status === 'Closed Won'));
+            renderAll: () => {
+                const today = new Date().toISOString().split('T')[0];
+                
+                // Update Stats & Alerts Count
+                const totalRev = System.Data.reduce((acc, curr) => acc + (curr.status === 'Closed Won' ? Number(curr.value || 0) : 0), 0);
+                const todayCount = System.Data.filter(l => l.followup === today).length;
+                const overdueCount = System.Data.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won').length;
+
+                document.getElementById('meta-revenue').innerText = "₹" + totalRev.toLocaleString();
+                document.getElementById('meta-total').innerText = System.Data.length;
+                document.getElementById('meta-today').innerText = todayCount;
+                document.getElementById('meta-overdue').innerText = overdueCount;
+
+                // Render Main Lists
+                document.getElementById('dashboard-grid').innerHTML = UI.cards(System.Data.slice(-4).reverse());
+                document.getElementById('full-pipeline').innerHTML = UI.cards(System.Data.slice().reverse());
+                document.getElementById('client-list').innerHTML = UI.cards(System.Data.filter(x => x.status === 'Closed Won'));
             },
 
             toggleMenu: (id) => document.getElementById(id).classList.toggle('active')
