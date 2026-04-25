@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="tab-title">Nexus CRM | Pro Intelligence</title>
+    
+    <link id="favicon" rel="icon" type="image/png" href="https://lh3.googleusercontent.com/u/0/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -22,12 +25,10 @@
 <body class="overflow-x-hidden">
 
     <script>
-        // Aapka Logo aur Name yahan set hai
         const BrandConfig = {
             name: "Nexus", 
             accent: "CRM",
-            // Google Drive Direct Link Conversion
-            logo: "https://lh3.googleusercontent.com/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss" 
+            logo: "https://lh3.googleusercontent.com/u/0/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss" 
         };
     </script>
 
@@ -52,10 +53,12 @@
                 </div>
             </div>
             
-            <nav class="flex md:flex-col gap-2">
+            <nav class="flex md:flex-col gap-2 h-full">
                 <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500 active-link"><i class="fas fa-th-large"></i> Dashboard</button>
                 <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-list"></i> Pipeline</button>
                 <button onclick="UI.navigate('closed')" id="btn-closed" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-check-double"></i> Closed</button>
+                
+                <button onclick="System.logout()" class="mt-auto hidden md:flex items-center gap-3 p-4 text-red-400 font-bold hover:bg-red-50 rounded-xl transition-all"><i class="fas fa-power-off"></i> Logout</button>
             </nav>
         </aside>
 
@@ -78,25 +81,14 @@
                     <div onclick="UI.filterDashboard('today')" class="stat-card glass-panel p-6 rounded-3xl border-b-4 border-emerald-500"><p class="text-[10px] font-black text-emerald-500 uppercase">Today</p><h3 id="meta-today" class="text-2xl font-black mt-1">0</h3></div>
                     <div onclick="UI.navigate('leads')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white"><p class="text-[10px] font-black opacity-70 uppercase">Total Leads</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
                 </div>
-                <div id="alert-container" class="space-y-3"></div>
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h4 id="grid-title" class="text-lg font-black text-slate-800 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule</h4>
-                        <button onclick="UI.renderAll()" class="text-[10px] font-bold text-indigo-600 underline">Reset Filter</button>
-                    </div>
-                    <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                </div>
+                <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </section>
 
             <section id="view-leads" class="hidden space-y-6">
-                <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search pipeline..." class="w-full p-5 rounded-3xl glass-panel outline-none border-none">
                 <div id="full-pipeline" class="space-y-3"></div>
             </section>
 
             <section id="view-closed" class="hidden space-y-6">
-                <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100">
-                    <h4 class="font-black text-emerald-700 uppercase text-xs tracking-widest">Success Archive</h4>
-                </div>
                 <div id="closed-pipeline" class="space-y-3"></div>
             </section>
         </main>
@@ -131,28 +123,49 @@
     </div>
 
     <script>
-        // Init Branding
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('login-logo').src = BrandConfig.logo;
-            document.getElementById('side-logo').src = BrandConfig.logo;
-            document.getElementById('l-name').innerText = BrandConfig.name;
-            document.getElementById('l-accent').innerText = BrandConfig.accent;
-            document.getElementById('s-name').innerText = BrandConfig.name;
-            document.title = `${BrandConfig.name}${BrandConfig.accent} | Intel`;
-        });
-
         const System = {
             API: "https://sheetdb.io/api/v1/7skn6892hya7x",
             PIN: "1321",
             Data: [],
             Today: new Date().toISOString().split('T')[0],
-            auth: () => {
-                if(document.getElementById('sys-pin').value === System.PIN) {
-                    document.getElementById('auth-gateway').classList.add('hidden');
-                    document.getElementById('app-shell').classList.remove('hidden');
-                    System.sync();
+
+            init: () => {
+                // Branding Initialization
+                document.getElementById('login-logo').src = BrandConfig.logo;
+                document.getElementById('side-logo').src = BrandConfig.logo;
+                document.getElementById('favicon').href = BrandConfig.logo;
+                document.getElementById('l-name').innerText = BrandConfig.name;
+                document.getElementById('l-accent').innerText = BrandConfig.accent;
+                document.getElementById('s-name').innerText = BrandConfig.name;
+                document.title = `${BrandConfig.name}${BrandConfig.accent} | Intel`;
+
+                // FIX 3: Check Session Persistence
+                if(localStorage.getItem('crm_session') === 'active') {
+                    System.launch();
                 }
             },
+
+            auth: () => {
+                if(document.getElementById('sys-pin').value === System.PIN) {
+                    localStorage.setItem('crm_session', 'active'); // Save login
+                    System.launch();
+                } else {
+                    alert("Incorrect PIN");
+                    document.getElementById('sys-pin').value = '';
+                }
+            },
+
+            launch: () => {
+                document.getElementById('auth-gateway').classList.add('hidden');
+                document.getElementById('app-shell').classList.remove('hidden');
+                System.sync();
+            },
+
+            logout: () => {
+                localStorage.removeItem('crm_session');
+                location.reload();
+            },
+
             sync: async () => {
                 const icon = document.getElementById('sync-icon');
                 icon.classList.add('fa-spin');
@@ -170,15 +183,6 @@
                     document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
                     document.getElementById(`btn-${v}`).classList.toggle('active-link', v === view);
                 });
-            },
-            filterDashboard: (type) => {
-                let filtered = System.Data.filter(l => {
-                    const isClosed = l.status.includes('Closed');
-                    if(type === 'overdue') return l.followUpDate < System.Today && !isClosed;
-                    if(type === 'today') return l.followUpDate === System.Today && !isClosed;
-                    return true;
-                });
-                document.getElementById('today-grid').innerHTML = filtered.map(UI.cardTemplate).join('');
             },
             cardTemplate: (l) => `
                 <div class="glass-panel p-6 rounded-3xl lead-card flex justify-between items-center mb-1">
@@ -217,6 +221,11 @@
                         document.getElementById('entry-name').value = l.name;
                         document.getElementById('entry-phone').value = l.phone;
                         document.getElementById('entry-status').value = l.status;
+                        document.getElementById('entry-value').value = l.value;
+                        document.getElementById('entry-date').value = l.followUpDate;
+                    } else {
+                        document.getElementById('core-form').reset();
+                        document.getElementById('entry-id').value = '';
                     }
                 } else m.classList.add('hidden');
             }
@@ -240,6 +249,9 @@
             });
             UI.modal('close'); System.sync();
         });
+
+        // Initialize Everything
+        System.init();
     </script>
 </body>
 </html>
