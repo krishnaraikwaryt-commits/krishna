@@ -34,23 +34,26 @@
             min-height: 100vh; 
         }
 
-        aside { background-color: var(--sidebar-bg) !important; border-color: rgba(0,0,0,0.05); }
         .glass-panel { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
-        
         body.theme-midnight .glass-panel, body.theme-electric .glass-panel { background: rgba(15, 23, 42, 0.7); border-color: rgba(255,255,255,0.1); color: #f8fafc; }
-        body.theme-midnight h2, body.theme-electric h2 { color: #fff; }
 
-        .active-link { color: var(--brand-primary) !important; background: rgba(99, 102, 241, 0.1); border-right: 4px solid var(--brand-primary); }
-        .lead-card { transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent; }
-        .lead-card:hover { transform: translateY(-2px); border-color: var(--brand-primary); }
-        .stat-card { cursor: pointer; transition: all 0.3s ease; }
-        .stat-card:hover { transform: scale(1.05); }
-        .alert-pulse { animation: pulse-red 2s infinite; }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        .hidden { display: none !important; }
+        /* Bottom Nav Styling */
+        #bottom-nav {
+            background-color: var(--sidebar-bg);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-item.active-link { color: var(--brand-primary); }
+        .nav-item.active-link i { transform: translateY(-4px); transition: 0.3s; }
+
+        .dropdown-menu { display: none; position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); width: 200px; z-index: 50; }
+        .dropdown-menu.active { display: block; }
+
         .theme-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: 0.2s; }
-        .theme-dot:hover { transform: scale(1.2); }
-        .wallpaper-dot { width: 30px; height: 20px; border-radius: 4px; border: 1px solid #ddd; cursor: pointer; background-size: cover; }
+        .wallpaper-dot { width: 40px; height: 30px; border-radius: 6px; border: 1px solid #ddd; cursor: pointer; background-size: cover; }
+        
+        main { padding-bottom: 100px; } /* Space for bottom nav */
     </style>
 </head>
 <body class="overflow-x-hidden" onload="System.checkAuth()">
@@ -63,47 +66,8 @@
         </div>
     </div>
 
-    <div id="app-shell" class="hidden flex flex-col md:flex-row">
-        <aside class="w-full md:w-64 border-r p-6 flex-shrink-0 flex flex-col min-h-screen relative z-10">
-            <div class="flex items-center gap-3 mb-10 px-2 font-black text-xl"><i class="fas fa-cube text-indigo-600"></i> Nexus</div>
-            <nav class="flex md:flex-col gap-2">
-                <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold active-link"><i class="fas fa-th-large"></i> Dashboard</button>
-                <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold"><i class="fas fa-list"></i> Pipeline</button>
-                <button onclick="UI.navigate('clients')" id="btn-clients" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold"><i class="fas fa-user-tie"></i> Clients</button>
-            </nav>
-
-            <div class="mt-8 px-2">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Themes</p>
-                <div class="grid grid-cols-4 gap-2 mb-4">
-                    <div onclick="System.setTheme('default')" class="theme-dot bg-indigo-600" title="Default"></div>
-                    <div onclick="System.setTheme('midnight')" class="theme-dot bg-slate-900" title="Midnight"></div>
-                    <div onclick="System.setTheme('forest')" class="theme-dot bg-emerald-600" title="Forest"></div>
-                    <div onclick="System.setTheme('sunset')" class="theme-dot bg-rose-500" title="Sunset"></div>
-                </div>
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Wallpapers</p>
-                <div class="grid grid-cols-3 gap-2">
-                    <div onclick="System.setWP('none')" class="wallpaper-dot bg-slate-200" title="None"></div>
-                    <div onclick="System.setWP('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=100')"></div>
-                    <div onclick="System.setWP('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=100')"></div>
-                    <div onclick="System.setWP('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&w=100')"></div>
-                    <div onclick="System.setWP('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=100')"></div>
-                    <div onclick="System.setWP('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=100')"></div>
-                </div>
-            </div>
-
-            <div class="mt-8 px-2">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Actions</p>
-                <button onclick="UI.exportCSV()" class="w-full text-left p-2 text-sm font-bold text-slate-500 hover:text-indigo-600"><i class="fas fa-download mr-2"></i> Export Data</button>
-                <label class="w-full block p-2 text-sm font-bold text-slate-500 hover:text-indigo-600 cursor-pointer">
-                    <i class="fas fa-upload mr-2"></i> Import CSV
-                    <input type="file" id="csv-import" class="hidden" accept=".csv" onchange="UI.importCSV(event)">
-                </label>
-            </div>
-
-            <button onclick="System.logout()" class="mt-auto flex items-center gap-3 p-4 rounded-xl font-bold text-red-400"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </aside>
-
-        <main class="flex-1 p-6 md:p-10 max-w-6xl mx-auto w-full relative z-10">
+    <div id="app-shell" class="hidden min-h-screen">
+        <main class="p-6 md:p-10 max-w-6xl mx-auto w-full">
             <header class="flex justify-between items-end mb-8">
                 <div>
                     <h2 id="view-title" class="text-4xl font-black tracking-tight">Intelligence</h2>
@@ -124,32 +88,65 @@
                     <div onclick="UI.filterBy('all')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white shadow-xl"><p class="text-[10px] font-black opacity-70 uppercase">Total</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
                 </div>
                 <div id="alert-container" class="space-y-3"></div>
-                <div>
-                    <h4 class="text-lg font-black mb-4 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule</h4>
-                    <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                </div>
+                <div id="today-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </section>
 
             <section id="view-leads" class="hidden space-y-6">
-                <div class="flex gap-2">
-                    <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search pipeline..." class="flex-1 p-5 rounded-3xl glass-panel outline-none">
-                    <button onclick="UI.renderAll()" class="px-6 rounded-3xl bg-slate-100 text-slate-500 font-bold">Reset</button>
-                </div>
+                <input type="text" id="lead-search" oninput="UI.search('full-pipeline')" placeholder="Search pipeline..." class="w-full p-5 rounded-3xl glass-panel outline-none border">
                 <div id="full-pipeline" class="space-y-3"></div>
             </section>
 
             <section id="view-clients" class="hidden space-y-6">
-                <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100 flex justify-between items-center">
-                    <div>
-                        <h3 class="text-xl font-black text-indigo-900">Active Clients</h3>
-                        <p class="text-indigo-600 text-sm font-medium">Successful Conversions</p>
-                    </div>
-                    <i class="fas fa-crown text-3xl text-indigo-200"></i>
-                </div>
-                <input type="text" id="client-search" oninput="UI.search('client-list')" placeholder="Search clients..." class="w-full p-5 rounded-3xl glass-panel outline-none">
+                <input type="text" id="client-search" oninput="UI.search('client-list')" placeholder="Search clients..." class="w-full p-5 rounded-3xl glass-panel outline-none border">
                 <div id="client-list" class="space-y-3"></div>
             </section>
         </main>
+
+        <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-20 flex items-center justify-around px-2 z-50">
+            <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="nav-item active-link flex flex-col items-center gap-1">
+                <i class="fas fa-th-large text-xl"></i><span class="text-[10px] font-bold">Home</span>
+            </button>
+            <button onclick="UI.navigate('leads')" id="btn-leads" class="nav-item flex flex-col items-center gap-1">
+                <i class="fas fa-list text-xl"></i><span class="text-[10px] font-bold">Pipeline</span>
+            </button>
+            <button onclick="UI.navigate('clients')" id="btn-clients" class="nav-item flex flex-col items-center gap-1">
+                <i class="fas fa-user-tie text-xl"></i><span class="text-[10px] font-bold">Clients</span>
+            </button>
+            
+            <div class="relative">
+                <button onclick="UI.toggleMenu('theme-menu')" class="nav-item flex flex-col items-center gap-1">
+                    <i class="fas fa-palette text-xl"></i><span class="text-[10px] font-bold">Themes</span>
+                </button>
+                <div id="theme-menu" class="dropdown-menu glass-panel p-4 rounded-2xl">
+                    <p class="text-[10px] font-black uppercase mb-3">Select Color</p>
+                    <div class="grid grid-cols-4 gap-3">
+                        <div onclick="System.setTheme('default')" class="theme-dot bg-indigo-600"></div>
+                        <div onclick="System.setTheme('midnight')" class="theme-dot bg-slate-900"></div>
+                        <div onclick="System.setTheme('forest')" class="theme-dot bg-emerald-600"></div>
+                        <div onclick="System.setTheme('sunset')" class="theme-dot bg-rose-500"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative">
+                <button onclick="UI.toggleMenu('wp-menu')" class="nav-item flex flex-col items-center gap-1">
+                    <i class="fas fa-image text-xl"></i><span class="text-[10px] font-bold">Walls</span>
+                </button>
+                <div id="wp-menu" class="dropdown-menu glass-panel p-4 rounded-2xl w-48">
+                    <p class="text-[10px] font-black uppercase mb-3">Select Background</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div onclick="System.setWP('none')" class="wallpaper-dot bg-slate-200"></div>
+                        <div onclick="System.setWP('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=100')"></div>
+                        <div onclick="System.setWP('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=400')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=100')"></div>
+                        <div onclick="System.setWP('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=400')" class="wallpaper-dot" style="background-image:url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=100')"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="System.logout()" class="nav-item flex flex-col items-center gap-1 text-red-400">
+                <i class="fas fa-sign-out-alt text-xl"></i><span class="text-[10px] font-bold">Exit</span>
+            </button>
+        </nav>
     </div>
 
     <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -191,6 +188,7 @@
                 document.body.classList.remove('theme-midnight', 'theme-forest', 'theme-sunset', 'theme-electric', 'theme-mono', 'theme-sakura');
                 if(theme !== 'default') document.body.classList.add(`theme-${theme}`);
                 localStorage.setItem('nexus_theme', theme);
+                UI.toggleMenu('theme-menu'); // Close after selection
             },
 
             setWP: (url) => {
@@ -201,6 +199,7 @@
                     document.body.style.setProperty('--bg-image', `url('${url}')`);
                     localStorage.setItem('nexus_wp', url);
                 }
+                UI.toggleMenu('wp-menu'); // Close after selection
             },
 
             checkAuth: () => {
@@ -232,16 +231,18 @@
                     System.Data = await res.json();
                     UI.renderAll();
                 } finally { if(icon) icon.classList.remove('fa-spin'); }
-            },
-
-            deleteLead: async (id) => {
-                if(!confirm('Delete this entry?')) return;
-                await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
-                System.sync();
             }
         };
 
         const UI = {
+            toggleMenu: (id) => {
+                const menus = ['theme-menu', 'wp-menu'];
+                menus.forEach(m => {
+                    if(m === id) document.getElementById(m).classList.toggle('active');
+                    else document.getElementById(m).classList.remove('active');
+                });
+            },
+
             navigate: (view) => {
                 ['dashboard', 'leads', 'clients'].forEach(v => {
                     document.getElementById(`view-${v}`).classList.add('hidden');
@@ -249,7 +250,7 @@
                 });
                 document.getElementById(`view-${view}`).classList.remove('hidden');
                 document.getElementById(`btn-${view}`).classList.add('active-link');
-                if(view === 'dashboard') UI.renderAll();
+                document.getElementById('view-title').innerText = view.charAt(0).toUpperCase() + view.slice(1);
             },
 
             modal: (action, id = null) => {
@@ -278,7 +279,6 @@
                     <div class="flex gap-2">
                          <a href="tel:${l.phone}" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone"></i></a>
                          <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
-                         <button onclick="System.deleteLead('${l.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `,
@@ -304,7 +304,7 @@
                 UI.renderList('today-grid', todayTasks);
 
                 document.getElementById('alert-container').innerHTML = overdue.map(l => `
-                    <div class="p-5 bg-red-50/80 backdrop-blur-md border-l-4 border-red-500 rounded-2xl flex justify-between items-center alert-pulse">
+                    <div class="p-5 bg-red-50/80 backdrop-blur-md border-l-4 border-red-500 rounded-2xl flex justify-between items-center">
                         <div><p class="text-[10px] font-black text-red-500 uppercase">OVERDUE</p><h5 class="font-bold text-slate-900">${l.name}</h5></div>
                         <div class="flex gap-2">
                             <a href="tel:${l.phone}" class="w-10 h-10 bg-white text-red-500 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></a>
@@ -331,35 +331,6 @@
                 const source = targetId === 'client-list' ? System.Data.filter(l => l.status === 'Closed Won') : System.Data;
                 const filtered = source.filter(l => l.name.toLowerCase().includes(q) || l.phone.includes(q));
                 UI.renderList(targetId, filtered);
-            },
-
-            exportCSV: () => {
-                const headers = ['id', 'name', 'phone', 'status', 'value', 'followUpDate', 'note'];
-                const rows = System.Data.map(l => headers.map(h => `"${l[h] || ''}"`).join(','));
-                const csvContent = [headers.join(','), ...rows].join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = `Nexus_Backup_${System.Today}.csv`; a.click();
-            },
-
-            importCSV: (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const text = e.target.result;
-                    const lines = text.split('\n').slice(1);
-                    const newData = lines.filter(line => line.trim()).map(line => {
-                        const values = line.split(',').map(v => v.replace(/"/g, ''));
-                        return { id: values[0] || "NX"+Date.now(), name: values[1], phone: values[2], status: values[3], value: values[4], followUpDate: values[5], note: values[6] };
-                    });
-                    if(confirm(`Import ${newData.length} records?`)) {
-                        await fetch(System.API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: newData}) });
-                        System.sync();
-                    }
-                };
-                reader.readAsText(file);
             }
         };
 
