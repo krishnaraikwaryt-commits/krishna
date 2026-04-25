@@ -263,6 +263,22 @@
             const method = id ? 'PATCH' : 'POST';
             await fetch(id ? `${System.API}/id/${id}` : System.API, { method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: id ? payload : [payload]}) });
             UI.modal('close'); System.sync();
+            // DELETE FUNCTION
+async function deleteEntry(id) {
+    if (confirm('Are you sure you want to delete this lead?')) {
+        try {
+            await fetch(`${System.API}/${id}`, {
+                method: 'DELETE'
+            });
+            // List ko refresh karne ke liye
+            System.sync(); 
+            alert('Lead deleted successfully');
+        } catch (error) {
+            console.error('Error deleting lead:', error);
+            alert('Delete karne mein error aaya');
+        }
+    }
+}
         });
     </script>
 </body>
