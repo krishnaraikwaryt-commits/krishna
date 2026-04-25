@@ -49,7 +49,6 @@
 
         .stat-card { transition: all 0.3s ease; border-radius: 24px; }
         
-        /* --- Force Mobile Responsive Overrides --- */
         @media (max-width: 768px) {
             .sidebar-desktop { 
                 display: none !important; 
@@ -306,6 +305,45 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+            },
+            importCSV: (input) => {
+                const file = input.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const text = e.target.result;
+                    const rows = text.split("\n").filter(row => row.trim() !== "");
+                    const headers = rows[0].split(",");
+                    
+                    const importedData = rows.slice(1).map(row => {
+                        const values = row.split(",");
+                        let obj = {};
+                        headers.forEach((header, index) => {
+                            obj[header.trim()] = values[index] ? values[index].trim() : "";
+                        });
+                        // Ensure ID exists
+                        if(!obj.id) obj.id = "NX" + Math.random().toString(36).substr(2, 9);
+                        return obj;
+                    });
+
+                    if(confirm(`Import ${importedData.length} records?`)) {
+                        try {
+                            // Uploading all data to SheetDB
+                            await fetch(System.API, {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({data: importedData})
+                            });
+                            alert("Import Successful!");
+                            System.sync();
+                        } catch(err) {
+                            alert("Import Failed");
+                            console.error(err);
+                        }
+                    }
+                };
+                reader.readAsText(file);
             }
         };
 
@@ -349,7 +387,7 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
-                         <a href="https://wa.me/${l.phone.replace(/\D/g,'')}" target="_blank" class="w-10 h-10 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
+                         <a href="https://wa.me/${(l.phone || '').replace(/\D/g,'')}" target="_blank" class="w-10 h-10 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
                          <a href="tel:${l.phone}" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></a>
                     </div>
                 </div>
