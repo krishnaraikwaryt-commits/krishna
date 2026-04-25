@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus CRM | Pro Intelligence</title>
+    <title id="tab-title">Nexus CRM | Pro Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -21,18 +21,37 @@
 </head>
 <body class="overflow-x-hidden">
 
+    <script>
+        // Aapka Logo aur Name yahan set hai
+        const BrandConfig = {
+            name: "Nexus", 
+            accent: "CRM",
+            // Google Drive Direct Link Conversion
+            logo: "https://lh3.googleusercontent.com/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss" 
+        };
+    </script>
+
     <div id="auth-gateway" class="fixed inset-0 z-[1000] bg-slate-900 flex items-center justify-center p-6">
         <div class="max-w-md w-full glass-panel rounded-[2.5rem] p-10 text-center">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-indigo-600 text-white text-3xl mb-6 shadow-xl"><i class="fas fa-shield-halved"></i></div>
-            <h1 class="text-3xl font-black text-slate-900">Nexus<span class="text-indigo-600">CRM</span></h1>
-            <p class="text-slate-500 mt-2 mb-8 font-medium">Verify Identity</p>
+            <img id="login-logo" src="" class="w-24 h-24 mx-auto mb-6 rounded-3xl shadow-2xl object-cover border-4 border-white/20">
+            <h1 class="text-3xl font-black text-slate-900">
+                <span id="l-name"></span><span class="text-indigo-600" id="l-accent"></span>
+            </h1>
+            <p class="text-slate-500 mt-2 mb-8 font-medium italic">Intelligence Systems</p>
             <input type="password" id="sys-pin" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="PIN" class="w-full p-5 rounded-2xl bg-slate-100 border-none outline-none text-center text-2xl font-bold tracking-[0.5em]">
         </div>
     </div>
 
     <div id="app-shell" class="hidden min-h-screen flex flex-col md:flex-row">
         <aside class="w-full md:w-64 bg-white border-r border-slate-200 p-6 flex-shrink-0">
-            <div class="hidden md:flex items-center gap-3 mb-10 px-2 font-black text-xl"><i class="fas fa-cube text-indigo-600"></i> Nexus</div>
+            <div class="hidden md:flex items-center gap-3 mb-10 px-2">
+                <img id="side-logo" src="" class="w-10 h-10 rounded-xl shadow-sm object-cover">
+                <div class="flex flex-col">
+                    <span class="font-black text-xl leading-tight text-slate-900" id="s-name"></span>
+                    <span class="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Pro Edition</span>
+                </div>
+            </div>
+            
             <nav class="flex md:flex-col gap-2">
                 <button onclick="UI.navigate('dashboard')" id="btn-dashboard" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500 active-link"><i class="fas fa-th-large"></i> Dashboard</button>
                 <button onclick="UI.navigate('leads')" id="btn-leads" class="flex-1 md:flex-none flex items-center gap-3 p-4 rounded-xl font-bold text-slate-500"><i class="fas fa-list"></i> Pipeline</button>
@@ -59,9 +78,7 @@
                     <div onclick="UI.filterDashboard('today')" class="stat-card glass-panel p-6 rounded-3xl border-b-4 border-emerald-500"><p class="text-[10px] font-black text-emerald-500 uppercase">Today</p><h3 id="meta-today" class="text-2xl font-black mt-1">0</h3></div>
                     <div onclick="UI.navigate('leads')" class="stat-card glass-panel p-6 rounded-3xl bg-indigo-600 text-white"><p class="text-[10px] font-black opacity-70 uppercase">Total Leads</p><h3 id="meta-total" class="text-2xl font-black mt-1">0</h3></div>
                 </div>
-
                 <div id="alert-container" class="space-y-3"></div>
-
                 <div>
                     <div class="flex items-center justify-between mb-4">
                         <h4 id="grid-title" class="text-lg font-black text-slate-800 flex items-center gap-2"><i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule</h4>
@@ -79,7 +96,6 @@
             <section id="view-closed" class="hidden space-y-6">
                 <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100">
                     <h4 class="font-black text-emerald-700 uppercase text-xs tracking-widest">Success Archive</h4>
-                    <p class="text-emerald-600 text-sm">List of all converted and closed deals.</p>
                 </div>
                 <div id="closed-pipeline" class="space-y-3"></div>
             </section>
@@ -115,12 +131,21 @@
     </div>
 
     <script>
+        // Init Branding
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('login-logo').src = BrandConfig.logo;
+            document.getElementById('side-logo').src = BrandConfig.logo;
+            document.getElementById('l-name').innerText = BrandConfig.name;
+            document.getElementById('l-accent').innerText = BrandConfig.accent;
+            document.getElementById('s-name').innerText = BrandConfig.name;
+            document.title = `${BrandConfig.name}${BrandConfig.accent} | Intel`;
+        });
+
         const System = {
             API: "https://sheetdb.io/api/v1/7skn6892hya7x",
             PIN: "1321",
             Data: [],
             Today: new Date().toISOString().split('T')[0],
-
             auth: () => {
                 if(document.getElementById('sys-pin').value === System.PIN) {
                     document.getElementById('auth-gateway').classList.add('hidden');
@@ -141,70 +166,47 @@
 
         const UI = {
             navigate: (view) => {
-                const views = ['dashboard', 'leads', 'closed'];
-                views.forEach(v => {
+                ['dashboard', 'leads', 'closed'].forEach(v => {
                     document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
                     document.getElementById(`btn-${v}`).classList.toggle('active-link', v === view);
                 });
-                document.getElementById('view-title').innerText = view.charAt(0).toUpperCase() + view.slice(1);
             },
-
             filterDashboard: (type) => {
-                let filtered = [];
-                let title = "";
-                if(type === 'overdue') {
-                    filtered = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && !l.status.includes('Closed'));
-                    title = "Overdue Actions";
-                } else if(type === 'today') {
-                    filtered = System.Data.filter(l => l.followUpDate === System.Today && !l.status.includes('Closed'));
-                    title = "Today's Schedule";
-                }
-                document.getElementById('grid-title').innerText = title;
-                document.getElementById('today-grid').innerHTML = filtered.length ? filtered.map(UI.cardTemplate).join('') : `<p class="p-4 text-slate-400">No matching leads.</p>`;
+                let filtered = System.Data.filter(l => {
+                    const isClosed = l.status.includes('Closed');
+                    if(type === 'overdue') return l.followUpDate < System.Today && !isClosed;
+                    if(type === 'today') return l.followUpDate === System.Today && !isClosed;
+                    return true;
+                });
+                document.getElementById('today-grid').innerHTML = filtered.map(UI.cardTemplate).join('');
             },
-
             cardTemplate: (l) => `
                 <div class="glass-panel p-6 rounded-3xl lead-card flex justify-between items-center mb-1">
                     <div onclick="UI.modal('open', '${l.id}')">
                         <h5 class="font-bold text-slate-800">${l.name}</h5>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">${l.status} • ${l.followUpDate || 'No Date'}</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">${l.status}</p>
                     </div>
                     <div class="flex gap-2">
-                         <a href="https://wa.me/91${l.phone}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
                          <a href="tel:${l.phone}" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
                     </div>
                 </div>
             `,
-
             renderAll: () => {
                 const revenue = System.Data.reduce((s, l) => s + (l.status === 'Closed Won' ? Number(l.value || 0) : 0), 0);
                 const overdue = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && !l.status.includes('Closed'));
                 const todayTasks = System.Data.filter(l => l.followUpDate === System.Today && !l.status.includes('Closed'));
-                const closedLeads = System.Data.filter(l => l.status.includes('Closed'));
+                const closed = System.Data.filter(l => l.status.includes('Closed'));
 
                 document.getElementById('meta-revenue').innerText = "₹" + revenue.toLocaleString();
                 document.getElementById('meta-total').innerText = System.Data.length;
                 document.getElementById('meta-overdue').innerText = overdue.length;
                 document.getElementById('meta-today').innerText = todayTasks.length;
 
-                // Render Overdue Alerts
-                document.getElementById('alert-container').innerHTML = overdue.slice(0, 3).map(l => `
-                    <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-2xl flex justify-between items-center">
-                        <div><p class="text-[9px] font-black text-red-500 uppercase">ACTION REQUIRED</p><h5 class="font-bold text-sm">${l.name}</h5></div>
-                        <button onclick="UI.modal('open', '${l.id}')" class="text-xs font-bold text-red-600 underline">Update</button>
-                    </div>
-                `).join('');
-
-                document.getElementById('grid-title').innerHTML = `<i class="fas fa-calendar-day text-indigo-500"></i> Today's Schedule`;
-                document.getElementById('today-grid').innerHTML = todayTasks.length ? todayTasks.map(UI.cardTemplate).join('') : `<p class="text-slate-400 text-sm">No tasks for today.</p>`;
+                document.getElementById('today-grid').innerHTML = todayTasks.map(UI.cardTemplate).join('');
                 document.getElementById('full-pipeline').innerHTML = System.Data.slice().reverse().map(UI.cardTemplate).join('');
-                
-                // NEW: Render Closed Leads
-                document.getElementById('closed-pipeline').innerHTML = closedLeads.length ? closedLeads.map(UI.cardTemplate).join('') : `<p class="text-slate-400">No closed deals yet.</p>`;
-                
-                document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+                document.getElementById('closed-pipeline').innerHTML = closed.map(UI.cardTemplate).join('');
+                document.getElementById('live-timer').innerText = new Date().toLocaleDateString();
             },
-
             modal: (action, id = null) => {
                 const m = document.getElementById('lead-modal');
                 if(action === 'open') {
@@ -215,16 +217,8 @@
                         document.getElementById('entry-name').value = l.name;
                         document.getElementById('entry-phone').value = l.phone;
                         document.getElementById('entry-status').value = l.status;
-                        document.getElementById('entry-value').value = l.value;
-                        document.getElementById('entry-date').value = l.followUpDate || '';
-                    } else { document.getElementById('core-form').reset(); document.getElementById('entry-id').value = ''; }
-                } else { m.classList.add('hidden'); }
-            },
-
-            search: (containerId) => {
-                const q = document.getElementById('lead-search').value.toLowerCase();
-                const filtered = System.Data.filter(l => l.name.toLowerCase().includes(q) || l.phone.includes(q));
-                document.getElementById(containerId).innerHTML = filtered.map(UI.cardTemplate).join('');
+                    }
+                } else m.classList.add('hidden');
             }
         };
 
@@ -239,8 +233,11 @@
                 value: document.getElementById('entry-value').value || 0,
                 followUpDate: document.getElementById('entry-date').value
             };
-            const method = id ? 'PATCH' : 'POST';
-            await fetch(id ? `${System.API}/id/${id}` : System.API, { method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: id ? payload : [payload]}) });
+            await fetch(id ? `${System.API}/id/${id}` : System.API, { 
+                method: id ? 'PATCH' : 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({data: id ? payload : [payload]}) 
+            });
             UI.modal('close'); System.sync();
         });
     </script>
