@@ -3,186 +3,296 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus CRM PRO</title>
+    <title>Nexus CRM v3 | Ultimate</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        :root { --primary: #6366f1; --glass: rgba(255,255,255,0.9); --text: #0f172a; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.5s; background-size: cover; background-position: center; background-attachment: fixed; min-height: 100vh; color: var(--text); }
+        .glass { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .theme-dark { --glass: rgba(30, 41, 59, 0.8); --text: #f8fafc; }
+        .theme-midnight { --glass: rgba(15, 23, 42, 0.9); --text: #38bdf8; }
+        .active-tab { color: #6366f1 !important; transform: scale(1.2); }
+        input, select { border: none !important; outline: none !important; }
+    </style>
 </head>
-<body class="bg-slate-50 font-sans pb-24">
+<body class="pb-28" onload="System.init()">
 
-    <div id="login" class="fixed inset-0 z-[5000] bg-slate-900 flex items-center justify-center p-6">
-        <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm text-center">
-            <h2 class="text-2xl font-black mb-4">NEXUS CRM</h2>
-            <input type="password" id="pin" maxlength="4" placeholder="ENTER PIN" oninput="if(this.value==='1321') startApp()" class="w-full p-4 bg-slate-100 rounded-xl text-center text-2xl font-bold outline-none">
+    <div id="auth-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-6">
+        <div class="glass p-10 rounded-[3rem] w-full max-w-sm text-center shadow-2xl">
+            <div class="w-20 h-20 bg-indigo-600 rounded-3xl mx-auto mb-6 flex items-center justify-center text-white text-3xl shadow-lg shadow-indigo-500/50"><i class="fas fa-lock"></i></div>
+            <h1 class="text-2xl font-black mb-6 text-white">NEXUS PRO</h1>
+            <input type="password" id="sys-pin" maxlength="4" placeholder="••••" oninput="if(this.value==='1321') System.launch()" class="w-full p-5 bg-white/10 rounded-2xl text-center text-3xl font-bold tracking-[0.5em] text-white">
         </div>
     </div>
 
     <div id="app" class="hidden">
-        <header class="p-6 flex justify-between items-center bg-white border-b sticky top-0 z-40">
-            <h1 id="title" class="text-xl font-black text-indigo-600">DASHBOARD</h1>
-            <button onclick="syncData()" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-lg"><i id="sync-icon" class="fas fa-sync"></i></button>
+        <header class="p-6 flex justify-between items-center sticky top-0 z-50 glass mb-4">
+            <div>
+                <p class="text-[10px] font-black opacity-50 uppercase tracking-widest">Enterprise</p>
+                <h2 id="page-title" class="text-xl font-black">DASHBOARD</h2>
+            </div>
+            <button onclick="System.sync()" class="w-12 h-12 rounded-2xl bg-indigo-600 text-white shadow-lg"><i id="sync-icon" class="fas fa-sync-alt"></i></button>
         </header>
 
-        <main class="p-6 space-y-6">
-            <div id="dash-view" class="space-y-6">
-                <div class="grid grid-cols-2 gap-4 text-white">
-                    <div class="bg-indigo-600 p-5 rounded-3xl">
-                        <p class="text-[10px] font-bold opacity-70">REVENUE</p>
+        <main class="px-6 space-y-6">
+            <div id="view-dashboard" class="space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass p-6 rounded-[2.5rem] border-b-4 border-indigo-500">
+                        <i class="fas fa-wallet text-indigo-500 mb-2"></i>
                         <h3 id="stat-rev" class="text-xl font-black">₹0</h3>
+                        <p class="text-[10px] font-bold opacity-50">REVENUE</p>
                     </div>
-                    <div class="bg-emerald-600 p-5 rounded-3xl">
-                        <p class="text-[10px] font-bold opacity-70">TOTAL LEADS</p>
+                    <div class="glass p-6 rounded-[2.5rem] border-b-4 border-emerald-500">
+                        <i class="fas fa-users text-emerald-500 mb-2"></i>
                         <h3 id="stat-total" class="text-xl font-black">0</h3>
+                        <p class="text-[10px] font-bold opacity-50">LEADS</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div onclick="filterView('today')" class="bg-white border-l-4 border-orange-500 p-5 rounded-2xl shadow-sm">
-                        <p class="text-[10px] font-bold text-slate-400">TODAY'S TASK</p>
+                    <div onclick="UI.filter('today')" class="glass p-5 rounded-[2rem] border-l-4 border-orange-500 cursor-pointer active:scale-95">
                         <h3 id="stat-today" class="text-2xl font-black text-orange-600">0</h3>
+                        <p class="text-[10px] font-black opacity-50">TODAY'S TASKS</p>
                     </div>
-                    <div onclick="filterView('overdue')" class="bg-white border-l-4 border-red-500 p-5 rounded-2xl shadow-sm">
-                        <p class="text-[10px] font-bold text-slate-400">OVERDUE</p>
+                    <div onclick="UI.filter('overdue')" class="glass p-5 rounded-[2rem] border-l-4 border-red-500 cursor-pointer active:scale-95">
                         <h3 id="stat-over" class="text-2xl font-black text-red-600">0</h3>
+                        <p class="text-[10px] font-black opacity-50">OVERDUE</p>
                     </div>
                 </div>
 
-                <div class="bg-white p-4 rounded-2xl border flex gap-2 justify-center">
-                    <button onclick="exportCSV()" class="text-[10px] font-bold bg-slate-100 p-3 rounded-lg">EXPORT CSV</button>
-                    <label class="text-[10px] font-bold bg-slate-100 p-3 rounded-lg cursor-pointer">IMPORT CSV <input type="file" hidden onchange="importCSV(this)"></label>
+                <div class="space-y-3">
+                    <h4 class="text-xs font-black opacity-40 px-2 uppercase">Recent Activity</h4>
+                    <div id="recent-list" class="space-y-3"></div>
                 </div>
             </div>
 
-            <div id="list-view" class="hidden space-y-3"></div>
+            <div id="view-leads" class="hidden space-y-3"></div>
+
+            <div id="view-settings" class="hidden space-y-6">
+                <div class="glass p-6 rounded-[2rem] space-y-4">
+                    <h4 class="font-black border-b pb-2">DATA MANAGEMENT</h4>
+                    <button onclick="System.exportCSV()" class="w-full p-4 bg-emerald-500 text-white rounded-2xl font-black text-sm"><i class="fas fa-file-export mr-2"></i> EXPORT CSV</button>
+                    <label class="w-full p-4 bg-indigo-500 text-white rounded-2xl font-black text-sm flex items-center justify-center cursor-pointer">
+                        <i class="fas fa-file-import mr-2"></i> IMPORT CSV
+                        <input type="file" hidden onchange="System.importCSV(this)">
+                    </label>
+                </div>
+
+                <div class="glass p-6 rounded-[2rem] space-y-4">
+                    <h4 class="font-black border-b pb-2">THEMES & WALLS</h4>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="System.setTheme('light')" class="p-3 bg-white border rounded-xl text-[10px] font-bold">LIGHT</button>
+                        <button onclick="System.setTheme('dark')" class="p-3 bg-slate-800 text-white rounded-xl text-[10px] font-bold">DARK</button>
+                        <button onclick="System.setTheme('midnight')" class="p-3 bg-slate-950 text-sky-400 rounded-xl text-[10px] font-bold">SPACE</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="System.setWall('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop')" class="p-2 glass rounded-lg text-[10px] font-bold">WALL 1</button>
+                        <button onclick="System.setWall('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop')" class="p-2 glass rounded-lg text-[10px] font-bold">WALL 2</button>
+                    </div>
+                </div>
+            </div>
         </main>
 
-        <nav class="fixed bottom-0 inset-x-0 h-20 bg-white border-t flex justify-around items-center px-6">
-            <button onclick="showDash()" class="text-slate-400"><i class="fas fa-home text-xl"></i></button>
-            <button onclick="UI.openModal()" class="w-14 h-14 bg-indigo-600 text-white rounded-2xl -mt-10 shadow-lg"><i class="fas fa-plus"></i></button>
-            <button onclick="filterView('all')" class="text-slate-400"><i class="fas fa-list text-xl"></i></button>
+        <nav class="fixed bottom-6 left-6 right-6 h-20 glass rounded-[2.5rem] flex items-center justify-around px-2 shadow-2xl border border-white/20">
+            <button onclick="UI.nav('dashboard')" id="nav-dash" class="p-4 text-slate-400 active-tab"><i class="fas fa-th-large text-xl"></i></button>
+            <button onclick="UI.nav('leads')" id="nav-leads" class="p-4 text-slate-400"><i class="fas fa-list-ul text-xl"></i></button>
+            <button onclick="UI.openModal()" class="w-16 h-16 bg-indigo-600 text-white rounded-[1.5rem] -mt-12 shadow-xl shadow-indigo-300 flex items-center justify-center border-4 border-white"><i class="fas fa-plus text-xl"></i></button>
+            <button onclick="UI.filter('won')" id="nav-won" class="p-4 text-slate-400"><i class="fas fa-crown text-xl"></i></button>
+            <button onclick="UI.nav('settings')" id="nav-set" class="p-4 text-slate-400"><i class="fas fa-sliders-h text-xl"></i></button>
         </nav>
     </div>
 
-    <div id="modal" class="hidden fixed inset-0 bg-black/50 z-[6000] p-6 flex items-center justify-center">
-        <div class="bg-white w-full rounded-3xl p-6">
-            <form onsubmit="saveLead(event)" class="space-y-4">
+    <div id="modal" class="hidden fixed inset-0 z-[9999] bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass w-full max-w-lg rounded-[3rem] p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black">Lead Profile</h2>
+                <button onclick="UI.closeModal()"><i class="fas fa-times-circle text-2xl opacity-20"></i></button>
+            </div>
+            <form onsubmit="System.save(event)" class="space-y-4">
                 <input type="hidden" id="f-id">
-                <input type="text" id="f-name" placeholder="Name" class="w-full p-4 bg-slate-100 rounded-xl" required>
-                <input type="tel" id="f-phone" placeholder="Phone" class="w-full p-4 bg-slate-100 rounded-xl" required>
+                <input type="text" id="f-name" placeholder="Client Name" class="w-full p-5 bg-slate-100/50 rounded-2xl font-bold" required>
+                <input type="tel" id="f-phone" placeholder="Phone Number" class="w-full p-5 bg-slate-100/50 rounded-2xl font-bold" required>
                 <div class="grid grid-cols-2 gap-4">
-                    <select id="f-status" class="p-4 bg-slate-100 rounded-xl"><option value="Prospect">Prospect</option><option value="Closed Won">Closed Won</option></select>
-                    <input type="number" id="f-value" placeholder="Value" class="p-4 bg-slate-100 rounded-xl">
+                    <select id="f-status" class="p-5 bg-slate-100/50 rounded-2xl font-bold">
+                        <option value="Prospect">Prospect</option>
+                        <option value="Closed Won">Closed Won</option>
+                        <option value="Cold">Cold Lead</option>
+                    </select>
+                    <input type="number" id="f-value" placeholder="Value ₹" class="p-5 bg-slate-100/50 rounded-2xl font-bold">
                 </div>
-                <input type="date" id="f-date" class="w-full p-4 bg-slate-100 rounded-xl">
-                <button type="submit" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold">SAVE</button>
-                <button type="button" onclick="UI.closeModal()" class="w-full text-slate-400 text-xs">CANCEL</button>
+                <input type="date" id="f-date" class="w-full p-5 bg-slate-100/50 rounded-2xl font-bold">
+                <div class="flex gap-2 pt-4">
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-5 rounded-2xl font-black shadow-lg shadow-indigo-200">SAVE RECORD</button>
+                    <button type="button" id="del-btn" onclick="System.delete()" class="hidden bg-red-100 text-red-600 px-8 rounded-2xl font-black"><i class="fas fa-trash"></i></button>
+                </div>
             </form>
         </div>
     </div>
 
     <script>
-        const API = "https://sheetdb.io/api/v1/7skn6892hya7x";
-        let masterData = [];
-
-        function startApp() {
-            document.getElementById('login').remove();
-            document.getElementById('app').classList.remove('hidden');
-            syncData();
-        }
-
-        async function syncData() {
-            document.getElementById('sync-icon').classList.add('fa-spin');
-            const res = await fetch(API);
-            masterData = await res.json();
-            renderStats();
-            showDash();
-            document.getElementById('sync-icon').classList.remove('fa-spin');
-        }
-
-        function renderStats() {
-            const today = new Date().toISOString().split('T')[0];
-            const rev = masterData.filter(l => l.status === 'Closed Won').reduce((a, b) => a + Number(b.value || 0), 0);
-            document.getElementById('stat-rev').innerText = "₹" + rev.toLocaleString();
-            document.getElementById('stat-total').innerText = masterData.length;
-            document.getElementById('stat-today').innerText = masterData.filter(l => l.followup === today).length;
-            document.getElementById('stat-over').innerText = masterData.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won').length;
-        }
-
-        function showDash() {
-            document.getElementById('dash-view').classList.remove('hidden');
-            document.getElementById('list-view').classList.add('hidden');
-            document.getElementById('title').innerText = "DASHBOARD";
-        }
-
-        function filterView(type) {
-            document.getElementById('dash-view').classList.add('hidden');
-            document.getElementById('list-view').classList.remove('hidden');
-            const today = new Date().toISOString().split('T')[0];
-            let list = masterData;
-            if(type === 'today') list = masterData.filter(l => l.followup === today);
-            if(type === 'overdue') list = masterData.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won');
-            
-            document.getElementById('title').innerText = type.toUpperCase();
-            renderCards(list);
-        }
-
-        function renderCards(data) {
-            document.getElementById('list-view').innerHTML = data.map(l => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm flex justify-between items-center border">
-                    <div onclick="UI.openModal('${l.id}')">
-                        <h4 class="font-bold">${l.name}</h4>
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">${l.status} • ₹${l.value || 0}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <a href="tel:${l.phone}" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center"><i class="fas fa-phone"></i></a>
-                        <a href="https://wa.me/91${l.phone}" class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function saveLead(e) {
-            e.preventDefault();
-            const id = document.getElementById('f-id').value;
-            const data = { id: id || Date.now().toString(), name: document.getElementById('f-name').value, phone: document.getElementById('f-phone').value, status: document.getElementById('f-status').value, value: document.getElementById('f-value').value, followup: document.getElementById('f-date').value };
-            UI.closeModal();
-            await fetch(id ? `${API}/id/${id}` : API, { method: id ? 'PATCH' : 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data: id ? data : [data]}) });
-            syncData();
-        }
+        const System = {
+            API: "https://sheetdb.io/api/v1/7skn6892hya7x",
+            Data: [],
+            init: () => {
+                const theme = localStorage.getItem('nx_theme') || 'light';
+                const wall = localStorage.getItem('nx_wall') || '';
+                System.setTheme(theme);
+                if(wall) System.setWall(wall);
+                if(localStorage.getItem('nx_auth') === 'true') System.launch();
+            },
+            launch: () => {
+                document.getElementById('auth-screen').remove();
+                document.getElementById('app').classList.remove('hidden');
+                System.sync();
+            },
+            sync: async () => {
+                document.getElementById('sync-icon').classList.add('fa-spin');
+                try {
+                    const res = await fetch(System.API);
+                    System.Data = await res.json();
+                    UI.refresh();
+                } catch(e) { alert("Network Error"); }
+                document.getElementById('sync-icon').classList.remove('fa-spin');
+            },
+            save: async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('f-id').value;
+                const lead = {
+                    id: id || Date.now().toString(),
+                    name: document.getElementById('f-name').value,
+                    phone: document.getElementById('f-phone').value,
+                    status: document.getElementById('f-status').value,
+                    value: document.getElementById('f-value').value,
+                    followup: document.getElementById('f-date').value
+                };
+                UI.closeModal();
+                const method = id ? 'PATCH' : 'POST';
+                const url = id ? `${System.API}/id/${id}` : System.API;
+                await fetch(url, {
+                    method: method,
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ data: id ? lead : [lead] })
+                });
+                System.sync();
+            },
+            delete: async () => {
+                const id = document.getElementById('f-id').value;
+                if(confirm("Permanently delete this lead?")) {
+                    UI.closeModal();
+                    await fetch(`${System.API}/id/${id}`, { method: 'DELETE' });
+                    System.sync();
+                }
+            },
+            setTheme: (t) => {
+                document.body.className = t === 'light' ? '' : 'theme-' + t;
+                localStorage.setItem('nx_theme', t);
+            },
+            setWall: (url) => {
+                document.body.style.backgroundImage = `url('${url}')`;
+                localStorage.setItem('nx_wall', url);
+            },
+            exportCSV: () => {
+                const head = "id,name,phone,status,value,followup\n";
+                const rows = System.Data.map(l => `${l.id},${l.name},${l.phone},${l.status},${l.value},${l.followup}`).join("\n");
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(new Blob([head + rows], {type:'text/csv'}));
+                a.download = "Nexus_Backup.csv";
+                a.click();
+            },
+            importCSV: (el) => {
+                const r = new FileReader();
+                r.onload = async (e) => {
+                    const rows = e.target.result.split("\n").slice(1);
+                    const data = rows.filter(row => row.trim()).map(row => {
+                        const v = row.split(",");
+                        return { id: v[0], name: v[1], phone: v[2], status: v[3], value: v[4], followup: v[5] };
+                    });
+                    if(confirm(`Import ${data.length} records?`)) {
+                        await fetch(System.API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data}) });
+                        System.sync();
+                    }
+                };
+                r.readAsText(el.files[0]);
+            }
+        };
 
         const UI = {
+            nav: (view) => {
+                ['dashboard', 'leads', 'settings'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
+                document.getElementById(`view-${view}`).classList.remove('hidden');
+                document.getElementById('page-title').innerText = view.toUpperCase();
+                
+                // Active Class Reset
+                document.querySelectorAll('nav button').forEach(b => b.classList.remove('active-tab'));
+                const iconMap = { 'dashboard': 'nav-dash', 'leads': 'nav-leads', 'settings': 'nav-set' };
+                if(iconMap[view]) document.getElementById(iconMap[view]).classList.add('active-tab');
+                
+                if(view === 'leads') UI.renderLeads(System.Data);
+            },
+            refresh: () => {
+                const today = new Date().toISOString().split('T')[0];
+                const revenue = System.Data.filter(l => l.status === 'Closed Won').reduce((a,b) => a + Number(b.value || 0), 0);
+                
+                document.getElementById('stat-rev').innerText = "₹" + revenue.toLocaleString();
+                document.getElementById('stat-total').innerText = System.Data.length;
+                document.getElementById('stat-today').innerText = System.Data.filter(l => l.followup === today).length;
+                document.getElementById('stat-over').innerText = System.Data.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won').length;
+                
+                document.getElementById('recent-list').innerHTML = UI.drawCards(System.Data.slice(-3).reverse());
+                UI.nav('dashboard');
+            },
+            filter: (type) => {
+                const today = new Date().toISOString().split('T')[0];
+                let filtered = System.Data;
+                if(type === 'today') filtered = System.Data.filter(l => l.followup === today);
+                if(type === 'overdue') filtered = System.Data.filter(l => l.followup && l.followup < today && l.status !== 'Closed Won');
+                if(type === 'won') filtered = System.Data.filter(l => l.status === 'Closed Won');
+                
+                UI.nav('leads');
+                UI.renderLeads(filtered);
+                document.getElementById('page-title').innerText = type.toUpperCase() + " (" + filtered.length + ")";
+                if(type === 'won') document.getElementById('nav-won').classList.add('active-tab');
+            },
+            renderLeads: (data) => {
+                document.getElementById('view-leads').innerHTML = UI.drawCards(data.slice().reverse());
+            },
+            drawCards: (data) => {
+                if(!data.length) return '<p class="text-center p-10 opacity-30 font-bold">No Records Found</p>';
+                return data.map(l => `
+                    <div class="glass p-5 rounded-[2rem] flex justify-between items-center animate-slide-up">
+                        <div onclick="UI.openModal('${l.id}')" class="flex-1 cursor-pointer">
+                            <h4 class="font-bold text-lg">${l.name}</h4>
+                            <p class="text-[10px] font-black opacity-40 uppercase">${l.status} • ₹${l.value || 0}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="tel:${l.phone}" class="w-11 h-11 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
+                            <a href="https://wa.me/91${l.phone}" class="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center"><i class="fab fa-whatsapp text-xl"></i></a>
+                        </div>
+                    </div>
+                `).join('');
+            },
             openModal: (id = null) => {
                 document.getElementById('modal').classList.remove('hidden');
+                const delBtn = document.getElementById('del-btn');
                 if(id) {
-                    const l = masterData.find(x => x.id == id);
+                    const l = System.Data.find(x => x.id == id);
                     document.getElementById('f-id').value = l.id;
                     document.getElementById('f-name').value = l.name;
                     document.getElementById('f-phone').value = l.phone;
                     document.getElementById('f-status').value = l.status;
                     document.getElementById('f-value').value = l.value;
                     document.getElementById('f-date').value = l.followup;
-                } else { document.querySelector('form').reset(); document.getElementById('f-id').value = ''; }
+                    delBtn.classList.remove('hidden');
+                } else {
+                    document.querySelector('form').reset();
+                    document.getElementById('f-id').value = '';
+                    delBtn.classList.add('hidden');
+                }
             },
             closeModal: () => document.getElementById('modal').classList.add('hidden')
         };
-
-        function exportCSV() {
-            const rows = masterData.map(l => `${l.id},${l.name},${l.phone},${l.status},${l.value},${l.followup}`).join("\n");
-            const blob = new Blob(["id,name,phone,status,value,followup\n" + rows], {type: 'text/csv'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "nexus.csv"; a.click();
-        }
-
-        function importCSV(input) {
-            const r = new FileReader();
-            r.onload = async (e) => {
-                const data = e.target.result.split("\n").slice(1).map(row => {
-                    const v = row.split(",");
-                    return { id: v[0], name: v[1], phone: v[2], status: v[3], value: v[4], followup: v[5] };
-                });
-                await fetch(API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data}) });
-                syncData();
-            };
-            r.readAsText(input.files[0]);
-        }
     </script>
 </body>
 </html>
