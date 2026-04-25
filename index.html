@@ -49,6 +49,10 @@
         .stat-card { cursor: pointer; transition: all 0.2s; }
         .stat-card:hover { transform: translateY(-3px); }
         .stat-card:active { transform: scale(0.95); }
+        
+        /* Back Button Styling */
+        #back-btn { transition: all 0.3s ease; opacity: 0; transform: translateX(-10px); pointer-events: none; }
+        #back-btn.visible { opacity: 1; transform: translateX(0); pointer-events: auto; }
     </style>
 </head>
 <body class="overflow-x-hidden" onload="System.checkAuth()">
@@ -64,9 +68,14 @@
     <div id="app-shell" class="hidden min-h-screen">
         <main class="p-6 md:p-10 max-w-6xl mx-auto w-full">
             <header class="flex justify-between items-end mb-8">
-                <div>
-                    <h2 id="view-title" class="text-4xl font-black tracking-tight">Intelligence</h2>
-                    <p class="text-slate-500 font-medium mt-1" id="live-timer"></p>
+                <div class="flex items-center gap-4">
+                    <button id="back-btn" onclick="UI.navigate('dashboard')" class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center text-indigo-600">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div>
+                        <h2 id="view-title" class="text-4xl font-black tracking-tight">Intelligence</h2>
+                        <p class="text-slate-500 font-medium mt-1" id="live-timer"></p>
+                    </div>
                 </div>
                 <div class="flex gap-3">
                     <button onclick="System.sync()" class="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center"><i id="sync-icon" class="fas fa-sync-alt"></i></button>
@@ -292,8 +301,9 @@
         const UI = {
             toggleMenu: (id = null) => {
                 ['theme-menu', 'wp-menu', 'data-menu'].forEach(m => {
-                    if(m === id) document.getElementById(m).classList.toggle('active');
-                    else document.getElementById(m).classList.remove('active');
+                    const el = document.getElementById(m);
+                    if(m === id) el.classList.toggle('active');
+                    else el.classList.remove('active');
                 });
             },
 
@@ -302,9 +312,19 @@
                     document.getElementById(`view-${v}`).classList.add('hidden');
                     document.getElementById(`btn-${v}`).classList.remove('active-link');
                 });
+                
                 document.getElementById(`view-${view}`).classList.remove('hidden');
                 document.getElementById(`btn-${view}`).classList.add('active-link');
                 document.getElementById('view-title').innerText = view.charAt(0).toUpperCase() + view.slice(1);
+                
+                // Back Button Logic: Hide on dashboard, Show on others
+                const backBtn = document.getElementById('back-btn');
+                if(view === 'dashboard') {
+                    backBtn.classList.remove('visible');
+                } else {
+                    backBtn.classList.add('visible');
+                }
+                
                 UI.toggleMenu();
             },
 
