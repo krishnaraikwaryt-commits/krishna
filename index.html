@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title id="tab-title">Nexus CRM | Pro Intelligence</title>
     
-    <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss">
+    <link rel="icon" type="image/png" href="https://via.placeholder.com/150">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -62,7 +62,7 @@
                 backdrop-filter: blur(25px);
                 border-top: 1px solid rgba(0,0,0,0.05);
                 z-index: 100;
-                padding: 12px 20px 28px 20px;
+                padding: 12px 10px 28px 10px;
                 justify-content: space-around;
             }
         }
@@ -76,7 +76,7 @@
         const BrandConfig = {
             name: "Nexus", 
             accent: "CRM",
-            logo: "https://lh3.googleusercontent.com/d/1RS8RUHTSTl5X6XeuJU3DDF9ETbqC87ss" 
+            logo: "https://via.placeholder.com/150" 
         };
     </script>
 
@@ -129,9 +129,16 @@
 
         <nav class="mobile-nav">
             <button onclick="UI.navigate('dashboard')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span></button>
-            <button onclick="UI.navigate('leads')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-rocket text-xl"></i><span class="text-[10px] font-bold">Leads</span></button>
+            
+            <label class="flex flex-col items-center gap-1 text-slate-400 cursor-pointer">
+                <i class="fas fa-cloud-upload-alt text-xl"></i>
+                <span class="text-[10px] font-bold">Import</span>
+                <input type="file" id="csv-import-mobile" accept=".csv" class="hidden" onchange="System.importCSV(this)">
+            </label>
+
             <button onclick="UI.modal('open')" class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg -mt-10 border-4 border-white"><i class="fas fa-plus"></i></button>
-            <button onclick="UI.navigate('closed')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-crown text-xl"></i><span class="text-[10px] font-bold">Closed</span></button>
+            
+            <button onclick="UI.navigate('leads')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-rocket text-xl"></i><span class="text-[10px] font-bold">Leads</span></button>
             <button onclick="System.sync()" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-sync text-xl"></i><span class="text-[10px] font-bold">Sync</span></button>
         </nav>
 
@@ -271,29 +278,26 @@
                     localStorage.setItem('nexus_local_cache', JSON.stringify(System.Data));
                     UI.renderAll();
                 } catch(err) {
-                    console.warn("Using Local Cache due to API Error", err);
                     UI.renderAll(); 
                     const alertBox = document.getElementById('system-alerts');
-                    alertBox.innerHTML += `<div class="bg-amber-500 text-white p-3 rounded-xl text-[10px] font-bold">OFFLINE MODE: Using saved data (API Limit reached)</div>`;
+                    alertBox.innerHTML += `<div class="bg-amber-500 text-white p-3 rounded-xl text-[10px] font-bold">OFFLINE MODE: Using saved data</div>`;
                 } finally { if(icon) icon.classList.remove('fa-spin'); }
             },
             toggleStatus: async (id, current) => {
                 const nextStatus = current === 'Closed Won' ? 'Prospect' : 'Closed Won';
-                // Local Update
                 System.Data = System.Data.map(l => l.id == id ? {...l, status: nextStatus} : l);
                 localStorage.setItem('nexus_local_cache', JSON.stringify(System.Data));
                 UI.renderAll();
-                
                 try {
                     await fetch(`${System.API}/id/${id}`, {
                         method: 'PATCH',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({data: {status: nextStatus}})
                     });
-                } catch(e) { console.error("Cloud sync failed, kept local."); }
+                } catch(e) { console.error("Cloud sync failed"); }
             },
             deleteLead: async (id) => {
-                if(confirm("Are you sure you want to delete this lead?")) {
+                if(confirm("Are you sure?")) {
                     System.Data = System.Data.filter(l => l.id != id);
                     localStorage.setItem('nexus_local_cache', JSON.stringify(System.Data));
                     UI.renderAll();
@@ -301,13 +305,13 @@
                 }
             },
             exportCSV: () => {
-                if(System.Data.length === 0) return alert("No data to export");
+                if(System.Data.length === 0) return alert("No data");
                 const headers = Object.keys(System.Data[0]).join(",");
                 const rows = System.Data.map(l => Object.values(l).join(","));
                 const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows.join("\n");
                 const link = document.createElement("a");
                 link.setAttribute("href", encodeURI(csvContent));
-                link.setAttribute("download", `Nexus_Backup_${System.Today}.csv`);
+                link.setAttribute("download", `Nexus_Backup.csv`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -368,7 +372,7 @@
                     return false;
                 });
                 document.getElementById('grid-title').innerHTML = `<i class="fas fa-filter text-indigo-500"></i> ${type.toUpperCase()} FOCUS`;
-                document.getElementById('today-grid').innerHTML = filtered.length ? filtered.map(UI.cardTemplate).join('') : '<p class="p-10 text-slate-400 font-bold">No leads found</p>';
+                document.getElementById('today-grid').innerHTML = filtered.length ? filtered.map(UI.cardTemplate).join('') : '<p class="p-10 text-slate-400 font-bold">No leads</p>';
             },
             cardTemplate: (l) => {
                 const isClosed = l.status === 'Closed Won';
@@ -394,25 +398,23 @@
                 </div>
             `},
             renderAll: () => {
-                const revenue = System.Data.reduce((s, l) => s + (l.status === 'Closed Won' ? Number(l.value || 0) : 0), 0);
+                const rev = System.Data.reduce((s, l) => s + (l.status === 'Closed Won' ? Number(l.value || 0) : 0), 0);
                 const overdue = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && !(l.status && l.status.includes('Closed')));
-                const todayTasks = System.Data.filter(l => l.followUpDate === System.Today && !(l.status && l.status.includes('Closed')));
+                const today = System.Data.filter(l => l.followUpDate === System.Today && !(l.status && l.status.includes('Closed')));
                 const closed = System.Data.filter(l => l.status && l.status.includes('Closed'));
 
-                const alertBox = document.getElementById('system-alerts');
-                alertBox.innerHTML = '';
-                if(overdue.length > 0) alertBox.innerHTML += `<div class="bg-red-500 text-white p-4 rounded-[1.5rem] text-xs font-black shadow-lg shadow-red-100 flex items-center gap-3"><i class="fas fa-exclamation-circle text-lg"></i> OVERDUE: ${overdue.length} LEADS NEED ACTION</div>`;
-                if(todayTasks.length > 0) alertBox.innerHTML += `<div class="bg-indigo-600 text-white p-4 rounded-[1.5rem] text-xs font-black shadow-lg shadow-indigo-100 flex items-center gap-3"><i class="fas fa-calendar-check text-lg"></i> TODAY: ${todayTasks.length} FOLLOW-UPS SCHEDULED</div>`;
+                const alerts = document.getElementById('system-alerts');
+                alerts.innerHTML = '';
+                if(overdue.length > 0) alerts.innerHTML += `<div class="bg-red-500 text-white p-4 rounded-[1.5rem] text-xs font-black"><i class="fas fa-exclamation-circle"></i> OVERDUE: ${overdue.length} LEADS</div>`;
 
-                document.getElementById('meta-revenue').innerText = "₹" + revenue.toLocaleString();
+                document.getElementById('meta-revenue').innerText = "₹" + rev.toLocaleString();
                 document.getElementById('meta-total').innerText = System.Data.length;
                 document.getElementById('meta-overdue').innerText = overdue.length;
-                document.getElementById('meta-today').innerText = todayTasks.length;
+                document.getElementById('meta-today').innerText = today.length;
 
-                document.getElementById('grid-title').innerHTML = `<i class="fas fa-bolt text-indigo-500"></i> Active Focus`;
-                document.getElementById('today-grid').innerHTML = todayTasks.length ? todayTasks.map(UI.cardTemplate).join('') : '<p class="text-center p-10 text-slate-400 font-bold text-sm">No tasks for today</p>';
-                document.getElementById('full-pipeline').innerHTML = System.Data.length ? [...System.Data].reverse().map(UI.cardTemplate).join('') : '<p class="p-10 text-slate-400 font-bold">Pipeline is empty</p>';
-                document.getElementById('closed-pipeline').innerHTML = closed.length ? closed.map(UI.cardTemplate).join('') : '<p class="p-10 text-slate-400 font-bold">No closed deals</p>';
+                document.getElementById('today-grid').innerHTML = today.length ? today.map(UI.cardTemplate).join('') : '<p class="text-center p-10 text-slate-400 font-bold text-sm">No tasks today</p>';
+                document.getElementById('full-pipeline').innerHTML = System.Data.length ? [...System.Data].reverse().map(UI.cardTemplate).join('') : '<p class="p-10 text-slate-400 font-bold">Empty</p>';
+                document.getElementById('closed-pipeline').innerHTML = closed.length ? closed.map(UI.cardTemplate).join('') : '<p class="p-10 text-slate-400 font-bold">No success</p>';
                 document.getElementById('live-timer').innerText = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
             },
             modal: (action, id = null) => {
@@ -444,9 +446,6 @@
 
         document.getElementById('core-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerText = "SAVING..."; btn.disabled = true;
-            
             const id = document.getElementById('entry-id').value;
             const payload = {
                 id: id || "NX" + Date.now(),
@@ -458,29 +457,21 @@
                 note: document.getElementById('entry-note').value
             };
             
-            // Local Update First
-            if(id) {
-                System.Data = System.Data.map(l => l.id == id ? payload : l);
-            } else {
-                System.Data.push(payload);
-            }
+            if(id) System.Data = System.Data.map(l => l.id == id ? payload : l);
+            else System.Data.push(payload);
+            
             localStorage.setItem('nexus_local_cache', JSON.stringify(System.Data));
             UI.renderAll();
             UI.modal('close');
 
             try {
                 const url = id ? `${System.API}/id/${id}` : System.API;
-                const res = await fetch(url, { 
+                await fetch(url, { 
                     method: id ? 'PATCH' : 'POST', 
                     headers: {'Content-Type': 'application/json'}, 
                     body: JSON.stringify({data: id ? payload : [payload]}) 
                 });
-                if(!res.ok) console.warn("API Error, but data saved locally.");
-            } catch(err) {
-                console.warn("API Sync Failed, saved to local only.");
-            } finally {
-                btn.innerText = "SAVE INTEL"; btn.disabled = false;
-            }
+            } catch(err) { console.warn("API Error"); }
         });
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -493,13 +484,7 @@
 
             const savedTheme = localStorage.getItem('crmTheme');
             if(savedTheme) UI.setTheme(savedTheme);
-
-            if(localStorage.getItem('userLogin') === 'true') {
-                document.getElementById('auth-gateway').style.display = 'none';
-                document.getElementById('app-shell').classList.remove('hidden');
-                UI.renderAll(); 
-                System.sync();
-            }
+            System.sync();
         });
     </script>
 </body>
