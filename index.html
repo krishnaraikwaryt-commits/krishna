@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title id="tab-title">Nexus CRM | Pro Intelligence</title>
     
-    <link rel="icon" type="image/png" href="https://via.placeholder.com/150">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/906/906343.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -76,7 +76,8 @@
         const BrandConfig = {
             name: "Nexus", 
             accent: "CRM",
-            logo: "https://via.placeholder.com/150" 
+            // Yahan apna logo URL paste karein
+            logo: "https://cdn-icons-png.flaticon.com/512/906/906343.png" 
         };
     </script>
 
@@ -88,6 +89,7 @@
             </h1>
             <p class="text-slate-400 mt-2 mb-8 font-medium">Intelligence Systems</p>
             <input type="password" id="sys-pin" pattern="\d*" inputmode="numeric" maxlength="4" oninput="if(this.value.length === 4) System.auth()" placeholder="PIN" class="w-full p-5 rounded-3xl bg-slate-100 border-none outline-none text-center text-3xl font-bold tracking-[0.5em] focus:ring-2 ring-indigo-500/20">
+            <p class="text-[10px] text-slate-500 mt-4 uppercase font-bold tracking-widest">Enter 4-Digit Security Code</p>
         </div>
     </div>
 
@@ -114,6 +116,7 @@
                         <i class="fas fa-cloud-upload-alt text-emerald-500"></i> Import
                         <input type="file" id="csv-import" accept=".csv" class="hidden" onchange="System.importCSV(this)">
                     </label>
+                    <button onclick="System.logout()" class="w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50 mt-4"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </div>
             </nav>
 
@@ -139,7 +142,7 @@
             <button onclick="UI.modal('open')" class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg -mt-10 border-4 border-white"><i class="fas fa-plus"></i></button>
             
             <button onclick="UI.navigate('leads')" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-rocket text-xl"></i><span class="text-[10px] font-bold">Leads</span></button>
-            <button onclick="System.sync()" class="flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-sync text-xl"></i><span class="text-[10px] font-bold">Sync</span></button>
+            <button onclick="System.logout()" class="flex flex-col items-center gap-1 text-red-400"><i class="fas fa-sign-out-alt text-xl"></i><span class="text-[10px] font-bold">Exit</span></button>
         </nav>
 
         <main class="flex-1 max-w-6xl mx-auto w-full main-content">
@@ -209,19 +212,18 @@
     </div>
 
     <div id="lead-modal" class="hidden fixed inset-0 z-[2000] bg-slate-950/40 backdrop-blur-md flex items-end md:items-center justify-center">
-        <div class="bg-white w-full max-w-xl rounded-t-[3rem] md:rounded-[3rem] p-8 md:p-10 shadow-2xl transform transition-transform">
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8 md:hidden"></div>
+        <div class="bg-white w-full max-w-xl rounded-t-[3rem] md:rounded-[3rem] p-8 md:p-10 shadow-2xl">
             <h2 class="text-2xl font-black mb-8 flex items-center gap-3"><i class="fas fa-edit text-indigo-500"></i> Lead Intel</h2>
             <form id="core-form" class="space-y-5">
                 <input type="hidden" id="entry-id">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold text-slate-400 uppercase ml-4">Full Name</label>
-                        <input type="text" id="entry-name" placeholder="John Doe" class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:bg-white focus:ring-2 ring-indigo-100 transition-all" required>
+                        <input type="text" id="entry-name" placeholder="John Doe" class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:bg-white focus:ring-2 ring-indigo-100" required>
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold text-slate-400 uppercase ml-4">Phone Number</label>
-                        <input type="tel" id="entry-phone" placeholder="+91..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:bg-white focus:ring-2 ring-indigo-100 transition-all" required>
+                        <input type="tel" id="entry-phone" placeholder="+91..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:bg-white focus:ring-2 ring-indigo-100" required>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -241,13 +243,13 @@
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-4">Deal Value (₹)</label>
-                    <input type="number" id="entry-value" placeholder="5000" class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:bg-white focus:ring-2 ring-indigo-100 transition-all">
+                    <input type="number" id="entry-value" placeholder="5000" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
                 </div>
-                <textarea id="entry-note" rows="3" placeholder="Add brief intel note..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none focus:bg-white focus:ring-2 ring-indigo-100 transition-all"></textarea>
+                <textarea id="entry-note" rows="3" placeholder="Add brief intel note..." class="w-full p-4 rounded-2xl bg-slate-50 outline-none"></textarea>
                 
                 <div class="flex gap-4 pt-4">
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-5 rounded-[1.5rem] font-black shadow-lg shadow-indigo-100 active:scale-95 transition-all">SAVE INTEL</button>
-                    <button type="button" onclick="UI.modal('close')" class="px-8 py-5 rounded-[1.5rem] bg-slate-100 text-slate-500 font-bold hover:bg-slate-200 transition-all">CANCEL</button>
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-5 rounded-[1.5rem] font-black shadow-lg shadow-indigo-100">SAVE INTEL</button>
+                    <button type="button" onclick="UI.modal('close')" class="px-8 py-5 rounded-[1.5rem] bg-slate-100 text-slate-500 font-bold">CANCEL</button>
                 </div>
             </form>
         </div>
@@ -259,51 +261,45 @@
             PIN: "1321",
             Data: JSON.parse(localStorage.getItem('nexus_local_cache')) || [],
             Today: new Date().toISOString().split('T')[0],
+            
             auth: () => {
-                if(document.getElementById('sys-pin').value === System.PIN) {
+                const enteredPin = document.getElementById('sys-pin').value;
+                if(enteredPin === System.PIN) {
                     localStorage.setItem('userLogin', 'true');
-                    document.getElementById('auth-gateway').style.display = 'none';
-                    document.getElementById('app-shell').classList.remove('hidden');
-                    System.sync();
+                    System.showApp();
+                } else if(enteredPin.length === 4) {
+                    alert("Wrong PIN");
+                    document.getElementById('sys-pin').value = '';
                 }
             },
+
+            showApp: () => {
+                document.getElementById('auth-gateway').style.display = 'none';
+                document.getElementById('app-shell').classList.remove('hidden');
+                System.sync();
+            },
+
+            logout: () => {
+                localStorage.removeItem('userLogin');
+                location.reload();
+            },
+
             sync: async () => {
                 const icon = document.getElementById('sync-icon');
                 if(icon) icon.classList.add('fa-spin');
                 try {
                     const res = await fetch(System.API);
-                    if (!res.ok) throw new Error("API Limit Reached");
+                    if (!res.ok) throw new Error("API Limit");
                     const rawData = await res.json();
                     System.Data = Array.isArray(rawData) ? rawData : [];
                     localStorage.setItem('nexus_local_cache', JSON.stringify(System.Data));
                     UI.renderAll();
                 } catch(err) {
                     UI.renderAll(); 
-                    const alertBox = document.getElementById('system-alerts');
-                    alertBox.innerHTML += `<div class="bg-amber-500 text-white p-3 rounded-xl text-[10px] font-bold">OFFLINE MODE: Using saved data</div>`;
+                    document.getElementById('system-alerts').innerHTML += `<div class="bg-amber-500 text-white p-3 rounded-xl text-[10px] font-bold">OFFLINE: Using Cache</div>`;
                 } finally { if(icon) icon.classList.remove('fa-spin'); }
             },
-            toggleStatus: async (id, current) => {
-                const nextStatus = current === 'Closed Won' ? 'Prospect' : 'Closed Won';
-                System.Data = System.Data.map(l => l.id == id ? {...l, status: nextStatus} : l);
-                localStorage.setItem('nexus_local_cache', JSON.stringify(System.Data));
-                UI.renderAll();
-                try {
-                    await fetch(`${System.API}/id/${id}`, {
-                        method: 'PATCH',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({data: {status: nextStatus}})
-                    });
-                } catch(e) { console.error("Cloud sync failed"); }
-            },
-            deleteLead: async (id) => {
-                if(confirm("Are you sure?")) {
-                    System.Data = System.Data.filter(l => l.id != id);
-                    localStorage.setItem('nexus_local_cache', JSON.stringify(System.Data));
-                    UI.renderAll();
-                    try { await fetch(`${System.API}/id/${id}`, { method: 'DELETE' }); } catch(e){}
-                }
-            },
+
             exportCSV: () => {
                 if(System.Data.length === 0) return alert("No data");
                 const headers = Object.keys(System.Data[0]).join(",");
@@ -311,11 +307,12 @@
                 const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows.join("\n");
                 const link = document.createElement("a");
                 link.setAttribute("href", encodeURI(csvContent));
-                link.setAttribute("download", `Nexus_Backup.csv`);
+                link.setAttribute("download", `${BrandConfig.name}_Backup.csv`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             },
+
             importCSV: (input) => {
                 const file = input.files[0];
                 if (!file) return;
@@ -347,6 +344,29 @@
                     }
                 };
                 reader.readAsText(file);
+            },
+
+            toggleStatus: async (id, current) => {
+                const nextStatus = current === 'Closed Won' ? 'Prospect' : 'Closed Won';
+                System.Data = System.Data.map(l => l.id == id ? {...l, status: nextStatus} : l);
+                localStorage.setItem('nexus_local_cache', JSON.stringify(System.Data));
+                UI.renderAll();
+                try {
+                    await fetch(`${System.API}/id/${id}`, {
+                        method: 'PATCH',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({status: nextStatus})
+                    });
+                } catch(e) {}
+            },
+
+            deleteLead: async (id) => {
+                if(confirm("Delete this lead?")) {
+                    System.Data = System.Data.filter(l => l.id != id);
+                    localStorage.setItem('nexus_local_cache', JSON.stringify(System.Data));
+                    UI.renderAll();
+                    try { await fetch(`${System.API}/id/${id}`, { method: 'DELETE' }); } catch(e){}
+                }
             }
         };
 
@@ -378,7 +398,7 @@
                 const isClosed = l.status === 'Closed Won';
                 const isOverdue = l.followUpDate && l.followUpDate < System.Today && !(l.status && l.status.includes('Closed'));
                 return `
-                <div class="glass-panel p-5 rounded-[2rem] lead-card flex justify-between items-center group">
+                <div class="glass-panel p-5 rounded-[2rem] flex justify-between items-center group">
                     <div class="flex items-center gap-4">
                         <button onclick="System.toggleStatus('${l.id}', '${l.status}')" class="w-8 h-8 rounded-2xl border-2 border-indigo-100 flex items-center justify-center transition-all ${isClosed ? 'bg-indigo-600 border-indigo-600' : 'bg-white shadow-sm'}">
                             ${isClosed ? '<i class="fas fa-check text-xs text-white"></i>' : ''}
@@ -391,9 +411,9 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
-                         <a href="https://wa.me/${(l.phone || '').replace(/\D/g,'')}" target="_blank" class="w-10 h-10 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center shadow-sm"><i class="fab fa-whatsapp"></i></a>
-                         <a href="tel:${l.phone}" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm"><i class="fas fa-phone-alt"></i></a>
-                         <button onclick="System.deleteLead('${l.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-all"><i class="fas fa-trash"></i></button>
+                         <a href="https://wa.me/${(l.phone || '').replace(/\D/g,'')}" target="_blank" class="w-10 h-10 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
+                         <a href="tel:${l.phone}" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center"><i class="fas fa-phone-alt"></i></a>
+                         <button onclick="System.deleteLead('${l.id}')" class="w-10 h-10 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `},
@@ -402,10 +422,6 @@
                 const overdue = System.Data.filter(l => l.followUpDate && l.followUpDate < System.Today && !(l.status && l.status.includes('Closed')));
                 const today = System.Data.filter(l => l.followUpDate === System.Today && !(l.status && l.status.includes('Closed')));
                 const closed = System.Data.filter(l => l.status && l.status.includes('Closed'));
-
-                const alerts = document.getElementById('system-alerts');
-                alerts.innerHTML = '';
-                if(overdue.length > 0) alerts.innerHTML += `<div class="bg-red-500 text-white p-4 rounded-[1.5rem] text-xs font-black"><i class="fas fa-exclamation-circle"></i> OVERDUE: ${overdue.length} LEADS</div>`;
 
                 document.getElementById('meta-revenue').innerText = "₹" + rev.toLocaleString();
                 document.getElementById('meta-total').innerText = System.Data.length;
@@ -444,6 +460,7 @@
             }
         };
 
+        // Form Submit
         document.getElementById('core-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('entry-id').value;
@@ -469,12 +486,14 @@
                 await fetch(url, { 
                     method: id ? 'PATCH' : 'POST', 
                     headers: {'Content-Type': 'application/json'}, 
-                    body: JSON.stringify({data: id ? payload : [payload]}) 
+                    body: JSON.stringify(id ? payload : [payload]) 
                 });
-            } catch(err) { console.warn("API Error"); }
+            } catch(err) { console.warn("Sync error"); }
         });
 
+        // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
+            // Apply Branding
             document.getElementById('login-logo').src = BrandConfig.logo;
             document.getElementById('side-logo').src = BrandConfig.logo;
             document.getElementById('l-name').innerText = BrandConfig.name;
@@ -482,9 +501,14 @@
             document.getElementById('s-name').innerText = BrandConfig.name;
             document.title = `${BrandConfig.name}${BrandConfig.accent} | Intel`;
 
+            // Session Check - Important Fix
+            if(localStorage.getItem('userLogin') === 'true') {
+                System.showApp();
+            }
+
+            // Theme Check
             const savedTheme = localStorage.getItem('crmTheme');
             if(savedTheme) UI.setTheme(savedTheme);
-            System.sync();
         });
     </script>
 </body>
