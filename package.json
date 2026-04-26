@@ -1,23 +1,17 @@
 {
-  "name": "crm-free-ai",
+  "name": "nexus-crm",
   "version": "1.0.0",
-  "description": "",
+  "description": "Nexus CRM Intel System for Professional Lead Tracking",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "axios": "^1.15.2",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "fs": "^0.0.1-security",
-    "mongoose": "^9.5.0",
-    "nodemon": "^3.1.14"
-  }
+    "express": "^4.18.2",
+    "compression": "^1.7.4",
+    "path": "^0.12.7"
+  },
+  "author": "Krishna Raikwar",
+  "license": "ISC"
 }
